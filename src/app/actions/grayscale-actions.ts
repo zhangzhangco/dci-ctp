@@ -5,7 +5,7 @@ import { measurementsGrayscale } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
-export type GrayscaleTestType = 'white-steps' | 'gray-steps';
+export type GrayscaleTestType = 'white-steps' | 'gray-steps' | 'hdr-eotf';
 
 export interface GrayscaleMeasurement {
     stepNumber: number;
@@ -15,7 +15,7 @@ export interface GrayscaleMeasurement {
 export interface SaveGrayscaleDataInput {
     sessionId: number;
     testType: GrayscaleTestType;
-    screenBlackLevel: number; // mcd/m²
+    screenBlackLevel: number; // mcd/m² (For SDR only, 0 for HDR)
     measurements: GrayscaleMeasurement[];
 }
 
@@ -24,16 +24,21 @@ export interface SaveGrayscaleDataInput {
  * 策略:使用 bitDepth 字段存储额外信息
  * - bitDepth = 10000 表示 white-steps
  * - bitDepth = 20000 表示 gray-steps
- * - stepIndex = stepNumber (1-10)
+ * - bitDepth = 30000 表示 hdr-eotf
+ * - stepIndex = stepNumber (1-10 or 1-20)
  * - measuredL = 测量的绝对亮度值 (cd/m²)
- * - targetL = 黑电平值 (cd/m²,从 mcd/m² 转换)
+ * - targetL = 黑电平值 (cd/m²,从 mcd/m² 转换) [SDR Only]
  */
 export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
     try {
         const { sessionId, testType, screenBlackLevel, measurements } = input;
 
+        // Determine marker based on test type
+        let bitDepthMarker = 10000;
+        if (testType === 'gray-steps') bitDepthMarker = 20000;
+        if (testType === 'hdr-eotf') bitDepthMarker = 30000;
+
         // 删除该会话该测试类型的旧数据
-        const bitDepthMarker = testType === 'white-steps' ? 10000 : 20000;
         await db
             .delete(measurementsGrayscale)
             .where(
@@ -53,7 +58,7 @@ export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
                     stepIndex: measurement.stepNumber,
                     bitDepth: bitDepthMarker,
                     measuredL: measurement.measuredLuminance,
-                    targetL: blackLevelCdM2, // 黑电平存储在 targetL
+                    targetL: blackLevelCdM2, // 黑电平存储在 targetL (SDR)
                     measuredX: null,
                     measuredY: null,
                     targetX: null,
@@ -78,7 +83,9 @@ export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
  */
 export async function loadGrayscaleDataAction(sessionId: number, testType: GrayscaleTestType) {
     try {
-        const bitDepthMarker = testType === 'white-steps' ? 10000 : 20000;
+        let bitDepthMarker = 10000;
+        if (testType === 'gray-steps') bitDepthMarker = 20000;
+        if (testType === 'hdr-eotf') bitDepthMarker = 30000;
 
         const data = await db
             .select()

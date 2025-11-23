@@ -13,10 +13,18 @@ import {
     FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { saveColorMeasurementAction } from '@/app/actions/measurement-actions';
 import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { P3_COLOR_SPEC, SDR_COLOR_VOLUME_SPEC, isColorCompliant, calculateColorDistance } from '@/domain/standards/ctpColorVolumeSpec';
+import {
+    P3_COLOR_SPEC,
+    HDR_P3_COLOR_SPEC,
+    SDR_COLOR_VOLUME_SPEC,
+    HDR_COLOR_VOLUME_SPEC,
+    isColorCompliant,
+    calculateColorDistance
+} from '@/domain/standards/ctpColorVolumeSpec';
 
 const COLORS = ['Red', 'Green', 'Blue', 'White'] as const;
 
@@ -42,13 +50,17 @@ interface ColorVolumeFormProps {
 
 export function ColorVolumeForm({ sessionId, initialData }: ColorVolumeFormProps) {
     const [isSaving, setIsSaving] = useState(false);
+    const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+
+    const spec = standardType === 'sdr' ? SDR_COLOR_VOLUME_SPEC : HDR_COLOR_VOLUME_SPEC;
+    const targets = standardType === 'sdr' ? P3_COLOR_SPEC : HDR_P3_COLOR_SPEC;
 
     const defaultValues: FormValues = COLORS.reduce((acc, color) => ({
         ...acc,
         [color]: {
             measuredL: initialData?.[color]?.measuredL ?? 0,
-            measuredX: initialData?.[color]?.measuredX ?? P3_COLOR_SPEC[color].targetX,
-            measuredY: initialData?.[color]?.measuredY ?? P3_COLOR_SPEC[color].targetY,
+            measuredX: initialData?.[color]?.measuredX ?? targets[color].targetX,
+            measuredY: initialData?.[color]?.measuredY ?? targets[color].targetY,
         }
     }), {} as FormValues);
 
@@ -87,7 +99,7 @@ export function ColorVolumeForm({ sessionId, initialData }: ColorVolumeFormProps
     }
 
     const renderColorInput = (color: typeof COLORS[number]) => {
-        const target = P3_COLOR_SPEC[color];
+        const target = targets[color];
         const measuredX = values[color]?.measuredX || 0;
         const measuredY = values[color]?.measuredY || 0;
 
@@ -158,9 +170,9 @@ export function ColorVolumeForm({ sessionId, initialData }: ColorVolumeFormProps
             subtitle="测量 R, G, B 原色及白点，验证 P3 色域覆盖"
             phases={['Phase 1']}
             standard={{
-                title: SDR_COLOR_VOLUME_SPEC.name,
-                reference: SDR_COLOR_VOLUME_SPEC.reference,
-                targets: SDR_COLOR_VOLUME_SPEC.targets.map(t => ({
+                title: spec.name,
+                reference: spec.reference,
+                targets: spec.targets.map(t => ({
                     label: t.name,
                     value: `(${t.targetX}, ${t.targetY})`,
                     tolerance: `±${t.tolerance}`
@@ -169,9 +181,16 @@ export function ColorVolumeForm({ sessionId, initialData }: ColorVolumeFormProps
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {COLORS.map(renderColorInput)}
-                    </div>
+                    <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                            <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
+                            <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
+                        </TabsList>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {COLORS.map(renderColorInput)}
+                        </div>
+                    </Tabs>
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isSaving} size="lg">

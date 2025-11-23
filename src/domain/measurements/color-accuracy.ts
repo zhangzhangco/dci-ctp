@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { measurementsColor } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-export type ColorAccuracyType = 'macbeth';
+export type ColorAccuracyType = 'primary';
 
 export interface ColorAccuracyInput {
     sessionId: number;
@@ -23,7 +23,7 @@ export async function saveColorAccuracyMeasurement(input: ColorAccuracyInput) {
         where: and(
             eq(measurementsColor.sessionId, input.sessionId),
             eq(measurementsColor.colorName, input.colorName),
-            eq(measurementsColor.type, 'macbeth')
+            eq(measurementsColor.type, 'primary')
         )
     });
 
@@ -45,7 +45,7 @@ export async function saveColorAccuracyMeasurement(input: ColorAccuracyInput) {
             .values({
                 sessionId: input.sessionId,
                 colorName: input.colorName,
-                type: 'macbeth',
+                type: 'primary',
                 measuredL: input.measuredL,
                 measuredX: input.measuredX,
                 measuredY: input.measuredY,
@@ -62,7 +62,7 @@ export async function getColorAccuracyMeasurements(sessionId: number) {
     return await db.query.measurementsColor.findMany({
         where: and(
             eq(measurementsColor.sessionId, sessionId),
-            eq(measurementsColor.type, 'macbeth')
+            eq(measurementsColor.type, 'primary')
         )
     });
 }

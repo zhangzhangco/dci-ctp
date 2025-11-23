@@ -6,25 +6,24 @@
 // 3. 本文件中的 nominalLuminance 是 **"above screen black level"** 的值
 // 4. 容差来自 DCI CTP Tables 7.5.11(a) 和 (b)
 
-export type GrayscaleTestType = 'white-steps' | 'gray-steps';
+export type GrayscaleTestType = 'white-steps' | 'gray-steps' | 'hdr-eotf';
 
 export interface GrayscaleStepSpec {
     stepNumber: number;
-    // Code Values (SMPTE 431-2 标准测试图案)
+    // Code Values (SMPTE 431-2 / HDR Addendum)
     codeX: number;  // X' channel
     codeY: number;  // Y' channel  
     codeZ: number;  // Z' channel
-    // SMPTE 431-2 参考值(包含黑电平)
-    smpteLuminance: number; // cd/m² (includes 0.024 cd/m² black level)
-    smpteX: number;  // Chromaticity x
-    smpteY: number;  // Chromaticity y
-    // DCI CTP 验收标准(减去黑电平后)
-    nominalLuminance: number; // cd/m² (above screen black level)
-    tolerance: number; // as percentage (e.g., 0.05 for ±5%)
+    // 参考值
+    smpteLuminance?: number; // SDR only
+    smpteX?: number;
+    smpteY?: number;
+    // DCI CTP 验收标准
+    nominalLuminance: number; // cd/m² (SDR: above black; HDR: absolute)
+    tolerance: number; // as percentage (e.g., 0.05 for ±5%) - For SDR fixed per table
 }
 
 // Table 7.5.11(a): Black-to-white gray step-scale test pattern
-// 参考: DCI CTP §7.5.11, SMPTE RP 431-2 Table A.2
 export const WHITE_STEPS_SPEC: GrayscaleStepSpec[] = [
     { stepNumber: 1, codeX: 379, codeY: 396, codeZ: 389, smpteLuminance: 0.14, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 0.121, tolerance: 0.05 },
     { stepNumber: 2, codeX: 759, codeY: 792, codeZ: 778, smpteLuminance: 0.75, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 0.731, tolerance: 0.05 },
@@ -39,7 +38,6 @@ export const WHITE_STEPS_SPEC: GrayscaleStepSpec[] = [
 ];
 
 // Table 7.5.11(b): Black-to-dark gray step-scale test pattern
-// 参考: DCI CTP §7.5.11, SMPTE RP 431-2 Table A.3
 export const GRAY_STEPS_SPEC: GrayscaleStepSpec[] = [
     { stepNumber: 1, codeX: 122, codeY: 128, codeZ: 125, smpteLuminance: 0.030, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 0.006, tolerance: 0.20 },
     { stepNumber: 2, codeX: 245, codeY: 255, codeZ: 251, smpteLuminance: 0.063, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 0.038, tolerance: 0.05 },
@@ -53,34 +51,62 @@ export const GRAY_STEPS_SPEC: GrayscaleStepSpec[] = [
     { stepNumber: 10, codeX: 1224, codeY: 1277, codeZ: 1255, smpteLuminance: 2.557, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 2.531, tolerance: 0.03 },
 ];
 
+// HDR Addendum Table 8: Black-To-Dark Gray
+const HDR_DARK_STEPS: GrayscaleStepSpec[] = [
+    { stepNumber: 1, codeX: 60, codeY: 62, codeZ: 65, nominalLuminance: 0.0050, tolerance: 0 }, // Tol calc dynamic
+    { stepNumber: 2, codeX: 74, codeY: 76, codeZ: 79, nominalLuminance: 0.0075, tolerance: 0 },
+    { stepNumber: 3, codeX: 86, codeY: 88, codeZ: 92, nominalLuminance: 0.0100, tolerance: 0 },
+    { stepNumber: 4, codeX: 105, codeY: 108, codeZ: 112, nominalLuminance: 0.0151, tolerance: 0 },
+    { stepNumber: 5, codeX: 121, codeY: 124, codeZ: 129, nominalLuminance: 0.0202, tolerance: 0 },
+    { stepNumber: 6, codeX: 157, codeY: 161, codeZ: 167, nominalLuminance: 0.0352, tolerance: 0 },
+    { stepNumber: 7, codeX: 185, codeY: 189, codeZ: 196, nominalLuminance: 0.0501, tolerance: 0 },
+    { stepNumber: 8, codeX: 221, codeY: 226, codeZ: 234, nominalLuminance: 0.0752, tolerance: 0 },
+    { stepNumber: 9, codeX: 250, codeY: 255, codeZ: 265, nominalLuminance: 0.0998, tolerance: 0 },
+    { stepNumber: 10, codeX: 332, codeY: 339, codeZ: 351, nominalLuminance: 0.1997, tolerance: 0 },
+];
+
+// HDR Addendum Table 7: Black-To-White
+const HDR_BRIGHT_STEPS: GrayscaleStepSpec[] = [
+    { stepNumber: 11, codeX: 472, codeY: 481, codeZ: 496, nominalLuminance: 0.5000, tolerance: 0 },
+    { stepNumber: 12, codeX: 603, codeY: 614, codeZ: 632, nominalLuminance: 1.000, tolerance: 0 },
+    { stepNumber: 13, codeX: 758, codeY: 771, codeZ: 792, nominalLuminance: 2.000, tolerance: 0 },
+    { stepNumber: 14, codeX: 1000, codeY: 1015, codeZ: 1040, nominalLuminance: 5.000, tolerance: 0 },
+    { stepNumber: 15, codeX: 1211, codeY: 1227, codeZ: 1255, nominalLuminance: 9.990, tolerance: 0 },
+    { stepNumber: 16, codeX: 1444, codeY: 1462, codeZ: 1492, nominalLuminance: 20.00, tolerance: 0 },
+    { stepNumber: 17, codeX: 1783, codeY: 1803, codeZ: 1836, nominalLuminance: 50.01, tolerance: 0 },
+    { stepNumber: 18, codeX: 2060, codeY: 2081, codeZ: 2116, nominalLuminance: 100.1, tolerance: 0 },
+    { stepNumber: 19, codeX: 2350, codeY: 2372, codeZ: 2408, nominalLuminance: 200.2, tolerance: 0 },
+    { stepNumber: 20, codeX: 2524, codeY: 2546, codeZ: 2583, nominalLuminance: 299.6, tolerance: 0 },
+];
+
+export const HDR_EOTF_SPEC: GrayscaleStepSpec[] = [...HDR_DARK_STEPS, ...HDR_BRIGHT_STEPS];
+
 export function getTestSpec(testType: GrayscaleTestType): GrayscaleStepSpec[] {
+    if (testType === 'hdr-eotf') return HDR_EOTF_SPEC;
     return testType === 'white-steps' ? WHITE_STEPS_SPEC : GRAY_STEPS_SPEC;
 }
 
 export function getTestName(testType: GrayscaleTestType): string {
+    if (testType === 'hdr-eotf') return 'HDR EOTF Tracking (PQ)';
     return testType === 'white-steps'
         ? 'DCI White Steps (Black-to-White)'
         : 'DCI Gray Steps (Black-to-Dark Gray)';
 }
 
 export function getTableReference(testType: GrayscaleTestType): string {
+    if (testType === 'hdr-eotf') return 'HDR Addendum Table 7 & 8';
     return testType === 'white-steps'
         ? 'DCI CTP Table 7.5.11(a) / SMPTE 431-2 Table A.2'
         : 'DCI CTP Table 7.5.11(b) / SMPTE 431-2 Table A.3';
 }
 
-export function getCodeValueReference(testType: GrayscaleTestType): string {
-    return testType === 'white-steps'
-        ? 'SMPTE 431-2 Table A.2 Code Values (X\'Y\'Z\' @ 0.314x, 0.351y white point)'
-        : 'SMPTE 431-2 Table A.3 Code Values (X\'Y\'Z\' @ 0.314x, 0.351y white point)';
+// HDR Tolerance Logic from Table 6
+export function getHDREOTFTolerance(targetL: number): number {
+    if (targetL <= 0.02) return 0.20; // ±20%
+    if (targetL <= 1.0) return 0.05; // ±5%
+    return 0.03; // ±3%
 }
 
-/**
- * 验证测量值是否在容差范围内
- * @param measured 测量的亮度值 (已减去黑电平)
- * @param nominal 标称值 (above black level)
- * @param tolerance 容差 (0.05 = ±5%)
- */
 export function isWithinTolerance(
     measured: number,
     nominal: number,
@@ -91,18 +117,7 @@ export function isWithinTolerance(
     return measured >= lowerBound && measured <= upperBound;
 }
 
-/**
- * 计算偏差百分比
- */
 export function calculateDeviation(measured: number, nominal: number): number {
+    if (nominal === 0) return 0;
     return ((measured - nominal) / nominal) * 100;
-}
-
-/**
- * 获取容差说明
- */
-export function getToleranceNote(testType: GrayscaleTestType): string {
-    return testType === 'white-steps'
-        ? '容差范围: Step 1-2 为 ±5%, Step 3-10 为 ±3% (来自 DCI CTP Table 7.5.11(a))'
-        : '容差范围: Step 1 为 ±20%, Step 2-6 为 ±5%, Step 7-10 为 ±3% (来自 DCI CTP Table 7.5.11(b))';
 }

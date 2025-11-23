@@ -13,10 +13,18 @@ import {
     FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { MACBETH_TARGETS, COLOR_ACCURACY_SPEC, calculateDeltaE } from '@/domain/standards/ctpColorAccuracySpec';
+import {
+    SDR_ACCURACY_TARGETS,
+    HDR_ACCURACY_TARGETS,
+    COLOR_ACCURACY_SPEC,
+    isLuminanceCompliant,
+    isChromaticityCompliant,
+    calculateLuminanceError
+} from '@/domain/standards/ctpColorAccuracySpec';
 import { saveColorAccuracyAction, getColorAccuracyMeasurementsAction } from '@/app/actions/color-accuracy-actions';
 
 const pointSchema = z.object({
@@ -25,9 +33,9 @@ const pointSchema = z.object({
     measuredY: z.coerce.number().min(0).max(1),
 });
 
-// Dynamic schema based on targets
+// Dynamic schema based on targets (using SDR targets as keys, they share names)
 const formSchema = z.object(
-    MACBETH_TARGETS.reduce((acc, target) => ({
+    SDR_ACCURACY_TARGETS.reduce((acc, target) => ({
         ...acc,
         [target.name]: pointSchema,
     }), {} as Record<string, typeof pointSchema>)
@@ -42,10 +50,14 @@ interface ColorAccuracyFormProps {
 export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+
+    // Determine which targets to use based on selected standard
+    const targets = standardType === 'sdr' ? SDR_ACCURACY_TARGETS : HDR_ACCURACY_TARGETS;
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema) as any,
-        defaultValues: MACBETH_TARGETS.reduce((acc, t) => ({
+        defaultValues: targets.reduce((acc, t) => ({
             ...acc,
             [t.name]: { measuredL: 0, measuredX: 0, measuredY: 0 }
         }), {} as FormValues),
@@ -53,7 +65,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
 
     const values = useWatch({ control: form.control });
 
-    // Load data
+    // Load data & Session Info
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
@@ -67,8 +79,8 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                         measuredY: m.measuredY || 0,
                     };
                 });
-                // Merge with defaults for missing keys
-                MACBETH_TARGETS.forEach(t => {
+                // Merge with defaults
+                targets.forEach(t => {
                     if (!newValues[t.name]) {
                         newValues[t.name] = { measuredL: 0, measuredX: 0, measuredY: 0 };
                     }
@@ -78,18 +90,13 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
             setIsLoading(false);
         };
         loadData();
-    }, [sessionId, form]);
+    }, [sessionId, form, standardType, targets]);
 
     async function onSubmit(values: FormValues) {
         setIsSaving(true);
         try {
-            const promises = MACBETH_TARGETS.map(target => {
+            const promises = targets.map(target => {
                 const data = values[target.name];
-                const deltaE = calculateDeltaE(
-                    data.measuredL, data.measuredX, data.measuredY,
-                    target.targetL, target.targetX, target.targetY
-                );
-
                 return saveColorAccuracyAction({
                     sessionId,
                     colorName: target.name,
@@ -99,7 +106,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                     targetL: target.targetL,
                     targetX: target.targetX,
                     targetY: target.targetY,
-                    deltaE: deltaE
+                    deltaE: 0
                 });
             });
 
@@ -113,34 +120,39 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
         }
     }
 
-    const renderPatchInput = (target: typeof MACBETH_TARGETS[number]) => {
+    const renderPatchInput = (target: typeof targets[number]) => {
         const data = values[target.name] || { measuredL: 0, measuredX: 0, measuredY: 0 };
-        const deltaE = calculateDeltaE(
-            data.measuredL, data.measuredX, data.measuredY,
-            target.targetL, target.targetX, target.targetY
-        );
 
-        // Only show validation if data is entered (L > 0)
         const hasData = data.measuredL > 0;
-        const isCompliant = deltaE <= target.toleranceE;
+
+        const isLValid = isLuminanceCompliant(data.measuredL, target.targetL, target.toleranceL);
+        const isCValid = isChromaticityCompliant(data.measuredX, data.measuredY, target.targetX, target.targetY, target.toleranceX);
+        const isCompliant = isLValid && isCValid;
+
+        const lError = calculateLuminanceError(data.measuredL, target.targetL) * 100;
 
         return (
-            <div key={target.name} className={`border p-3 rounded-md space-y-2 ${hasData ? (isCompliant ? 'border-gray-200 dark:border-gray-800' : 'border-red-300 bg-red-50 dark:bg-red-900/10') : 'border-gray-200'}`}>
+            <div key={target.name} className={`border p-4 rounded-md space-y-3 ${hasData ? (isCompliant ? 'border-green-200 bg-green-50/10' : 'border-red-300 bg-red-50/10') : 'border-gray-200'}`}>
                 <div className="flex justify-between items-center mb-1">
-                    <div className="font-medium text-sm truncate" title={target.name}>{target.name}</div>
-                    {hasData && (isCompliant ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />)}
+                    <div className="font-semibold text-sm">{target.name}</div>
+                    {hasData && (isCompliant ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />)}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-4">
                     <FormField
                         control={form.control}
                         name={`${target.name}.measuredL`}
                         render={({ field }) => (
-                            <FormItem className="space-y-0">
-                                <FormLabel className="text-[10px] text-muted-foreground">L</FormLabel>
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-xs text-muted-foreground">L ({target.targetL})</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.1" className="h-7 text-xs px-1" {...field} />
+                                    <Input type="number" step="0.1" className={`h-8 text-sm ${hasData && !isLValid ? 'border-red-500 bg-red-50' : ''}`} {...field} />
                                 </FormControl>
+                                {hasData && (
+                                    <div className={`text-[10px] ${!isLValid ? 'text-red-600 font-bold' : 'text-muted-foreground'}`}>
+                                        {lError > 0 ? '+' : ''}{lError.toFixed(1)}%
+                                    </div>
+                                )}
                             </FormItem>
                         )}
                     />
@@ -148,10 +160,10 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                         control={form.control}
                         name={`${target.name}.measuredX`}
                         render={({ field }) => (
-                            <FormItem className="space-y-0">
-                                <FormLabel className="text-[10px] text-muted-foreground">x</FormLabel>
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-xs text-muted-foreground">x ({target.targetX})</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.001" className="h-7 text-xs px-1" {...field} />
+                                    <Input type="number" step="0.001" className={`h-8 text-sm ${hasData && !isCValid ? 'border-red-500 bg-red-50' : ''}`} {...field} />
                                 </FormControl>
                             </FormItem>
                         )}
@@ -160,19 +172,20 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                         control={form.control}
                         name={`${target.name}.measuredY`}
                         render={({ field }) => (
-                            <FormItem className="space-y-0">
-                                <FormLabel className="text-[10px] text-muted-foreground">y</FormLabel>
+                            <FormItem className="space-y-1">
+                                <FormLabel className="text-xs text-muted-foreground">y ({target.targetY})</FormLabel>
                                 <FormControl>
-                                    <Input type="number" step="0.001" className="h-7 text-xs px-1" {...field} />
+                                    <Input type="number" step="0.001" className={`h-8 text-sm ${hasData && !isCValid ? 'border-red-500 bg-red-50' : ''}`} {...field} />
                                 </FormControl>
                             </FormItem>
                         )}
                     />
                 </div>
 
-                {hasData && (
-                    <div className={`text-[10px] text-right ${!isCompliant ? 'text-red-600 font-bold' : 'text-muted-foreground'}`}>
-                        ΔE: {deltaE.toFixed(2)} (Max {target.toleranceE})
+                {hasData && !isCompliant && (
+                    <div className="text-xs text-red-600 mt-2">
+                        {!isLValid && <div>Luminance out of ±3% tolerance</div>}
+                        {!isCValid && <div>Chromaticity out of ±0.006 tolerance</div>}
                     </div>
                 )}
             </div>
@@ -182,13 +195,17 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     return (
         <MeasurementLayout
             title={COLOR_ACCURACY_SPEC.title}
-            subtitle="验证 Macbeth ColorChecker 24 色块的色彩还原准确性"
+            subtitle="验证 Red-1, Green-1, Blue-1 的亮度与色度准确性"
             phases={['Phase 2']}
             standard={{
-                title: "Color Accuracy Standard",
+                title: `${standardType === 'sdr' ? 'SDR' : 'HDR'} Color Accuracy`,
                 reference: COLOR_ACCURACY_SPEC.reference,
                 description: COLOR_ACCURACY_SPEC.description,
-                targets: COLOR_ACCURACY_SPEC.targets
+                targets: [
+                    { label: "Targets", value: "Red-1, Green-1, Blue-1" },
+                    { label: "Luminance Tol", value: "±3%" },
+                    { label: "Chromaticity Tol", value: "±0.006" }
+                ]
             }}
         >
             {isLoading ? (
@@ -196,16 +213,25 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
             ) : (
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">Macbeth ColorChecker Measurements</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {MACBETH_TARGETS.map(renderPatchInput)}
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
+                                <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
+                            </TabsList>
+
+                            <div className="mt-6">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-base">Primary Color Measurements ({standardType.toUpperCase()})</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            {targets.map(renderPatchInput)}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </Tabs>
 
                         <div className="flex justify-end">
                             <Button type="submit" disabled={isSaving} size="lg">

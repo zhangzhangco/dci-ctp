@@ -13,10 +13,16 @@ import {
     FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { saveUniformityMeasurementAction } from '@/app/actions/measurement-actions';
 import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { SDR_UNIFORMITY_SPEC, calculateLuminanceDeviation, calculateChromaticityDistance } from '@/domain/standards/ctpUniformitySpec';
+import {
+    SDR_UNIFORMITY_SPEC,
+    HDR_UNIFORMITY_SPEC,
+    calculateLuminanceDeviation,
+    calculateChromaticityDistance
+} from '@/domain/standards/ctpUniformitySpec';
 
 const POSITIONS = [
     'TopLeft', 'TopCenter', 'TopRight',
@@ -46,6 +52,9 @@ interface UniformityFormProps {
 
 export function UniformityForm({ sessionId, initialData }: UniformityFormProps) {
     const [isSaving, setIsSaving] = useState(false);
+    const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+
+    const spec = standardType === 'sdr' ? SDR_UNIFORMITY_SPEC : HDR_UNIFORMITY_SPEC;
 
     const defaultValues: FormValues = POSITIONS.reduce((acc, pos) => ({
         ...acc,
@@ -94,8 +103,8 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
         const deviationL = calculateLuminanceDeviation(centerL, values[pos]?.measuredL || 0);
         const distC = calculateChromaticityDistance(centerX, centerY, values[pos]?.measuredX || 0, values[pos]?.measuredY || 0);
 
-        const isLValid = Math.abs(deviationL) <= (SDR_UNIFORMITY_SPEC.luminanceTolerance * 100);
-        const isCValid = distC <= SDR_UNIFORMITY_SPEC.chromaticityTolerance;
+        const isLValid = Math.abs(deviationL) <= (spec.luminanceTolerance * 100);
+        const isCValid = distC <= spec.chromaticityTolerance;
 
         // Center is always valid relative to itself
         const isCenter = pos === 'Center';
@@ -120,7 +129,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                                 </FormControl>
                             </div>
                             {!isCenter && (
-                                <div className={`text-[10px] text-right ${Math.abs(deviationL) > 20 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                <div className={`text-[10px] text-right ${Math.abs(deviationL) > (spec.luminanceTolerance * 100) ? 'text-red-600' : 'text-muted-foreground'}`}>
                                     {deviationL > 0 ? '+' : ''}{deviationL.toFixed(1)}%
                                 </div>
                             )}
@@ -159,7 +168,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                     />
                 </div>
                 {!isCenter && (
-                    <div className={`text-[10px] text-right ${distC > 0.006 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                    <div className={`text-[10px] text-right ${distC > spec.chromaticityTolerance ? 'text-red-600' : 'text-muted-foreground'}`}>
                         Δxy: {distC.toFixed(4)}
                     </div>
                 )}
@@ -173,40 +182,47 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
             subtitle="测量屏幕 9 个点的亮度与色度一致性"
             phases={['Phase 1']}
             standard={{
-                title: SDR_UNIFORMITY_SPEC.name,
-                reference: SDR_UNIFORMITY_SPEC.reference,
+                title: spec.name,
+                reference: spec.reference,
                 targets: [
                     {
                         label: "亮度偏差 (Luminance)",
                         value: "Relative to Center",
-                        tolerance: `±${SDR_UNIFORMITY_SPEC.luminanceTolerance * 100}%`
+                        tolerance: `±${spec.luminanceTolerance * 100}%`
                     },
                     {
                         label: "色度偏差 (Chromaticity)",
                         value: "Relative to Center",
-                        tolerance: `Radius < ${SDR_UNIFORMITY_SPEC.chromaticityTolerance}`
+                        tolerance: `Radius < ${spec.chromaticityTolerance}`
                     }
                 ]
             }}
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-3 gap-4">
-                        {/* Top Row */}
-                        {renderPointInput('TopLeft')}
-                        {renderPointInput('TopCenter')}
-                        {renderPointInput('TopRight')}
+                    <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                            <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
+                            <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
+                        </TabsList>
 
-                        {/* Middle Row */}
-                        {renderPointInput('LeftCenter')}
-                        {renderPointInput('Center')}
-                        {renderPointInput('RightCenter')}
+                        <div className="grid grid-cols-3 gap-4">
+                            {/* Top Row */}
+                            {renderPointInput('TopLeft')}
+                            {renderPointInput('TopCenter')}
+                            {renderPointInput('TopRight')}
 
-                        {/* Bottom Row */}
-                        {renderPointInput('BottomLeft')}
-                        {renderPointInput('BottomCenter')}
-                        {renderPointInput('BottomRight')}
-                    </div>
+                            {/* Middle Row */}
+                            {renderPointInput('LeftCenter')}
+                            {renderPointInput('Center')}
+                            {renderPointInput('RightCenter')}
+
+                            {/* Bottom Row */}
+                            {renderPointInput('BottomLeft')}
+                            {renderPointInput('BottomCenter')}
+                            {renderPointInput('BottomRight')}
+                        </div>
+                    </Tabs>
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isSaving} size="lg">

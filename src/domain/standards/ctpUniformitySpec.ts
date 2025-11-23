@@ -8,9 +8,16 @@ export interface UniformityStandard {
 
 export const SDR_UNIFORMITY_SPEC: UniformityStandard = {
     name: "SDR Screen Luminance & Chromaticity Uniformity",
-    reference: "DCI CTP §7.5.16",
-    luminanceTolerance: 0.20, // ±20% from Center
-    chromaticityTolerance: 0.006, // Delta u'v' from Center
+    reference: "DCI CTP §7.5.15(b)",
+    luminanceTolerance: 0.06, // 6% (Direct View) - Updated from 20% based on user input
+    chromaticityTolerance: 0.0171, // Delta u'v'
+};
+
+export const HDR_UNIFORMITY_SPEC: UniformityStandard = {
+    name: "HDR Screen Luminance & Chromaticity Uniformity",
+    reference: "DCI CTP §7.5.14(b)",
+    luminanceTolerance: 0.06, // 6%
+    chromaticityTolerance: 0.0182, // Delta u'v'
 };
 
 // Helper to calculate deviation from center
