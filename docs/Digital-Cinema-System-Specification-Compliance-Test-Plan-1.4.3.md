@@ -12,6 +12,343 @@ Using this document may require the use of one or more features covered by propr
 
 <table><tr><td rowspan=1 colspan=1>DCl gratefullyacknowledges the participation and technicalcontributions of Sandflow Consulting LLC,San Mateo,CA,https://www.sandflow.com/, in the preparation of this document.</td></tr><tr><td></td></tr><tr><td rowspan=1 colspan=1>DCI gratefullyacknowledges theparticipationand technicalcontributions of CineCertLLC,2840N.LimaSt,Suite110A,Burbank, CA 91504 htps://www.cinecert.com/, in the preparation of this document.</td></tr><tr><td></td></tr><tr><td rowspan=1 colspan=1>DClgratefullacknowledges theparticipationandtechnicalcontributionsoftheFraunhoferInstituteforIntegrated Circuits,SAm Wolfsmantel33,91o58 Erlangen,Germany,htp://www.is.fraunhofer.de/,inthe preparationof this document.</td></tr></table>
 
+# Chapter 7 Imaging Device
+
+# 7.1 Test Environment for Image Measurements
+
+# 7.1.1 General
+
+When making image measurements on any Imaging Device:
+
+All required setup and calibration procedures, as recommended by the manufacturer, shall be carried out or verified prior to all measurements. Stray light on the screen shall be minimized. The room lights in test environment shall be turned off, with the exception of the minimal lighting provided for working or safety reasons. The use of black nonreflective surfaces with recessed lighting is encouraged. Note that, outside of the Test Environment, e.g. in exhibition theaters or review rooms, safety regulations and the placement of exit lights or access lights can result in a higher ambient light level.
+
+Unless otherwise specified or required:
+
+the distance between the front of the Spectroradiometer lens and the screen shall be equal to 1.6 times the height of the screen; and the position of the Spectroradiometer shall be equidistant from the left and right edges of the screen.
+
+the position of the Spectroradiometer shall be equidistant from the top and bottom edges of the screen. In all cases the location of the Spectroradiometer shall be appropriate for the Spectroradiometer that is used and for the test being conducted.
+
+# 7.1.2 Projector
+
+With the Projector turned off or the douser closed, the level of ambient light reflected by the screen shall be:
+
+less than $0 . 0 1 { \mathrm { c d } } / { \mathrm { m } } ^ { 2 }$ for an SDR Projector; and less than $0 . 0 0 0 5 \mathrm { c d } / \mathsf { m } ^ { 2 }$ for an HDR Projector.
+
+The screen shall be non-specular and equally reflective over the entire visible spectrum. The screen should have variable black masking, adjustable to tightly frame the projected image (at a minimum, this should include the 1.85:1 and 2.39:1 image formats).
+
+When making image measurements on a Projector:
+
+The Projector shall be turned on (including the lamp) and allowed to thermally stabilize for 20 to 30 minutes prior to all measurements. Unless specified otherwise, the douser shall be open from beginning to end of each test procedure.
+
+Section 7.5.13 records information about the test environment in which projector test procedures were conducted.
+
+# 7.1.3 Direct View Display
+
+With the Direct View Display turned off, the level of ambient light reflected by the screen shall be less than 0.0005 cd/m².   
+The Direct View Display shall be turned on and allowed to thermally stabilize for 20 to 30 minutes prior to all measurements.   
+Section 7.5.30 records information about the test environment in which the test procedures were conducted.
+
+# 7.1.4 Stereoscopic Measurements
+
+When performing stereoscopic measurements:
+
+The Imaging Device shall be enabled for stereoscopic presentations.   
+The stereoscopic glasses shall be enabled, if they are active glasses.
+
+# 7.2 SPB Type 2
+
+# 7.2.1 Projector and Direct View Display Physical Protection
+
+# Objective
+
+Verify that the projector's or direct view display's companion SPB (MB) and its plaintext image interfaces are physically inside of, or otherwise mechanically connected to, the type 2 SPB. Verify that SPB type 2 protection requirements are provided by the Projector or Direct View SPB.
+
+# Procedures
+
+If the Test Subject is a Projector:
+
+1. By physical examination and using documentation provided by the manufacturer, determine the physical perimeter that provides the type 2 SPB protection for the Projector. Verify that the type 2
+
+SPB provides a hard, opaque physical security perimeter that surrounds the electronics and prevents access to internal circuitry.   
+Failure of this verification is cause to fail this test.
+
+If the Test Subject is a Projector or a Direct View Display: By physical examination and using documentation provided by the manufacturer:
+
+2. Locate, and for each of any removable access covers and/or doors of the type 2 SPB intended for Security Servicing (i.e., openings that enable access to Security-Sensitive Signals), record whether they are protected by either (1) mechanical locks employing physical or logical keys and tamper-evident seals (e.g., evidence tape or holographic seals), or (2) pick resistant locks employing physical or logical keys.
+
+The absence of protection as required on any of these security access covers or doors is cause to fail this test.
+
+3. Locate the companion SPB's and type 2 SPB's Security Sensitive Signals. Verify that:
+
+a. Security Sensitive Signals are not accessible via (i) any removable access covers and/or doors other than those located in step 2, (ii) any ventilation holes or other openings; and b. Access to Security Sensitive Signals and circuits would cause permanent and easily visible damage. Failure of either of these verifications is cause to fail this test.
+
+4. Locate the Companion SPB (MB). Verify that the Companion SPB is entirely enclosed within, or mechanically connected to, the SPB type 2 enclosure. Failure to meet this requirement is cause to fail this test.
+
+If the Test Subject is a Direct View Display:
+
+5. By physical examination and using documentation provided by the manufacturer, verify that:
+
+a. The physical intrusion barrier presented by the light emitting front surface of the Direct View Display's Cabinets or Modules is not penetrate-able without permanently destroying the proper operation of a Cabinet and/or Module penetrated, and leaving permanent and easily visible damage.   
+b. Cabinets and/or Modules are mechanically interlocked to each other directly and/or via the supporting frame structure such that any separation that would enable access to internal signals causes permanent and easily visible damage.   
+c. Access to light emitting (pixel generating) component electrical signals from the surface of the screen is limited to individual component pins, and there is no access to signals that would constitute a portion of the picture image beyond the pixel by pixel level.
+
+Failure to meet any of these requirements is cause to fail this test.
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>24.2.1 SDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>26.2.1 HDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.2.1 SDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>28.2.1 HDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr></table>
+
+# 7.2.2 Projector and Direct View Display Security Servicing
+
+# Objective
+
+Verify that the projector or direct view display SPB implements a "security access opening" event signal to the companion SPB.
+
+Verify that playback terminates and/or is not permitted if the security access opening event is active, or a front removable module has been removed.
+
+# Procedures
+
+If the Test Subject is a Projector or Direct View Display: By physical examination and using documentation provided by the manufacturer, locate each of the type 2 SPB access door and/or panel openings intended for Security Servicing (i.e., openings that enable access to Security- Sensitive Signals). Execute the following tests 1-4 for each opening found, and record the results.
+
+1. Play back the DCP DCI 2K StEM.
+
+2. Open the SPB access door/panel and observe that playback terminates. If playback does not terminate, this is cause to fail this test.
+
+3. Attempt to start playback with the door/panel open. If playback starts, this is cause to fail this test.
+
+4. Close the opening and examine the logs from the SPB's companion SPB and verify that an "SPBOpen" event was created for each time a door/panel was opened, and an "SPBClose" event was created for each closure. If any log record is missing, this is cause to fail this test.
+
+If the Test Subject is a Direct View Display: With the exception of step 6(c), the following tests may be verified by physical examination of the direct view display's type 2 SPB and using documentation provided by the manufacturer:
+
+5. Noting the servicing method exception defined for step 6 below: Identify and document each distinct method that can be used for replacing (disassembly and reassembly, etc.) a Cabinet or Module. For each method that exposes Security-Sensitive Signals, verify that:
+
+a. a security access opening event is triggered, and b. playback is prevented while the security access opening event is active. Failure of either of the above requirements is cause to fail this test. (It is allowed for one security access opening event to be triggered in the course of simultaneously replacing multiple Cabinets and/or Modules as part of a single servicing event.)
+
+6. For Cabinets having front removable Modules designed for non-security servicing (i.e., designed for Module replacement without triggering a security access opening event), verify that the removal of any front-serviceable Module:
+
+a. exposes only those pixel signals accessible via the electrical connection(s) associated with the Module removed and does not otherwise expose Security-Sensitive Signals or compromise the SPB type 2 perimeter. Note that signaling multiplexing may have a multiplier effect that exposes signals associated with other Modules via the connection(s); this is allowed, but must be considered in step (c) below. Display Security Servicing Failure to meet this requirement is cause to fail this test.
+
+b. is detected and prevents playback of an encrypted composition. Failure to meet this requirement is cause to fail this test.
+
+c. Quantity over 15 (i.e., removal of more than 15 modules), or a quantity that exposes pixel signals constituting more than $5 \%$ of the screen area, whichever is less within any 8 hour period, shall trigger a security access opening event.
+
+To execute this step:
+
+i. calculate the minimum number of Modules required to expose pixel signals constituting more than $5 \%$ of the screen area, considering the multiplier effect noted in (a). If the number is less than 16, record this number as MaxNumber, otherwise set MaxNumber to 16.
+
+ii. determine a Module removal selection sequence for removing a quantity of (MaxNumber $^ { + 1 }$ ) of Modules which are most likely to stress the Imaging Device's opening detection design.
+
+iii. Recording a test start time as "T0", begin removing and replacing Modules in the sequence order determined in step (ii) until an access opening event has been triggered, or 16 Modules have been removed and replaced. Record this quantity.
+
+iv. Following the manufacturers requirements, clear (reset) the access opening event. After 7 hours and 55 minutes from T0 of step (iii), remove and replace the next Module in sequence. Verify that a security access opening event has been triggered.
+
+A quantity recorded in step (iii) of not less than MaxNumber is cause to fail this test.   
+Failure of a security access opening event to trigger for step (iv) is cause to fail this test.
+
+7. For each occurrence of a security access opening event of tests 4, 5 and 6, verify that:
+
+a. clearing (resetting) of the alarm event requires the use of a physical key or entry of a code,
+
+b. SPBOpen and SPBClose events are logged for each occurrence.
+
+Failure of either of the above requirements is cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.4.3.6.1, 9.5.2.4, 9.5.2.4.1</td></tr><tr><td>Test Materials</td><td>DCI 2K StEM</td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>24.2.1 SDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>24.3 SDR Projector Confidence Test Sequence</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>26.2.1 HDR Direct View Display Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>26.3 HDR Direct View Display Confidence Test Sequence Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.2.1 SDR Direct View Display Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.3 SDR Direct View Display Confidence Test Sequence Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>28.2.1 HDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>28.3 HDR Projector Confidence Test Sequence</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr></table>
+
+# 7.2.3 Deleted Section
+
+The section "SPB2 Requirements" was deleted. The section number is maintained here to preserve the numbering of subsequent sections
+
+# 7.2.4 Deleted Section
+
+The section "SPB2 Secure Silicon Requirements" was deleted. The section number is maintained here to preserve the numbering of subsequent sections.
+
+# 7.2.5 Deleted Section
+
+The section "SPB2 Tamper Evidence" was deleted. The section number is maintained here to preserve the numbering of subsequent sections.
+
+# 7.2.6 SPB2 Secure Silicon Field Replacement
+
+# Objective
+
+Verify that the secure silicon device, contained within a SPB Type 2, is not field serviceable (though it may be field replaceable). Verify that it is not accessible during normal SPB Type 2 operation or non-security-related servicing.
+
+# Procedures
+
+By careful optical and physical examination, verify that the secure silicon device contained within a SPB Type 2
+
+1. is not field serviceable (but may be field replaceable), i.e., there are no provisions for direct access to the SPB Type 2 secure silicon circuitry.
+
+2. is not accessible during normal SPB Type 2 operation or non-security-related servicing, i.e., is mounted in a special compartment separated from areas accessible during operations or normal servicing. If the SPB2 secure silicon device is accessible during non-security servicing or normal operations, this shall be cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.5.2.3</td></tr><tr><td></td><td></td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>24.2.1 SDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>26.2.1 HDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.2.1 SDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>28.2.1 HDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr></table>
+
+# 7.2.7 Systems without Electronic Marriage
+
+# Objective
+
+Verify that in the configuration of a permanently married companion SPB (MB), the companion SPB is not field replaceable and requires the Imaging Device SPB and companion SPB system to both be replaced in the event of an SPB failure.
+
+# Procedures
+
+Verify that the companion SPB Type 1 is not field- replaceable. Careful optical and physical inspection is necessary for this. Any deviation from these requirements is cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.4.3.6.6</td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>24.2.1 SDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr><tr><td rowspan=1 colspan=1>26.2.1 HDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.2.1 SDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>28.2.1 HDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr></table>
+
+# 7.2.8 Electronic Marriage Break Key Retaining
+
+# Objective
+
+Verify that breaking the marriage between the Imaging Device and its companion SPB (MB) does not zeroize the Imaging Device SPB type 2 long term identity keys (RSA private keys).
+
+# Procedures
+
+(Only applies to systems that implement an Electronic Marriage, i.e., those that have field replaceable MBs.)
+
+1. Using procedures and tools provided by the manufacturer of the Imaging Device, obtain the device certificate representing the identity of the SPB type 2 in PEM encoded format.
+
+2. Using the procedure illustrated in Section 2.1.11, record the public key thumbprint of the certificate obtained in the above step.
+
+3. Intentionally break the marriage and remarry the systems (this may require support by the manufacturer).
+
+4. Using the same procedure as described in steps 1 and 2, verify that the public key in the certificate supplied by the Imaging Device is the same as before the remarriage. Mismatching public key thumbprints are cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.4.3.6.1</td></tr><tr><td></td><td></td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>24.2.1 SDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr><tr><td rowspan=1 colspan=1>26.2.1 HDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>27.2.1 SDR Direct View Display Practical Procedures Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>一</td></tr><tr><td rowspan=1 colspan=1>28.2.1 HDR Projector Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr></table>
+
+# 7.3 Companion SPB Type 1
+
+# 7.3.1 Deleted Section
+
+The section "Projector Companion SPB Location" was deleted. The section number is maintained here to preserve the numbering of subsequent sections
+
+# 7.3.2 Companion SPBs with Electronic Marriage
+
+# Objective
+
+This test only applies to field replaceable companion SPBs (MB) that implement electronic marriage functions.
+
+Verify that as part of the installation, or reinstallation, (i.e., mechanical connection to the Imaging Device and electrical initiation) an electrical and logical marriage of the companion SPB (MB) with the Imaging Device SPB is performed.   
+Verify that upon initiation of the marriage a "SPBMarriage" log record is written (per [SMPTE-430-5]) and that the record contains all required data.   
+Verify that upon break of the marriage a "SPBDivorce" log record is written (per [SMPTE-430-5]) and that the record contains all required data.
+
+# Procedures
+
+1. Verify system is functional prior to breaking the marriage. This can be achieved by loading and successfully playing the composition DCI 2K Sync Test (Encrypted).
+
+2. Power down the system, locate the field-replaceable companion SPB (MB), break the marriage by disconnecting and/or removing the SPB.
+
+3. Replace and reconnect the companion SPB, power up the system, examine the logs and verify that a "SPBDivorce" log record has been written. Absence of this entry is cause to fail this test.
+
+4. Verify the following are contained in the SPBDivorce record:
+
+a. The DeviceSourceID element contains the Certificate Thumbprint of the companion SPB.   
+b. The DeviceConnectedID element contains the Certificate Thumbprint of the Imaging Device SPB2.   
+c. The log entry contains an AuthId record.
+
+Failure to meet requirements a, b and c above is cause to fail this test.
+
+5. Setup a show with composition from Step 1. Verify that the system does not play the composition. Failure to meet this requirement is cause to fail this test.
+
+6. Perform the marriage installation procedure and repeat Step 1 to verify that the system is now capable of playout. Failure to meet this requirement is cause to fail this test.
+
+7. Examine the logs and verify that a "SPBMarriage" log entry has been written. Absence of this entry is cause to fail this test.
+
+8. Verify the following are contained in the SPBMarriage record:
+
+a. The DeviceSourceID element contains the Certificate Thumbprint of the companion SPB.   
+b. The DeviceConnectedID element contains the Certificate Thumbprint of the Imaging Device SPB2.   
+c. The log entry contains an AuthId record. Failure to meet requirements a, b and c above is cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.4.3.6.1, 9.4.3.6.3 [SMPTE-430-5]</td></tr><tr><td>Test Materials</td><td></td></tr><tr><td></td><td>DCI 2K Sync Test (Encrypted)</td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>15.2.1 Integrated IMB Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>15.3 Integrated IMB Confidence Test Sequence</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>21.2.1 Integrated IMBO Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>21.3 Integrated IMBO Confidence Test Sequence Pass/Fail</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1>1</td></tr></table>
+
+# 7.3.3 Companion SPB Marriage Break Key Retaining
+
+# Objective
+
+Verify that breaking the marriage between the Media Block (MB) companion SPB (Type 1) and the Imaging Device SPB (type 2) does not zeroize the MB's long term identity keys (RSA private keys).
+
+# Procedures
+
+Note:   
+This section only applies to systems that implement an Electronic Marriage, i.e., those that have field replaceable companion MBs.
+
+In the case of an MB that is married to an Imaging Device SPB and implements dual certificates as defined in Section 9.5.1.2 of [DCI-DCSS]:
+
+1. Set up and play a show using the composition DCI 2K Sync Test (Encrypted), keyed with KDM for DCI 2K Sync Test (Encrypted).
+
+2. Extract a signed [SMPTE-430-5] security log report from the Test Subject that includes the range of time during which the above step was carried out.
+
+3. Using the procedures illustrated in Section 3.1.3, use the checksig program to verify the signature of the log report collected in step 2. Note: Depending on the order of the certificates contained in the log report, the dsig_cert.py program may need to be used to re-order the certificates for the checksig program.
+
+4. Using the procedures illustrated in Section 3.1.3.1, extract the certificates in the signing chain of the log report collected in step 2. Note: This may be accomplished using the dsig_extract.py program.
+
+5. Using the procedures illustrated in Annex C.2, use the dc-thumbprint program to calculate the thumbprint of the Log Signer Certificate that signed the log report collected in step 2. Record the value of the calculated thumbprint.
+
+6. Intentionally break the marriage and remarry the companion SPB and the Imaging Device SPB (this may require support by the manufacturer).
+
+7. Repeat steps 1 and 2 using the same composition and KDM as before. Failure to successfully play content or retrieve a log report after remarriage is cause to fail this test.
+
+8. Repeat step 3 using the log report collected after remarriage. Failure to successfully verify the signature is cause to fail this test.
+
+9. Repeat steps 4 and 5 using the log report collected after remarriage. Confirm that the Log Signer Certificate public key thumbprint calculated after remarriage matches the one from step 5. Mismatching Log Signer Certificate public key thumbprints are cause to fail this test.
+
+In the case of an MB that is married to a Imaging Device SPB and implements a single certificate as defined in Section 9.5.1.1 of [DCI-DCSS]:
+
+1. Set up and play a show using the composition DCI 2K Sync Test (Encrypted), keyed with KDM for DCI 2K Sync Test (Encrypted).
+
+2. Extract a signed [SMPTE-430-5] security log report from the Test Subject that includes the range of time during which the above step was carried out.
+
+3. Using the procedures illustrated in Section 3.1.3, use the checksig program to verify the signature of the log report collected in step 2. Note: Depending on the order of the certificates contained in the log report, the dsig_cert.py program may need to be used to re-order the certificates for the checksig program.
+
+4. Using the procedures illustrated in Section 3.1.3.1, extract the certificates in the signing chain of the log report collected in step 2. Note: This may be accomplished using the dsig_extract.py program.
+
+5. Using the procedures illustrated in Annex C.2, use the dc-thumbprint program to calculate the thumbprint of the certificate that signed the log report collected in step 2. Record the value of the calculated thumbprint.
+
+6. Intentionally break the marriage and remarry the companion SPB and the Imaging Device SPB (this may require support by the manufacturer).
+
+7. Repeat steps 1 and 2 using the same composition and KDM as before. Failure to successfully play content or retrieve a log report after remarriage is cause to fail this test.
+
+8. Repeat step 3 using the log report collected after remarriage. Failure to successfully verify the signature is cause to fail this test.
+
+9. Repeat steps 4 and 5 using the log report collected after remarriage. Confirm that the certificate thumbprint calculated after remarriage matches the one from step 5. Mismatching public key thumbprints are cause to fail this test.
+
+# Supporting Materials
+
+<table><tr><td>Reference Documents</td><td>[DCI-DCSS], 9.4.3.6.3, 9.5.1.2</td></tr><tr><td>Test Materials</td><td>DCI 2K Sync Test (Encrypted)</td></tr><tr><td></td><td>KDM for DCI 2K Sync Test (Encrypted)</td></tr></table>
+
+# Test Sequences
+
+<table><tr><td rowspan=1 colspan=1> Test Sequence</td><td rowspan=1 colspan=1>Type</td><td rowspan=1 colspan=1>Measured Data</td></tr><tr><td rowspan=1 colspan=1>15.2.1 Integrated IMB Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>15.3 Integrated IMB Confidence Test Sequence</td><td rowspan=1 colspan=1>ePass/Fail</td><td rowspan=1 colspan=1></td></tr><tr><td rowspan=1 colspan=1>21.2.1 Integrated IMBO Practical Procedures</td><td rowspan=1 colspan=1>Pass/Fail</td><td rowspan=1 colspan=1></td></tr></table>
 
 # 7.5 Image Reproduction
 
