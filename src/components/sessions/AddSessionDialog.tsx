@@ -36,8 +36,8 @@ import {
 import { Plus } from 'lucide-react';
 
 const formSchema = z.object({
-    deviceId: z.coerce.number().min(1, 'Device is required'),
-    phase: z.coerce.number().min(1).max(3),
+    deviceId: z.number().min(1, 'Device is required'),
+    phase: z.number().min(1).max(3),
     date: z.string().min(1, 'Date is required'),
     operator: z.string().optional(),
     location: z.string().optional(),

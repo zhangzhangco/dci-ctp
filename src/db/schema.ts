@@ -68,6 +68,7 @@ export const measurementsGrayscale = sqliteTable('measurements_grayscale', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     sessionId: integer('session_id').references(() => testSessions.id).notNull(),
     stepIndex: integer('step_index').notNull(), // 0-255 or 0-1023
+    standard: text('standard').default('sdr').notNull(), // 'sdr' or 'hdr'
     bitDepth: integer('bit_depth').default(12),
 
     // Measured values
@@ -88,6 +89,7 @@ export const measurementsColor = sqliteTable('measurements_color', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     sessionId: integer('session_id').references(() => testSessions.id).notNull(),
     colorName: text('color_name').notNull(), // 'Red', 'Green', 'Blue', 'White', 'Cyan'...
+    standard: text('standard').default('sdr').notNull(), // 'sdr' or 'hdr'
     type: text('type').notNull(), // 'primary', 'secondary', 'macbeth'
 
     measuredL: real('measured_l'),
@@ -105,6 +107,7 @@ export const measurementsColor = sqliteTable('measurements_color', {
 export const measurementsUniformity = sqliteTable('measurements_uniformity', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+    standard: text('standard').default('sdr').notNull(), // 'sdr' or 'hdr'
     position: text('position').notNull(), // 'Center', 'TopLeft', 'TopRight'...
 
     measuredL: real('measured_l'),

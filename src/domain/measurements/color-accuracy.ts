@@ -8,6 +8,7 @@ export type ColorAccuracyType = 'primary';
 export interface ColorAccuracyInput {
     sessionId: number;
     colorName: string;
+    standard?: 'sdr' | 'hdr';
     measuredL: number;
     measuredX: number;
     measuredY: number;
@@ -18,12 +19,14 @@ export interface ColorAccuracyInput {
 }
 
 export async function saveColorAccuracyMeasurement(input: ColorAccuracyInput) {
+    const standard = input.standard || 'sdr';
     // Check if exists
     const existing = await db.query.measurementsColor.findFirst({
         where: and(
             eq(measurementsColor.sessionId, input.sessionId),
             eq(measurementsColor.colorName, input.colorName),
-            eq(measurementsColor.type, 'primary')
+            eq(measurementsColor.type, 'primary'),
+            eq(measurementsColor.standard, standard)
         )
     });
 
@@ -46,6 +49,7 @@ export async function saveColorAccuracyMeasurement(input: ColorAccuracyInput) {
                 sessionId: input.sessionId,
                 colorName: input.colorName,
                 type: 'primary',
+                standard: standard,
                 measuredL: input.measuredL,
                 measuredX: input.measuredX,
                 measuredY: input.measuredY,
@@ -58,11 +62,12 @@ export async function saveColorAccuracyMeasurement(input: ColorAccuracyInput) {
     }
 }
 
-export async function getColorAccuracyMeasurements(sessionId: number) {
+export async function getColorAccuracyMeasurements(sessionId: number, standard: 'sdr' | 'hdr' = 'sdr') {
     return await db.query.measurementsColor.findMany({
         where: and(
             eq(measurementsColor.sessionId, sessionId),
-            eq(measurementsColor.type, 'primary')
+            eq(measurementsColor.type, 'primary'),
+            eq(measurementsColor.standard, standard)
         )
     });
 }

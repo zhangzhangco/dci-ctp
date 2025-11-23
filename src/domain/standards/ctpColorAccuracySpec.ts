@@ -34,6 +34,20 @@ export const HDR_ACCURACY_TARGETS: ColorAccuracyTarget[] = [
     { name: "Blue-1", targetX: P3_B.x, targetY: P3_B.y, toleranceX: 0.006, toleranceY: 0.006, targetL: 23.86, toleranceL: 0.03 },
 ];
 
+export const P3_COLOR_SPEC = {
+    Red: { targetX: P3_R.x, targetY: P3_R.y },
+    Green: { targetX: P3_G.x, targetY: P3_G.y },
+    Blue: { targetX: P3_B.x, targetY: P3_B.y },
+    White: { targetX: 0.314, targetY: 0.351 } // DCI White
+};
+
+export const HDR_P3_COLOR_SPEC = {
+    Red: { targetX: P3_R.x, targetY: P3_R.y },
+    Green: { targetX: P3_G.x, targetY: P3_G.y },
+    Blue: { targetX: P3_B.x, targetY: P3_B.y },
+    White: { targetX: 0.314, targetY: 0.351 } // DCI White
+};
+
 export const COLOR_ACCURACY_SPEC = {
     title: "Color Accuracy (Primaries)",
     reference: "DCI CTP §7.5.12 (SDR) / §7.5.16 (HDR)",

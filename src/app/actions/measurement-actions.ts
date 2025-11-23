@@ -32,8 +32,8 @@ export async function saveUniformityMeasurementAction(input: UniformityMeasureme
     }
 }
 
-export async function getUniformityMeasurementsAction(sessionId: number) {
-    return await getUniformityMeasurements(sessionId);
+export async function getUniformityMeasurementsAction(sessionId: number, standard: 'sdr' | 'hdr' = 'sdr') {
+    return await getUniformityMeasurements(sessionId, standard);
 }
 
 // --- Color Volume ---
@@ -50,6 +50,6 @@ export async function saveColorMeasurementAction(input: ColorMeasurementInput) {
     }
 }
 
-export async function getColorMeasurementsAction(sessionId: number) {
-    return await getColorMeasurements(sessionId);
+export async function getColorMeasurementsAction(sessionId: number, standard: 'sdr' | 'hdr' = 'sdr') {
+    return await getColorMeasurements(sessionId, standard);
 }

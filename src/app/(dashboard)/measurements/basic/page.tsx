@@ -20,31 +20,6 @@ export default async function BasicMeasurementPage({
         redirect('/sessions');
     }
 
-    const measurements = await getBasicMeasurementsAction(sessionId);
-
-    // Transform array to object structure expected by form
-    const peakWhite = measurements.find(m => m.type === 'peak_white');
-    const blackLevel = measurements.find(m => m.type === 'black_level');
-
-    const initialData = {
-        peakWhite: peakWhite ? {
-            sessionId: peakWhite.sessionId,
-            type: peakWhite.type as 'peak_white',
-            measuredL: peakWhite.measuredL || 0,
-            measuredX: peakWhite.measuredX || 0,
-            measuredY: peakWhite.measuredY || 0,
-            notes: peakWhite.notes || '',
-        } : undefined,
-        blackLevel: blackLevel ? {
-            sessionId: blackLevel.sessionId,
-            type: blackLevel.type as 'black_level',
-            measuredL: blackLevel.measuredL || 0,
-            measuredX: blackLevel.measuredX || 0,
-            measuredY: blackLevel.measuredY || 0,
-            notes: blackLevel.notes || '',
-        } : undefined,
-    };
-
     return (
         <div className="container mx-auto py-10 space-y-6">
             <div className="flex items-center gap-4">
@@ -61,7 +36,7 @@ export default async function BasicMeasurementPage({
                 </div>
             </div>
 
-            <BasicMeasurementForm sessionId={sessionId} initialData={initialData} />
+            <BasicMeasurementForm sessionId={sessionId} />
         </div>
     );
 }

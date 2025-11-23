@@ -14,9 +14,9 @@ export async function saveColorAccuracyAction(input: ColorAccuracyInput) {
     }
 }
 
-export async function getColorAccuracyMeasurementsAction(sessionId: number) {
+export async function getColorAccuracyMeasurementsAction(sessionId: number, standard: 'sdr' | 'hdr' = 'sdr') {
     try {
-        const data = await getColorAccuracyMeasurements(sessionId);
+        const data = await getColorAccuracyMeasurements(sessionId, standard);
         return { success: true, data };
     } catch (error) {
         console.error("Failed to load color accuracy measurements:", error);

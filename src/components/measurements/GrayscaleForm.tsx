@@ -14,7 +14,9 @@ import {
     calculateDeltaL,
     calculateNormalizedL,
     validateHDREOTF,
-    type GrayscaleStandard,
+    getTestName,
+    getTableReference,
+    getHDREOTFTolerance,
     type GrayscaleStepSpec
 } from '@/domain/standards/ctpGrayscaleSpec';
 import {
@@ -23,6 +25,8 @@ import {
 } from '@/app/actions/grayscale-actions';
 import { MeasurementLayout } from './MeasurementLayout';
 import { GrayscaleChart } from '@/components/charts/GrayscaleChart';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000';
 
 interface GrayscaleFormProps {
     sessionId: number;
@@ -38,7 +42,7 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     // Determine current spec based on tab
-    let currentSpec: GrayscaleStandard;
+    let currentSpec: GrayscaleStepSpec[];
     switch (activeTab) {
         case 'white-steps':
             currentSpec = WHITE_STEPS_SPEC;
@@ -57,11 +61,23 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            const savedData = await loadGrayscaleDataAction(sessionId, activeTab);
-            if (savedData) {
+            const standard = activeTab === 'hdr-eotf' ? 'hdr' : 'sdr';
+            const savedData = await loadGrayscaleDataAction(sessionId, activeTab, standard);
+            if (savedData && savedData.measurements) {
                 const loaded: Record<string, MeasuredStep> = {};
-                savedData.forEach(item => {
-                    loaded[item.stepName] = { measuredL: item.measuredL };
+                savedData.measurements.forEach(item => {
+                    // Find step name by index/number if possible, or assume order matches?
+                    // The action returns stepNumber (index). We need to map back to name.
+                    // currentSpec has the order.
+                    // Note: stepNumber in spec is 1-based usually, but let's rely on the array index matching the save logic
+                    // In save logic below, we use index as stepNumber.
+                    const specStep = currentSpec[item.stepNumber];
+                    if (specStep) {
+                        const stepName = `Step ${specStep.stepNumber}`;
+                        if (item.measuredLuminance !== undefined) {
+                            loaded[stepName] = { measuredL: item.measuredLuminance };
+                        }
+                    }
                 });
                 setMeasurements(loaded);
             } else {
@@ -70,7 +86,7 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
             setIsLoading(false);
         };
         loadData();
-    }, [sessionId, activeTab]);
+    }, [sessionId, activeTab, currentSpec]);
 
     const updateMeasurement = (stepName: string, value: string) => {
         const numValue = parseFloat(value);
@@ -83,16 +99,18 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const dataToSave = currentSpec.steps.map(step => ({
-                stepName: step.name,
-                measuredL: measurements[step.name]?.measuredL || 0
+            const dataToSave = currentSpec.map((step, index: number) => ({
+                stepNumber: index, // Use index as step number for storage consistency
+                measuredLuminance: measurements[`Step ${step.stepNumber}`]?.measuredL || 0
             }));
 
+            const standard = activeTab === 'hdr-eotf' ? 'hdr' : 'sdr';
             const result = await saveGrayscaleDataAction({
                 sessionId,
                 testType: activeTab,
+                screenBlackLevel: 0, // TODO: Get actual black level if needed
                 measurements: dataToSave
-            });
+            }, standard);
 
             if (result.success) {
                 alert('数据已保存成功!');
@@ -107,9 +125,10 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
     };
 
     const renderRow = (step: GrayscaleStepSpec) => {
-        const measured = measurements[step.name]?.measuredL;
+        const stepName = `Step ${step.stepNumber}`;
+        const measured = measurements[stepName]?.measuredL;
         const hasValue = measured !== undefined;
-        
+
         let result: { status: 'pass' | 'fail' | 'warning', message?: string } | undefined;
         let deltaL: number | undefined;
         let normalizedL: number | undefined;
@@ -117,49 +136,55 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
 
         if (hasValue) {
             if (activeTab === 'hdr-eotf') {
-                result = validateHDREOTF(measured, step);
-                deltaL = calculateDeltaL(measured, step.targetL);
-                // For Normalized L, we need peak white. Assuming the last step is peak for now or using target.
-                // Ideally we should find the max target L in the spec.
-                const peakL = Math.max(...currentSpec.steps.map(s => s.targetL));
+                const status = validateHDREOTF(measured, step.nominalLuminance);
+                result = { status: status === 'soft-fail' ? 'warning' : status };
+                deltaL = calculateDeltaL(measured, step.nominalLuminance);
+                const peakL = Math.max(...currentSpec.map(s => s.nominalLuminance));
                 normalizedL = calculateNormalizedL(measured, peakL);
             } else {
                 // SDR Logic
-                percentageError = calculatePercentageError(measured, step.targetL);
+                percentageError = calculatePercentageError(measured, step.nominalLuminance);
                 const isPass = Math.abs(percentageError) <= (step.tolerance * 100);
                 result = { status: isPass ? 'pass' : 'fail' };
             }
         }
 
         return (
-            <tr key={step.name} className="border-b hover:bg-muted/30">
-                <td className="p-3 font-medium">{step.name}</td>
+            <tr key={step.stepNumber} className="border-b hover:bg-muted/30">
+                <td className="p-3 font-medium">{stepName}</td>
                 {activeTab === 'hdr-eotf' && (
                     <td className="p-3 text-center font-mono text-xs text-muted-foreground">
-                        {step.codeValueCV ? `${step.codeValueCV}` : '-'}
+                        {step.codeY ? `${step.codeY}` : '-'}
                     </td>
                 )}
                 <td className="p-3 text-center font-mono text-xs">
-                    {step.targetL.toFixed(activeTab === 'hdr-eotf' ? 3 : 1)}
+                    {step.nominalLuminance.toFixed(activeTab === 'hdr-eotf' ? 3 : 1)}
                 </td>
                 <td className="p-3 text-center text-xs">
                     {activeTab === 'hdr-eotf' ? (
                         <span>
-                            Target: ±{(step.tolerance * 100).toFixed(0)}%<br/>
-                            (Soft: ±{(step.softTolerance! * 100).toFixed(0)}%)
+                            Target: ±{(getHDREOTFTolerance(step.nominalLuminance) * 100).toFixed(0)}%
                         </span>
                     ) : (
                         `±${(step.tolerance * 100).toFixed(1)}%`
                     )}
                 </td>
                 <td className="p-3">
-                    <div className="flex justify-center">
-                        <Input 
-                            type="number" 
+                    <div className="flex justify-center gap-1 items-center">
+                        <Input
+                            type="number"
                             step="0.001"
-                            className="w-24 text-center font-mono text-xs"
+                            className="w-20 text-center font-mono text-xs"
                             value={measured ?? ''}
-                            onChange={e => updateMeasurement(step.name, e.target.value)}
+                            onChange={e => updateMeasurement(stepName, e.target.value)}
+                        />
+                        <MeasureButton
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onMeasured={(data: ColorimetricData) => {
+                                updateMeasurement(stepName, data.Lv.toFixed(3));
+                            }}
                         />
                     </div>
                 </td>
@@ -183,7 +208,7 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
                             {result.status === 'pass' && <CheckCircle2 className="h-5 w-5 text-green-600" />}
                             {result.status === 'warning' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
                             {result.status === 'fail' && <XCircle className="h-5 w-5 text-red-600" />}
-                            
+
                             {activeTab !== 'hdr-eotf' && percentageError !== undefined && (
                                 <span className={`text-xs font-bold ${Math.abs(percentageError) > step.tolerance * 100 ? 'text-red-600' : 'text-green-600'}`}>
                                     {percentageError > 0 ? '+' : ''}{percentageError.toFixed(1)}%
@@ -202,11 +227,11 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
             subtitle="验证显示设备的灰阶追踪性能与 Gamma/EOTF 曲线符合度"
             phases={['Phase 2']}
             standard={{
-                title: currentSpec.name,
-                reference: currentSpec.reference,
+                title: getTestName(activeTab),
+                reference: getTableReference(activeTab),
                 description: "测量各灰阶等级的亮度，验证其与目标 EOTF 曲线的偏差。",
                 targets: [
-                    { label: "Steps", value: `${currentSpec.steps.length} Levels` },
+                    { label: "Steps", value: `${currentSpec.length} Levels` },
                     { label: "Standard", value: activeTab === 'hdr-eotf' ? 'SMPTE ST 2084 (PQ)' : 'Gamma 2.6' }
                 ]
             }}
@@ -251,7 +276,7 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {currentSpec.steps.map(renderRow)}
+                                            {currentSpec.map(renderRow)}
                                         </tbody>
                                     </table>
                                 </div>
@@ -277,15 +302,13 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
 
                     {/* Chart Section */}
                     <div>
-                        <GrayscaleChart 
-                            data={currentSpec.steps.map(step => ({
-                                stepName: step.name,
-                                targetL: step.targetL,
-                                measuredL: measurements[step.name]?.measuredL,
-                                tolerance: step.tolerance,
-                                codeValue: step.codeValueCV
+                        <GrayscaleChart
+                            spec={currentSpec}
+                            measurements={currentSpec.map(step => ({
+                                stepNumber: step.stepNumber,
+                                measuredLuminance: measurements[`Step ${step.stepNumber}`]?.measuredL
                             }))}
-                            isHDR={activeTab === 'hdr-eotf'}
+                            standardType={activeTab === 'hdr-eotf' ? 'hdr' : 'sdr'}
                         />
                     </div>
                 </div>

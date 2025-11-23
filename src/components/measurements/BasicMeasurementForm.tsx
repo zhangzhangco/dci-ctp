@@ -24,6 +24,8 @@ import {
 } from '@/app/actions/measurement-actions';
 import { BasicMeasurementType } from '@/domain/measurements/basic';
 import { MeasurementLayout } from './MeasurementLayout';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000';
 
 interface BasicMeasurementFormProps {
     sessionId: number;
@@ -175,13 +177,21 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                     <CardTitle className="text-base">1. 峰值亮度测量</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div className="grid grid-cols-4 gap-2 items-center">
                                         <label className="text-sm font-medium">亮度 (L)</label>
                                         <Input
                                             value={whiteL}
                                             onChange={e => setWhiteL(e.target.value)}
                                             placeholder="cd/m²"
                                             className={!whiteL ? '' : isWhiteLValid ? 'border-green-500' : 'border-red-500'}
+                                        />
+                                        <MeasureButton
+                                            size="icon"
+                                            onMeasured={(data: ColorimetricData) => {
+                                                setWhiteL(data.Lv.toFixed(3));
+                                                setWhiteX(data.x.toFixed(4));
+                                                setWhiteY(data.y.toFixed(4));
+                                            }}
                                         />
                                         <div className="flex items-center gap-2">
                                             {renderStatusIcon(isWhiteLValid, !whiteL)}
@@ -192,7 +202,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div className="grid grid-cols-4 gap-2 items-center">
                                         <label className="text-sm font-medium">色坐标 (x)</label>
                                         <Input
                                             value={whiteX}
@@ -200,6 +210,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             placeholder="0.xxxx"
                                             className={!whiteX ? '' : isWhiteCValid ? 'border-green-500' : 'border-red-500'}
                                         />
+                                        <div /> {/* Spacer for measure button from L field */}
                                         <div className="row-span-2 flex items-center gap-2">
                                             {renderStatusIcon(isWhiteCValid, !whiteX || !whiteY)}
                                             {(!whiteX || !whiteY) ? null : (
@@ -209,7 +220,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div className="grid grid-cols-4 gap-2 items-center">
                                         <label className="text-sm font-medium">色坐标 (y)</label>
                                         <Input
                                             value={whiteY}
@@ -217,6 +228,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             placeholder="0.xxxx"
                                             className={!whiteY ? '' : isWhiteCValid ? 'border-green-500' : 'border-red-500'}
                                         />
+                                        <div /> {/* Spacer */}
                                         {/* Icon handled above */}
                                     </div>
                                 </CardContent>
@@ -228,13 +240,19 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                     <CardTitle className="text-base">2. 黑电平测量</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div className="grid grid-cols-4 gap-2 items-center">
                                         <label className="text-sm font-medium">亮度 (L)</label>
                                         <Input
                                             value={blackL}
                                             onChange={e => setBlackL(e.target.value)}
                                             placeholder="cd/m²"
                                             className={!blackL ? '' : isBlackValid ? 'border-green-500' : 'border-red-500'}
+                                        />
+                                        <MeasureButton
+                                            size="icon"
+                                            onMeasured={(data: ColorimetricData) => {
+                                                setBlackL(data.Lv.toFixed(3));
+                                            }}
                                         />
                                         <div className="flex items-center gap-2">
                                             {renderStatusIcon(isBlackValid, !blackL)}

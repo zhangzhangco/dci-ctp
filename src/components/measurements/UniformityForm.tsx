@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { saveUniformityMeasurementAction } from '@/app/actions/measurement-actions';
+import { saveUniformityMeasurementAction, getUniformityMeasurementsAction } from '@/app/actions/measurement-actions';
 import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import {
@@ -23,6 +23,8 @@ import {
     calculateLuminanceDeviation,
     calculateChromaticityDistance
 } from '@/domain/standards/ctpUniformitySpec';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000';
 
 const POSITIONS = [
     'TopLeft', 'TopCenter', 'TopRight',
@@ -52,28 +54,62 @@ interface UniformityFormProps {
 
 export function UniformityForm({ sessionId, initialData }: UniformityFormProps) {
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
 
     const spec = standardType === 'sdr' ? SDR_UNIFORMITY_SPEC : HDR_UNIFORMITY_SPEC;
 
-    const defaultValues: FormValues = POSITIONS.reduce((acc, pos) => ({
-        ...acc,
-        [pos]: {
-            measuredL: initialData?.[pos]?.measuredL ?? 0,
-            measuredX: initialData?.[pos]?.measuredX ?? 0.3127,
-            measuredY: initialData?.[pos]?.measuredY ?? 0.3290,
-        }
-    }), {} as FormValues);
-
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema) as any,
-        defaultValues,
+        defaultValues: POSITIONS.reduce((acc, pos) => ({
+            ...acc,
+            [pos]: {
+                measuredL: 0,
+                measuredX: 0.3127,
+                measuredY: 0.3290,
+            }
+        }), {} as FormValues),
     });
 
+    // Load data when standardType changes
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            // If initialData is provided and we are on SDR (default), use it?
+            // Actually, better to always fetch to ensure consistency when switching tabs.
+            // But for initial render, we might want to use initialData if available and standard matches.
+            // For simplicity, let's fetch.
+            const data = await getUniformityMeasurementsAction(sessionId, standardType);
+
+            const newValues: Partial<FormValues> = {};
+            POSITIONS.forEach(pos => {
+                const saved = data.find(d => d.position === pos);
+                if (saved) {
+                    newValues[pos] = {
+                        measuredL: saved.measuredL ?? 0,
+                        measuredX: saved.measuredX ?? 0.3127,
+                        measuredY: saved.measuredY ?? 0.3290,
+                    };
+                } else {
+                    newValues[pos] = {
+                        measuredL: 0,
+                        measuredX: 0.3127,
+                        measuredY: 0.3290,
+                    };
+                }
+            });
+            form.reset(newValues as FormValues);
+            setIsLoading(false);
+        };
+        loadData();
+    }, [sessionId, standardType, form]);
+
+
     const values = useWatch({ control: form.control });
-    const centerL = values.Center?.measuredL || 0;
-    const centerX = values.Center?.measuredX || 0.3127;
-    const centerY = values.Center?.measuredY || 0.3290;
+    // Safe check for values before accessing properties
+    const centerL = values?.Center?.measuredL || 0;
+    const centerX = values?.Center?.measuredX || 0.3127;
+    const centerY = values?.Center?.measuredY || 0.3290;
 
     async function onSubmit(values: FormValues) {
         setIsSaving(true);
@@ -83,6 +119,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                 return saveUniformityMeasurementAction({
                     sessionId,
                     position: pos,
+                    standard: standardType,
                     measuredL: data.measuredL,
                     measuredX: data.measuredX,
                     measuredY: data.measuredY,
@@ -114,7 +151,19 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
             <div key={pos} className={`border p-3 rounded-md space-y-2 ${isValid ? 'border-gray-200 dark:border-gray-800' : 'border-red-300 bg-red-50 dark:bg-red-900/10'}`}>
                 <div className="flex justify-between items-center mb-1">
                     <div className="font-medium text-sm">{pos}</div>
-                    {isValid ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                    <div className="flex items-center gap-2">
+                        <MeasureButton
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6"
+                            onMeasured={(data: ColorimetricData) => {
+                                form.setValue(`${pos}.measuredL`, parseFloat(data.Lv.toFixed(3)));
+                                form.setValue(`${pos}.measuredX`, parseFloat(data.x.toFixed(4)));
+                                form.setValue(`${pos}.measuredY`, parseFloat(data.y.toFixed(4)));
+                            }}
+                        />
+                        {isValid ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                    </div>
                 </div>
 
                 <FormField

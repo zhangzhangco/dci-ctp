@@ -37,7 +37,7 @@ export class CS2000 {
                 this.handleResponse(response);
             });
 
-            this.port.open((err) => {
+            this.port.open((err: Error | null) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -46,7 +46,7 @@ export class CS2000 {
                 }
             });
 
-            this.port.on('error', (err) => {
+            this.port.on('error', (err: Error) => {
                 console.error('[CS2000] Serial port error:', err);
                 this.isConnected = false;
             });
@@ -62,7 +62,7 @@ export class CS2000 {
 
         return new Promise((resolve, reject) => {
             if (this.port && this.port.isOpen) {
-                this.port.close((err) => {
+                this.port.close((err: Error | null) => {
                     if (err) reject(err);
                     else {
                         this.isConnected = false;
@@ -109,7 +109,7 @@ export class CS2000 {
                 }
             });
 
-            this.port?.write(command + '\r\n', (err) => {
+            this.port?.write(command + '\r\n', (err: Error | null | undefined) => {
                 if (err) {
                     // Remove from queue if write fails
                     const index = this.commandQueue.findIndex(c => c.resolve === resolve);
@@ -138,6 +138,27 @@ export class CS2000 {
         if (parts[0] !== 'OK00') throw new Error(`Error: ${parts[0]}`);
         return parts.slice(1).join(','); // Return "CS-2000,1,1234567"
     }
+
+    /**
+     * 检查设备是否已连接（用于心跳检测）
+     */
+    isDeviceConnected(): boolean {
+        return this.isConnected;
+    }
+
+    /**
+     * 获取设备基本信息
+     */
+    async getDeviceInfo(): Promise<{ model: string; version: string; serialNumber: string }> {
+        const idString = await this.getIdentification();
+        const parts = idString.split(',');
+        return {
+            model: parts[0] || 'CS-2000',
+            version: parts[1] || '1',
+            serialNumber: parts[2] || 'Unknown',
+        };
+    }
+
 
     async measure(): Promise<number> {
         // 1. Start measurement: MEAS,1

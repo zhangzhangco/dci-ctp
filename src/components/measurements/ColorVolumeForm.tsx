@@ -15,9 +15,11 @@ import {
     HDR_P3_COLOR_SPEC
 } from '@/domain/standards/ctpColorVolumeSpec';
 import {
-    saveColorVolumeDataAction,
-    loadColorVolumeDataAction
+    saveColorMeasurementAction,
+    getColorMeasurementsAction
 } from '@/app/actions/measurement-actions';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000';
 import { MeasurementLayout } from './MeasurementLayout';
 import { CIEPlot } from '@/components/charts/CIEPlot';
 
@@ -55,14 +57,27 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            const savedData = await loadColorVolumeDataAction(sessionId);
-            if (savedData) {
-                setMeasurements({
-                    red: { x: savedData.redX, y: savedData.redY, Y: savedData.redL },
-                    green: { x: savedData.greenX, y: savedData.greenY, Y: savedData.greenL },
-                    blue: { x: savedData.blueX, y: savedData.blueY, Y: savedData.blueL },
-                    white: { x: savedData.whiteX, y: savedData.whiteY, Y: savedData.whiteL },
+            const savedData = await getColorMeasurementsAction(sessionId, standardType);
+            if (savedData && savedData.length > 0) {
+                const newMeasurements: MeasuredData = { red: {}, green: {}, blue: {}, white: {} };
+
+                savedData.forEach(m => {
+                    const point = {
+                        x: m.measuredX ?? undefined,
+                        y: m.measuredY ?? undefined,
+                        Y: m.measuredL ?? undefined
+                    };
+
+                    if (m.colorName === 'Red') newMeasurements.red = point;
+                    else if (m.colorName === 'Green') newMeasurements.green = point;
+                    else if (m.colorName === 'Blue') newMeasurements.blue = point;
+                    else if (m.colorName === 'White') newMeasurements.white = point;
                 });
+
+                setMeasurements(newMeasurements);
+            } else {
+                // Reset measurements if no data found for this standard
+                setMeasurements({ red: {}, green: {}, blue: {}, white: {} });
             }
             setIsLoading(false);
         };
@@ -123,6 +138,16 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
                             value={point.Y ?? ''}
                             onChange={e => updatePoint(color, 'Y', e.target.value)}
                         />
+                        <MeasureButton
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onMeasured={(data: ColorimetricData) => {
+                                updatePoint(color, 'x', data.x.toFixed(4));
+                                updatePoint(color, 'y', data.y.toFixed(4));
+                                updatePoint(color, 'Y', data.Lv.toFixed(3));
+                            }}
+                        />
                     </div>
                 </td>
                 <td className="p-3 text-center font-mono text-xs">
@@ -143,20 +168,38 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const result = await saveColorVolumeDataAction({
-                sessionId,
-                measurements: {
-                    redX: measurements.red.x, redY: measurements.red.y, redL: measurements.red.Y,
-                    greenX: measurements.green.x, greenY: measurements.green.y, greenL: measurements.green.Y,
-                    blueX: measurements.blue.x, blueY: measurements.blue.y, blueL: measurements.blue.Y,
-                    whiteX: measurements.white.x, whiteY: measurements.white.y, whiteL: measurements.white.Y,
-                }
-            });
+            const promises = [];
 
-            if (result.success) {
+            // Helper to create save promise
+            const createSavePromise = (color: keyof MeasuredData, colorName: string, type: 'primary' | 'white_point') => {
+                const m = measurements[color];
+                if (m.x !== undefined && m.y !== undefined && m.Y !== undefined) {
+                    return saveColorMeasurementAction({
+                        sessionId,
+                        colorName,
+                        type,
+                        standard: standardType,
+                        measuredL: m.Y,
+                        measuredX: m.x,
+                        measuredY: m.y,
+                        // Optional: include targets if needed
+                    });
+                }
+                return Promise.resolve({ success: true });
+            };
+
+            promises.push(createSavePromise('red', 'Red', 'primary'));
+            promises.push(createSavePromise('green', 'Green', 'primary'));
+            promises.push(createSavePromise('blue', 'Blue', 'primary'));
+            promises.push(createSavePromise('white', 'White', 'white_point'));
+
+            const results = await Promise.all(promises);
+            const allSuccess = results.every(r => r.success);
+
+            if (allSuccess) {
                 alert('数据已保存成功!');
             } else {
-                alert('保存失败');
+                alert('部分数据保存失败');
             }
         } catch (error) {
             alert('保存失败');

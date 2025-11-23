@@ -9,6 +9,7 @@ export interface ColorMeasurementInput {
     sessionId: number;
     colorName: string;
     type: ColorType;
+    standard?: 'sdr' | 'hdr';
     measuredL: number;
     measuredX: number;
     measuredY: number;
@@ -18,11 +19,13 @@ export interface ColorMeasurementInput {
 }
 
 export async function saveColorMeasurement(input: ColorMeasurementInput) {
+    const standard = input.standard || 'sdr';
     const existing = await db.query.measurementsColor.findFirst({
         where: and(
             eq(measurementsColor.sessionId, input.sessionId),
             eq(measurementsColor.colorName, input.colorName),
-            eq(measurementsColor.type, input.type)
+            eq(measurementsColor.type, input.type),
+            eq(measurementsColor.standard, standard)
         )
     });
 
@@ -44,6 +47,7 @@ export async function saveColorMeasurement(input: ColorMeasurementInput) {
                 sessionId: input.sessionId,
                 colorName: input.colorName,
                 type: input.type,
+                standard: standard,
                 measuredL: input.measuredL,
                 measuredX: input.measuredX,
                 measuredY: input.measuredY,
@@ -55,8 +59,11 @@ export async function saveColorMeasurement(input: ColorMeasurementInput) {
     }
 }
 
-export async function getColorMeasurements(sessionId: number) {
+export async function getColorMeasurements(sessionId: number, standard: 'sdr' | 'hdr' = 'sdr') {
     return await db.query.measurementsColor.findMany({
-        where: eq(measurementsColor.sessionId, sessionId)
+        where: and(
+            eq(measurementsColor.sessionId, sessionId),
+            eq(measurementsColor.standard, standard)
+        )
     });
 }

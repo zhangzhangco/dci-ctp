@@ -29,7 +29,17 @@ export interface SaveGrayscaleDataInput {
  * - measuredL = 测量的绝对亮度值 (cd/m²)
  * - targetL = 黑电平值 (cd/m²,从 mcd/m² 转换) [SDR Only]
  */
-export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
+/**
+ * 保存灰阶测量数据
+ * 策略:使用 bitDepth 字段存储额外信息
+ * - bitDepth = 10000 表示 white-steps
+ * - bitDepth = 20000 表示 gray-steps
+ * - bitDepth = 30000 表示 hdr-eotf
+ * - stepIndex = stepNumber (1-10 or 1-20)
+ * - measuredL = 测量的绝对亮度值 (cd/m²)
+ * - targetL = 黑电平值 (cd/m²,从 mcd/m² 转换) [SDR Only]
+ */
+export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput, standard: 'sdr' | 'hdr' = 'sdr') {
     try {
         const { sessionId, testType, screenBlackLevel, measurements } = input;
 
@@ -44,7 +54,8 @@ export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
             .where(
                 and(
                     eq(measurementsGrayscale.sessionId, sessionId),
-                    eq(measurementsGrayscale.bitDepth, bitDepthMarker)
+                    eq(measurementsGrayscale.bitDepth, bitDepthMarker),
+                    eq(measurementsGrayscale.standard, standard)
                 )
             );
 
@@ -57,6 +68,7 @@ export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
                     sessionId,
                     stepIndex: measurement.stepNumber,
                     bitDepth: bitDepthMarker,
+                    standard: standard,
                     measuredL: measurement.measuredLuminance,
                     targetL: blackLevelCdM2, // 黑电平存储在 targetL (SDR)
                     measuredX: null,
@@ -79,9 +91,9 @@ export async function saveGrayscaleDataAction(input: SaveGrayscaleDataInput) {
 }
 
 /**
- * 加载灰阶测量数据
+ * Helper function to load grayscale measurement data for a specific test type.
  */
-export async function loadGrayscaleDataAction(sessionId: number, testType: GrayscaleTestType) {
+export async function loadGrayscaleDataAction(sessionId: number, testType: GrayscaleTestType, standard: 'sdr' | 'hdr' = 'sdr') {
     try {
         let bitDepthMarker = 10000;
         if (testType === 'gray-steps') bitDepthMarker = 20000;
@@ -93,7 +105,8 @@ export async function loadGrayscaleDataAction(sessionId: number, testType: Grays
             .where(
                 and(
                     eq(measurementsGrayscale.sessionId, sessionId),
-                    eq(measurementsGrayscale.bitDepth, bitDepthMarker)
+                    eq(measurementsGrayscale.bitDepth, bitDepthMarker),
+                    eq(measurementsGrayscale.standard, standard)
                 )
             );
 

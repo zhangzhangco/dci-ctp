@@ -27,8 +27,13 @@ import {
     calculateLuminanceError,
     type ColorAccuracyTarget
 } from '@/domain/standards/ctpColorAccuracySpec';
-import { CIEPlot } from '@/components/charts/CIEPlot';
-import { P3_COLOR_SPEC, HDR_P3_COLOR_SPEC } from '@/domain/standards/ctpColorVolumeSpec';
+import { CIEPlot, CIEPoint } from '@/components/charts/CIEPlot';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000';
+import {
+    P3_COLOR_SPEC,
+    HDR_P3_COLOR_SPEC
+} from '@/domain/standards/ctpColorAccuracySpec';
 
 const pointSchema = z.object({
     measuredL: z.coerce.number().min(0),
@@ -36,9 +41,10 @@ const pointSchema = z.object({
     measuredY: z.coerce.number().min(0).max(1),
 });
 
-const formSchema = z.record(pointSchema);
+const formSchema = z.record(z.string(), pointSchema);
 
-type FormValues = Record<string, z.infer<typeof pointSchema>>;
+type Point = z.infer<typeof pointSchema>;
+type FormValues = Record<string, Point>;
 
 interface ColorAccuracyFormProps {
     sessionId: number;
@@ -67,17 +73,13 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
         }), {} as FormValues),
     });
 
-    const values = useWatch({ control: form.control });
+    const values = useWatch({ control: form.control }) || {};
 
     // Load data when standard type changes
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            // Note: The action currently loads all measurements for the session. 
-            // Ideally we should filter by standard type if the backend supports it, 
-            // or we assume the session is dedicated to one standard or we filter client-side.
-            // For now, we'll load everything and map what matches our current targets.
-            const result = await getColorAccuracyMeasurementsAction(sessionId);
+            const result = await getColorAccuracyMeasurementsAction(sessionId, standardType);
 
             if (result.success && result.data) {
                 const newValues: FormValues = {};
@@ -110,6 +112,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                 return saveColorAccuracyAction({
                     sessionId,
                     colorName: target.name,
+                    standard: standardType,
                     targetX: target.targetX,
                     targetY: target.targetY,
                     targetL: target.targetL,
@@ -131,18 +134,21 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     }
 
     const renderPatchInput = (target: ColorAccuracyTarget) => {
-        const measured = values[target.name] || { measuredL: 0, measuredX: 0, measuredY: 0 };
+        const measuredVal = values[target.name];
+        const measuredX = measuredVal?.measuredX ?? 0;
+        const measuredY = measuredVal?.measuredY ?? 0;
+        const measuredL = measuredVal?.measuredL ?? 0;
 
-        const hasMeasurement = measured.measuredX > 0 || measured.measuredY > 0;
+        const hasMeasurement = measuredX > 0 || measuredY > 0;
 
         let isLValid = true;
         let isCValid = true;
         let lError = 0;
 
         if (hasMeasurement) {
-            isLValid = isLuminanceCompliant(measured.measuredL, target.targetL, target.toleranceL);
-            isCValid = isChromaticityCompliant(measured.measuredX, measured.measuredY, target.targetX, target.targetY, target.toleranceX);
-            lError = calculateLuminanceError(measured.measuredL, target.targetL) * 100;
+            isLValid = isLuminanceCompliant(measuredL, target.targetL, target.toleranceL);
+            isCValid = isChromaticityCompliant(measuredX, measuredY, target.targetX, target.targetY, target.toleranceX);
+            lError = calculateLuminanceError(measuredL, target.targetL) * 100;
         }
 
         const isCompliant = isLValid && isCValid;
@@ -204,13 +210,23 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                                 />
                             )}
                         />
+                        <MeasureButton
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onMeasured={(data: ColorimetricData) => {
+                                form.setValue(`${target.name}.measuredX`, parseFloat(data.x.toFixed(4)));
+                                form.setValue(`${target.name}.measuredY`, parseFloat(data.y.toFixed(4)));
+                                form.setValue(`${target.name}.measuredL`, parseFloat(data.Lv.toFixed(3)));
+                            }}
+                        />
                     </div>
                 </td>
                 <td className="p-3 text-center font-mono text-xs">
                     {hasMeasurement ? (
                         <div className="flex flex-col gap-1">
                             <span className={isCValid ? 'text-green-600' : 'text-red-600 font-bold'}>
-                                Δxy: {Math.sqrt(Math.pow(measured.measuredX - target.targetX, 2) + Math.pow(measured.measuredY - target.targetY, 2)).toFixed(4)}
+                                Δxy: {Math.sqrt(Math.pow(measuredX - target.targetX, 2) + Math.pow(measuredY - target.targetY, 2)).toFixed(4)}
                             </span>
                             <span className={isLValid ? 'text-green-600' : 'text-red-600 font-bold'}>
                                 ΔL: {lError > 0 ? '+' : ''}{lError.toFixed(1)}%
@@ -236,28 +252,31 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     };
 
     // Map accuracy targets to points for the chart
-    const chartPoints = targets.map(t => {
-        const measured = values[t.name];
-        const hasMeasurement = measured && (measured.measuredX > 0 || measured.measuredY > 0);
+    const chartPoints: CIEPoint[] = targets.map(t => {
+        const measuredVal = values[t.name];
+        const measuredX = measuredVal?.measuredX ?? 0;
+        const measuredY = measuredVal?.measuredY ?? 0;
+
+        const hasMeasurement = measuredX > 0 || measuredY > 0;
 
         // Return both reference and measured points
-        const points = [
+        const points: CIEPoint[] = [
             {
                 x: t.targetX,
                 y: t.targetY,
                 label: `${t.name} (Ref)`,
                 color: TARGET_COLORS[t.name] || '#ccc',
-                type: 'reference' as const
+                type: 'reference'
             }
         ];
 
         if (hasMeasurement) {
             points.push({
-                x: measured.measuredX,
-                y: measured.measuredY,
+                x: measuredX,
+                y: measuredY,
                 label: `${t.name} (Meas)`,
                 color: TARGET_COLORS[t.name] || '#ccc',
-                type: 'measured' as const
+                type: 'measured'
             });
         }
         return points;

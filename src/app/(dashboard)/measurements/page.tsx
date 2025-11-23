@@ -2,6 +2,7 @@
 import { GrayscaleForm } from '@/components/measurements/GrayscaleForm';
 import { SessionSelector } from '@/components/measurements/SessionSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getSessionsAction } from '@/app/actions/session-actions';
 
 export default async function MeasurementsPage({
     searchParams,

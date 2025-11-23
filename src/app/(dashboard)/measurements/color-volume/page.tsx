@@ -20,18 +20,6 @@ export default async function ColorVolumeMeasurementPage({
         redirect('/sessions');
     }
 
-    const measurements = await getColorMeasurementsAction(sessionId);
-
-    // Transform array to object structure expected by form (Record<string, ...>)
-    const initialData: Record<string, { measuredL: number; measuredX: number; measuredY: number }> = {};
-    measurements.forEach(m => {
-        initialData[m.colorName] = {
-            measuredL: m.measuredL || 0,
-            measuredX: m.measuredX || 0,
-            measuredY: m.measuredY || 0,
-        };
-    });
-
     return (
         <div className="container mx-auto py-10 space-y-6">
             <div className="flex items-center gap-4">
@@ -48,7 +36,7 @@ export default async function ColorVolumeMeasurementPage({
                 </div>
             </div>
 
-            <ColorVolumeForm sessionId={sessionId} initialData={initialData} />
+            <ColorVolumeForm sessionId={sessionId} />
         </div>
     );
 }
