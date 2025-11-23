@@ -13,8 +13,48 @@ const sessionSchema = z.object({
     notes: z.string().optional(),
 });
 
+
+import { db } from '@/db';
+import { measurementsBasic, measurementsUniformity, measurementsColor, measurementsGrayscale } from '@/db/schema';
+import { eq, count } from 'drizzle-orm';
+
 export async function getSessionsAction() {
     return await getAllSessions();
+}
+
+export async function getSession(id: number) {
+    const sessions = await getAllSessions();
+    return sessions.find(s => s.session.id === id);
+}
+
+export async function getSessionStatusAction(sessionId: number) {
+    // Basic (Peak White & Black)
+    const [basicCount] = await db.select({ count: count() })
+        .from(measurementsBasic)
+        .where(eq(measurementsBasic.sessionId, sessionId));
+
+    // Uniformity
+    const [uniformityCount] = await db.select({ count: count() })
+        .from(measurementsUniformity)
+        .where(eq(measurementsUniformity.sessionId, sessionId));
+
+    // Color Volume
+    const [colorCount] = await db.select({ count: count() })
+        .from(measurementsColor)
+        .where(eq(measurementsColor.sessionId, sessionId));
+
+    // Grayscale
+    const [grayscaleCount] = await db.select({ count: count() })
+        .from(measurementsGrayscale)
+        .where(eq(measurementsGrayscale.sessionId, sessionId));
+
+    return {
+        'peak-white-black': basicCount.count > 0,
+        'uniformity': uniformityCount.count > 0,
+        'color-volume': colorCount.count > 0,
+        'grayscale': grayscaleCount.count > 0,
+        'pixel-structure': false, // Not implemented yet
+    };
 }
 
 export async function createSessionAction(formData: FormData) {

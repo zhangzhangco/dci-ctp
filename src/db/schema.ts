@@ -112,6 +112,19 @@ export const measurementsUniformity = sqliteTable('measurements_uniformity', {
     measuredY: real('measured_y'),
 });
 
+// Basic Device Capabilities (Phase 1: Peak White, Black Level)
+export const measurementsBasic = sqliteTable('measurements_basic', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+    type: text('type').notNull(), // 'peak_white', 'black_level'
+
+    measuredL: real('measured_l'), // cd/m2
+    measuredX: real('measured_x'), // Optional for Black Level
+    measuredY: real('measured_y'), // Optional for Black Level
+
+    notes: text('notes'),
+});
+
 // ==========================================
 // 3. Results Linkage
 // ==========================================

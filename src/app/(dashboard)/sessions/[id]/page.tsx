@@ -1,52 +1,75 @@
-import { getSessionsAction } from '@/app/actions/session-actions';
+
+import { getSessionsAction, getSessionStatusAction } from '@/app/actions/session-actions';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Circle, ArrowRight, Lock } from 'lucide-react';
 import Link from 'next/link';
 
-// Phase 1 测试项目定义
-const PHASE1_TESTS = [
+// 测试项目定义
+const TEST_DEFINITIONS = [
+    // Phase 1
     {
-        id: 'grayscale',
-        name: '灰阶与伽马测量',
-        description: 'SDR Transfer Function - DCI CTP §7.5.11',
-        route: '/measurements/grayscale',
+        id: 'peak-white-black',
+        phase: 1,
+        name: '峰值亮度与黑位',
+        description: 'Peak White & Black Level - DCI CTP §26.2.1',
+        route: '/measurements/basic',
         category: '基础测量',
-    },
-    {
-        id: 'color-accuracy',
-        name: '色彩精度测量',
-        description: 'P3 Color Gamut - DCI CTP §7.5.12',
-        route: '/measurements/color',
-        category: '基础测量',
-        disabled: true, // 暂未实现
     },
     {
         id: 'uniformity',
+        phase: 1,
         name: '均匀性测量',
         description: 'Screen Uniformity - DCI CTP §7.5.13',
         route: '/measurements/uniformity',
         category: '基础测量',
-        disabled: true, // 暂未实现
     },
     {
-        id: 'contrast',
-        name: '对比度测量',
-        description: 'Contrast Ratio - SMPTE RP 431-2',
-        route: '/measurements/contrast',
-        category: '扩展测量',
-        disabled: true, // 暂未实现
+        id: 'color-volume',
+        phase: 1,
+        name: '色域覆盖测量',
+        description: 'Color Volume - DCI CTP §26.2.1',
+        route: '/measurements/color-volume',
+        category: '基础测量',
+    },
+    {
+        id: 'pixel-structure',
+        phase: 1,
+        name: '像素结构检查',
+        description: 'Pixel Structure - DCI CTP §7.5.3',
+        route: '/measurements/pixel-structure',
+        category: '基础测量',
+        disabled: true,
+    },
+    // Phase 2
+    {
+        id: 'grayscale',
+        phase: 2,
+        name: '灰阶传递函数',
+        description: 'Grayscale Tracking (Gamma 2.6) - DCI CTP §7.5.11',
+        route: '/measurements/grayscale',
+        category: '系统性能',
+    },
+    {
+        id: 'color-accuracy',
+        phase: 2,
+        name: '色彩准确度',
+        description: 'Color Accuracy - DCI CTP §7.5.12',
+        route: '/measurements/color-accuracy',
+        category: '系统性能',
+        disabled: true,
     },
 ];
 
 export default async function SessionDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
-    const sessionId = parseInt(params.id);
+    const { id } = await params;
+    const sessionId = parseInt(id);
     const sessions = await getSessionsAction();
     const currentSession = sessions.find(s => s.session.id === sessionId);
 
@@ -56,16 +79,16 @@ export default async function SessionDetailPage({
 
     const { session, device } = currentSession;
 
-    // TODO: 从数据库查询每个测试的完成状态
-    const testStatus: Record<string, boolean> = {
-        'grayscale': false,
-        'color-accuracy': false,
-        'uniformity': false,
-        'contrast': false,
-    };
+    // 获取真实测试状态
+    const testStatus = await getSessionStatusAction(sessionId);
 
-    const completedTests = Object.values(testStatus).filter(Boolean).length;
-    const totalTests = PHASE1_TESTS.filter(t => !t.disabled).length;
+    // 根据 Session Phase 过滤显示的测试
+    // Phase 1 Session 只显示 Phase 1 测试
+    // Phase 2 Session 显示 Phase 1 + Phase 2 测试
+    const visibleTests = TEST_DEFINITIONS.filter(t => t.phase <= session.phase);
+
+    const completedTests = visibleTests.filter(t => testStatus[t.id as keyof typeof testStatus]).length;
+    const totalTests = visibleTests.filter(t => !t.disabled).length;
     const progress = totalTests > 0 ? (completedTests / totalTests) * 100 : 0;
 
     return (
@@ -128,14 +151,16 @@ export default async function SessionDetailPage({
 
             {/* 测试项目列表 */}
             <div>
-                <h2 className="text-xl font-semibold mb-4">Phase 1 - 设备级测试项目</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                    测试项目列表 (Phase 1{session.phase >= 2 ? ' & 2' : ''})
+                </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                    完成以下测量项目,收集设备的物理性能数据。所有数据将用于 Phase 2 的 CTP 合规性验证。
+                    根据当前的测试阶段 (Phase {session.phase})，您需要完成以下测量项目。
                 </p>
 
                 <div className="grid gap-4">
-                    {PHASE1_TESTS.map((test) => {
-                        const isCompleted = testStatus[test.id];
+                    {visibleTests.map((test) => {
+                        const isCompleted = testStatus[test.id as keyof typeof testStatus];
                         const isDisabled = test.disabled;
 
                         return (
@@ -153,6 +178,7 @@ export default async function SessionDetailPage({
                                             <div>
                                                 <h3 className="font-semibold text-lg flex items-center gap-2">
                                                     {test.name}
+                                                    <Badge variant="outline" className="text-xs">Phase {test.phase}</Badge>
                                                     {isDisabled && (
                                                         <Badge variant="outline" className="text-xs">即将推出</Badge>
                                                     )}
@@ -171,11 +197,12 @@ export default async function SessionDetailPage({
                                         <div>
                                             {isDisabled ? (
                                                 <Button disabled variant="outline">
+                                                    <Lock className="mr-2 h-4 w-4" />
                                                     暂未开放
                                                 </Button>
                                             ) : (
                                                 <Link href={`${test.route}?sessionId=${sessionId}`}>
-                                                    <Button>
+                                                    <Button variant={isCompleted ? "outline" : "default"}>
                                                         {isCompleted ? '查看/编辑' : '开始测试'}
                                                         <ArrowRight className="ml-2 h-4 w-4" />
                                                     </Button>
