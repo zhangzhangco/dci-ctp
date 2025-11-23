@@ -1,206 +1,272 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { saveColorMeasurementAction } from '@/app/actions/measurement-actions';
-import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
-import { MeasurementLayout } from './MeasurementLayout';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import {
-    P3_COLOR_SPEC,
-    HDR_P3_COLOR_SPEC,
     SDR_COLOR_VOLUME_SPEC,
     HDR_COLOR_VOLUME_SPEC,
-    isColorCompliant,
-    calculateColorDistance
+    calculateColorDistance,
+    type ColorVolumeStandard,
+    P3_COLOR_SPEC,
+    HDR_P3_COLOR_SPEC
 } from '@/domain/standards/ctpColorVolumeSpec';
-
-const COLORS = ['Red', 'Green', 'Blue', 'White'] as const;
-
-const pointSchema = z.object({
-    measuredL: z.coerce.number().min(0),
-    measuredX: z.coerce.number().min(0).max(1),
-    measuredY: z.coerce.number().min(0).max(1),
-});
-
-const formSchema = z.object(
-    COLORS.reduce((acc, color) => ({
-        ...acc,
-        [color]: pointSchema,
-    }), {} as Record<typeof COLORS[number], typeof pointSchema>)
-);
-
-type FormValues = z.infer<typeof formSchema>;
+import {
+    saveColorVolumeDataAction,
+    loadColorVolumeDataAction
+} from '@/app/actions/measurement-actions';
+import { MeasurementLayout } from './MeasurementLayout';
+import { CIEPlot } from '@/components/charts/CIEPlot';
 
 interface ColorVolumeFormProps {
     sessionId: number;
-    initialData?: Record<string, { measuredL: number; measuredX: number; measuredY: number }>;
 }
 
-export function ColorVolumeForm({ sessionId, initialData }: ColorVolumeFormProps) {
-    const [isSaving, setIsSaving] = useState(false);
+interface MeasuredPoint {
+    x?: number;
+    y?: number;
+    Y?: number;
+}
+
+interface MeasuredData {
+    red: MeasuredPoint;
+    green: MeasuredPoint;
+    blue: MeasuredPoint;
+    white: MeasuredPoint;
+}
+
+export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
     const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const spec = standardType === 'sdr' ? SDR_COLOR_VOLUME_SPEC : HDR_COLOR_VOLUME_SPEC;
-    const targets = standardType === 'sdr' ? P3_COLOR_SPEC : HDR_P3_COLOR_SPEC;
+    // Determine spec based on standard
+    const spec: ColorVolumeStandard = standardType === 'sdr' ? SDR_COLOR_VOLUME_SPEC : HDR_COLOR_VOLUME_SPEC;
+    const targetSpecs = standardType === 'sdr' ? P3_COLOR_SPEC : HDR_P3_COLOR_SPEC;
 
-    const defaultValues: FormValues = COLORS.reduce((acc, color) => ({
-        ...acc,
-        [color]: {
-            measuredL: initialData?.[color]?.measuredL ?? 0,
-            measuredX: initialData?.[color]?.measuredX ?? targets[color].targetX,
-            measuredY: initialData?.[color]?.measuredY ?? targets[color].targetY,
-        }
-    }), {} as FormValues);
-
-    const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema) as any,
-        defaultValues,
+    const [measurements, setMeasurements] = useState<MeasuredData>({
+        red: {}, green: {}, blue: {}, white: {}
     });
 
-    const values = useWatch({ control: form.control });
+    // Load data
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            const savedData = await loadColorVolumeDataAction(sessionId);
+            if (savedData) {
+                setMeasurements({
+                    red: { x: savedData.redX, y: savedData.redY, Y: savedData.redL },
+                    green: { x: savedData.greenX, y: savedData.greenY, Y: savedData.greenL },
+                    blue: { x: savedData.blueX, y: savedData.blueY, Y: savedData.blueL },
+                    white: { x: savedData.whiteX, y: savedData.whiteY, Y: savedData.whiteL },
+                });
+            }
+            setIsLoading(false);
+        };
+        loadData();
+    }, [sessionId, standardType]);
 
-    async function onSubmit(values: FormValues) {
+    const updatePoint = (color: keyof MeasuredData, field: keyof MeasuredPoint, value: string) => {
+        const numValue = parseFloat(value);
+        setMeasurements(prev => ({
+            ...prev,
+            [color]: {
+                ...prev[color],
+                [field]: isNaN(numValue) ? undefined : numValue
+            }
+        }));
+    };
+
+    const renderInputRow = (label: string, color: keyof MeasuredData, targetKey: string) => {
+        const target = targetSpecs[targetKey];
+        const point = measurements[color];
+        const deviation = (point.x !== undefined && point.y !== undefined)
+            ? calculateColorDistance(point.x, point.y, target.targetX, target.targetY)
+            : undefined;
+
+        const passed = deviation !== undefined ? deviation <= target.tolerance : undefined;
+
+        return (
+            <tr className="border-b hover:bg-muted/30">
+                <td className="p-3 font-medium">{label}</td>
+                <td className="p-3 text-center text-muted-foreground font-mono text-xs">
+                    x: {target.targetX.toFixed(3)}<br />y: {target.targetY.toFixed(3)}
+                </td>
+                <td className="p-3 text-center">
+                    <span className="text-xs">
+                        Δxy ≤ {target.tolerance}
+                    </span>
+                </td>
+                <td className="p-3">
+                    <div className="flex gap-2 justify-center">
+                        <Input
+                            placeholder="x"
+                            className="w-20 text-center font-mono text-xs"
+                            type="number" step="0.001"
+                            value={point.x ?? ''}
+                            onChange={e => updatePoint(color, 'x', e.target.value)}
+                        />
+                        <Input
+                            placeholder="y"
+                            className="w-20 text-center font-mono text-xs"
+                            type="number" step="0.001"
+                            value={point.y ?? ''}
+                            onChange={e => updatePoint(color, 'y', e.target.value)}
+                        />
+                        <Input
+                            placeholder="Y (cd/m²)"
+                            className="w-24 text-center font-mono text-xs"
+                            type="number" step="0.1"
+                            value={point.Y ?? ''}
+                            onChange={e => updatePoint(color, 'Y', e.target.value)}
+                        />
+                    </div>
+                </td>
+                <td className="p-3 text-center font-mono text-xs">
+                    {deviation !== undefined ? (
+                        <span className={passed ? 'text-green-600' : 'text-red-600 font-bold'}>
+                            {deviation.toFixed(4)}
+                        </span>
+                    ) : '-'}
+                </td>
+                <td className="p-3 text-center">
+                    {passed === true && <CheckCircle2 className="h-5 w-5 text-green-600 mx-auto" />}
+                    {passed === false && <XCircle className="h-5 w-5 text-red-600 mx-auto" />}
+                </td>
+            </tr>
+        );
+    };
+
+    const handleSave = async () => {
         setIsSaving(true);
         try {
-            const promises = COLORS.map(color => {
-                const data = values[color];
-                const type = color === 'White' ? 'white_point' : 'primary';
-
-                return saveColorMeasurementAction({
-                    sessionId,
-                    colorName: color,
-                    type: type,
-                    measuredL: data.measuredL,
-                    measuredX: data.measuredX,
-                    measuredY: data.measuredY,
-                });
+            const result = await saveColorVolumeDataAction({
+                sessionId,
+                measurements: {
+                    redX: measurements.red.x, redY: measurements.red.y, redL: measurements.red.Y,
+                    greenX: measurements.green.x, greenY: measurements.green.y, greenL: measurements.green.Y,
+                    blueX: measurements.blue.x, blueY: measurements.blue.y, blueL: measurements.blue.Y,
+                    whiteX: measurements.white.x, whiteY: measurements.white.y, whiteL: measurements.white.Y,
+                }
             });
 
-            await Promise.all(promises);
-            alert('保存成功');
+            if (result.success) {
+                alert('数据已保存成功!');
+            } else {
+                alert('保存失败');
+            }
         } catch (error) {
-            console.error(error);
-            alert('保存出错');
+            alert('保存失败');
         } finally {
             setIsSaving(false);
         }
-    }
+    };
 
-    const renderColorInput = (color: typeof COLORS[number]) => {
-        const target = targets[color];
-        const measuredX = values[color]?.measuredX || 0;
-        const measuredY = values[color]?.measuredY || 0;
+    // Prepare Chart Data
+    const chartPrimaries = {
+        red: { x: targetSpecs.Red.targetX, y: targetSpecs.Red.targetY },
+        green: { x: targetSpecs.Green.targetX, y: targetSpecs.Green.targetY },
+        blue: { x: targetSpecs.Blue.targetX, y: targetSpecs.Blue.targetY },
+        white: { x: targetSpecs.White.targetX, y: targetSpecs.White.targetY }
+    };
 
-        const isCompliant = isColorCompliant(measuredX, measuredY, target);
-        const distance = calculateColorDistance(measuredX, measuredY, target.targetX, target.targetY);
-
-        return (
-            <div key={color} className={`border p-4 rounded-md space-y-4 ${isCompliant ? 'border-gray-200 dark:border-gray-800' : 'border-red-300 bg-red-50 dark:bg-red-900/10'}`}>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="font-semibold text-lg">{color}</div>
-                        {isCompliant ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                        Target: ({target.targetX}, {target.targetY})
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                        control={form.control}
-                        name={`${color}.measuredL`}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs">L (cd/m²)</FormLabel>
-                                <FormControl>
-                                    <Input type="number" step="0.01" {...field} />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name={`${color}.measuredX`}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs">x</FormLabel>
-                                <FormControl>
-                                    <Input type="number" step="0.0001" {...field} />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name={`${color}.measuredY`}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-xs">y</FormLabel>
-                                <FormControl>
-                                    <Input type="number" step="0.0001" {...field} />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className={`text-xs text-right ${!isCompliant ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
-                    Δxy: {distance.toFixed(4)} (Tol: ±{target.tolerance})
-                </div>
-            </div>
-        );
+    const chartMeasured = {
+        red: measurements.red.x !== undefined && measurements.red.y !== undefined ? { x: measurements.red.x, y: measurements.red.y } : undefined,
+        green: measurements.green.x !== undefined && measurements.green.y !== undefined ? { x: measurements.green.x, y: measurements.green.y } : undefined,
+        blue: measurements.blue.x !== undefined && measurements.blue.y !== undefined ? { x: measurements.blue.x, y: measurements.blue.y } : undefined,
+        white: measurements.white.x !== undefined && measurements.white.y !== undefined ? { x: measurements.white.x, y: measurements.white.y } : undefined,
     };
 
     return (
         <MeasurementLayout
-            title="色域覆盖 (Color Volume)"
-            subtitle="测量 R, G, B 原色及白点，验证 P3 色域覆盖"
-            phases={['Phase 1']}
+            title="色域覆盖率 (Color Volume)"
+            subtitle="验证显示设备的色域覆盖范围 (P3)"
+            phases={['Phase 2']}
             standard={{
                 title: spec.name,
                 reference: spec.reference,
-                targets: spec.targets.map(t => ({
-                    label: t.name,
-                    value: `(${t.targetX}, ${t.targetY})`,
-                    tolerance: `±${t.tolerance}`
-                }))
+                description: "测量 R/G/B/White 的色坐标 (x, y) 和亮度 (Y)，计算与目标值的偏差。",
+                targets: [
+                    { label: "Red", value: `(${targetSpecs.Red.targetX}, ${targetSpecs.Red.targetY})` },
+                    { label: "Green", value: `(${targetSpecs.Green.targetX}, ${targetSpecs.Green.targetY})` },
+                    { label: "Blue", value: `(${targetSpecs.Blue.targetX}, ${targetSpecs.Blue.targetY})` },
+                    { label: "White", value: `(${targetSpecs.White.targetX}, ${targetSpecs.White.targetY})` },
+                ]
             }}
         >
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
-                        <TabsList className="grid w-full grid-cols-2 mb-6">
-                            <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
-                            <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
-                        </TabsList>
+            <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')} className="mb-6">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="sdr">SDR Standard (P3, DCI White)</TabsTrigger>
+                    <TabsTrigger value="hdr">HDR Standard (P3, D65 White)</TabsTrigger>
+                </TabsList>
+            </Tabs>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {COLORS.map(renderColorInput)}
+            {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-muted-foreground">加载数据中...</span>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base">测量数据录入</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse text-sm">
+                                        <thead>
+                                            <tr className="border-b bg-muted/50">
+                                                <th className="p-3 text-left font-medium">色块</th>
+                                                <th className="p-3 text-center font-medium">目标值 (x, y)</th>
+                                                <th className="p-3 text-center font-medium">容差</th>
+                                                <th className="p-3 text-center font-medium">测量值 (x, y, Y)</th>
+                                                <th className="p-3 text-center font-medium">偏差 Δxy</th>
+                                                <th className="p-3 text-center font-medium">结果</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {renderInputRow("Red Primary", "red", "Red")}
+                                            {renderInputRow("Green Primary", "green", "Green")}
+                                            {renderInputRow("Blue Primary", "blue", "Blue")}
+                                            {renderInputRow("White Point", "white", "White")}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <div className="flex justify-end">
+                            <Button onClick={handleSave} disabled={isSaving} size="lg">
+                                {isSaving ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        保存中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="mr-2 h-4 w-4" />
+                                        保存测量数据
+                                    </>
+                                )}
+                            </Button>
                         </div>
-                    </Tabs>
-
-                    <div className="flex justify-end">
-                        <Button type="submit" disabled={isSaving} size="lg">
-                            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            <Save className="mr-2 h-4 w-4" />
-                            保存所有数据
-                        </Button>
                     </div>
-                </form>
-            </Form>
+
+                    {/* Chart Section */}
+                    <div>
+                        <CIEPlot
+                            title={`CIE 1931 Diagram (${standardType.toUpperCase()})`}
+                            primaries={chartPrimaries}
+                            measuredPrimaries={chartMeasured}
+                        />
+                    </div>
+                </div>
+            )}
         </MeasurementLayout>
     );
 }

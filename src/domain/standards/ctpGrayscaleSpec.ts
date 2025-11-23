@@ -23,6 +23,21 @@ export interface GrayscaleStepSpec {
     tolerance: number; // as percentage (e.g., 0.05 for ±5%) - For SDR fixed per table
 }
 
+// Source Metadata
+export const SPEC_SOURCE = {
+    SDR: {
+        spec: "DCI CTP 1.4.3",
+        section: "7.5.11",
+        tables: ["7.5.11(a)", "7.5.11(b)"]
+    },
+    HDR: {
+        spec: "High Dynamic Range D-Cinema Addendum",
+        version: "1.0 (2023)",
+        section: "8.4.6.2",
+        tables: ["Table 7 (Bright)", "Table 8 (Dark)", "Table 6 (Tolerances)"]
+    }
+};
+
 // Table 7.5.11(a): Black-to-white gray step-scale test pattern
 export const WHITE_STEPS_SPEC: GrayscaleStepSpec[] = [
     { stepNumber: 1, codeX: 379, codeY: 396, codeZ: 389, smpteLuminance: 0.14, smpteX: 0.314, smpteY: 0.351, nominalLuminance: 0.121, tolerance: 0.05 },
@@ -120,4 +135,30 @@ export function isWithinTolerance(
 export function calculateDeviation(measured: number, nominal: number): number {
     if (nominal === 0) return 0;
     return ((measured - nominal) / nominal) * 100;
+}
+
+// New Helpers for Charting and Analysis
+export function calculatePercentageError(measured: number, target: number): number {
+    return calculateDeviation(measured, target);
+}
+
+export function calculateDeltaL(measured: number, target: number): number {
+    return measured - target;
+}
+
+export function calculateNormalizedL(measured: number, peak: number): number {
+    if (peak === 0) return 0;
+    return measured / peak;
+}
+
+export type ValidationResult = 'pass' | 'soft-fail' | 'fail';
+
+export function validateHDREOTF(measured: number, target: number): ValidationResult {
+    const tolerance = getHDREOTFTolerance(target);
+    const error = Math.abs(calculatePercentageError(measured, target));
+    const tolerancePercent = tolerance * 100;
+
+    if (error <= tolerancePercent) return 'pass';
+    if (error <= tolerancePercent * 2) return 'soft-fail';
+    return 'fail';
 }
