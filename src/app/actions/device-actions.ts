@@ -8,6 +8,7 @@ import { z } from 'zod';
 const deviceSchema = z.object({
     manufacturer: z.string().min(1, "Manufacturer is required"),
     model: z.string().min(1, "Model is required"),
+    type: z.enum(['projector', 'direct_view']),
     serialNumber: z.string().optional(),
     description: z.string().optional(),
 });
@@ -20,6 +21,7 @@ export async function createDeviceAction(formData: FormData) {
     const rawData = {
         manufacturer: formData.get('manufacturer'),
         model: formData.get('model'),
+        type: formData.get('type') || 'projector',
         serialNumber: formData.get('serialNumber') || undefined,
         description: formData.get('description') || undefined,
     };

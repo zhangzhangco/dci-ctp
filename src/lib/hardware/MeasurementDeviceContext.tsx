@@ -10,7 +10,7 @@ interface MeasurementDeviceContextType {
     isConnected: boolean;
     selectDevice: (deviceId: string) => Promise<void>;
     measure: () => Promise<ColorimetricData>;
-    refreshDevices: () => void;
+    refreshDevices: () => Promise<void>;
 }
 
 const MeasurementDeviceContext = createContext<MeasurementDeviceContextType | null>(null);
@@ -20,25 +20,29 @@ interface MeasurementDeviceProviderProps {
 }
 
 export function MeasurementDeviceProvider({ children }: MeasurementDeviceProviderProps) {
-    const [devices, setDevices] = useState<MeasurementDevice[]>([]);
-    const [currentDevice, setCurrentDevice] = useState<MeasurementDevice | null>(null);
+    const [devices, setDevices] = useState<MeasurementDeviceInfo[]>([]);
+    const [currentDevice, setCurrentDevice] = useState<MeasurementDeviceInfo | null>(null);
     const [isConnected, setIsConnected] = useState(false);
 
     // 刷新设备列表
-    const refreshDevices = useCallback(() => {
-        const allDevices = deviceManager.getDevices();
-        setDevices([...allDevices]);
+    const refreshDevices = useCallback(async () => {
+        try {
+            const allDevices = await hardwareApi.getDevices();
+            setDevices([...allDevices]);
 
-        const current = deviceManager.getCurrentDevice();
-        setCurrentDevice(current);
-        setIsConnected(current?.isConnected || false);
+            const current = await hardwareApi.getCurrentDevice();
+            setCurrentDevice(current);
+            setIsConnected(current?.isConnected || false);
+        } catch (error) {
+            console.error('Failed to refresh devices:', error);
+        }
     }, []);
 
     // 选择设备
     const selectDevice = useCallback(async (deviceId: string) => {
         try {
-            await deviceManager.setCurrentDevice(deviceId);
-            refreshDevices();
+            await hardwareApi.selectDevice(deviceId);
+            await refreshDevices();
         } catch (error) {
             console.error('Failed to select device:', error);
             throw error;
@@ -48,7 +52,7 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
     // 执行测量
     const measure = useCallback(async (): Promise<ColorimetricData> => {
         try {
-            const data = await deviceManager.measureWithCurrentDevice();
+            const data = await hardwareApi.measure();
             return data;
         } catch (error) {
             console.error('Measurement failed:', error);
@@ -58,15 +62,21 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
 
     // 初始化：加载设备列表并选择默认设备
     useEffect(() => {
-        refreshDevices();
-
-        // 自动连接 Mock 设备
-        const mockDevice = deviceManager.getDevice('cs2000-mock');
-        if (mockDevice) {
-            selectDevice('cs2000-mock').catch(err => {
-                console.error('Failed to connect to mock device:', err);
+        refreshDevices().then(() => {
+            // 自动连接 Mock 设备 (Check if it exists in the fetched list)
+            // We can't access 'devices' state immediately here as it's a closure, 
+            // but we can fetch again or just try to select.
+            // Better to just try selecting if we know we want it.
+            // Or check the list from API.
+            hardwareApi.getDevices().then(devs => {
+                const mockDevice = devs.find(d => d.id === 'cs2000-mock');
+                if (mockDevice) {
+                    selectDevice('cs2000-mock').catch(err => {
+                        console.error('Failed to connect to mock device:', err);
+                    });
+                }
             });
-        }
+        });
     }, [refreshDevices, selectDevice]);
 
     // 心跳检测：每 5 秒检查一次设备状态
@@ -74,7 +84,7 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
         const heartbeatInterval = setInterval(async () => {
             if (currentDevice) {
                 try {
-                    const status = await deviceManager.checkDeviceStatus(currentDevice.id);
+                    const status = await hardwareApi.checkDeviceStatus(currentDevice.id);
                     if (status !== isConnected) {
                         refreshDevices();
                     }
@@ -87,14 +97,9 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
         return () => clearInterval(heartbeatInterval);
     }, [currentDevice, isConnected, refreshDevices]);
 
-    // 组件卸载时断开所有设备
-    useEffect(() => {
-        return () => {
-            deviceManager.disconnectAll().catch(err => {
-                console.error('Failed to disconnect devices on unmount:', err);
-            });
-        };
-    }, []);
+    // 组件卸载时断开所有设备 - Client shouldn't force disconnect server devices usually, 
+    // unless we have a specific 'release' API. hardwareApi doesn't have disconnectAll.
+    // Removing this for now.
 
     const value: MeasurementDeviceContextType = {
         devices,

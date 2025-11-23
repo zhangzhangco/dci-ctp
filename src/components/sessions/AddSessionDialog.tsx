@@ -38,6 +38,7 @@ import { Plus } from 'lucide-react';
 const formSchema = z.object({
     deviceId: z.number().min(1, 'Device is required'),
     phase: z.number().min(1).max(3),
+    standard: z.enum(['sdr', 'hdr']),
     date: z.string().min(1, 'Date is required'),
     operator: z.string().optional(),
     location: z.string().optional(),
@@ -54,6 +55,7 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
         defaultValues: {
             deviceId: 0,
             phase: 1,
+            standard: 'sdr',
             date: new Date().toISOString().split('T')[0],
             operator: '',
             location: '',
@@ -65,6 +67,7 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
         const formData = new FormData();
         formData.append('deviceId', values.deviceId.toString());
         formData.append('phase', values.phase.toString());
+        formData.append('standard', values.standard);
         formData.append('date', values.date);
         if (values.operator) formData.append('operator', values.operator);
         if (values.location) formData.append('location', values.location);
@@ -140,6 +143,30 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                                             <SelectItem value="1">Phase 1: Device-Level</SelectItem>
                                             <SelectItem value="2">Phase 2: System-Level (CTP)</SelectItem>
                                             <SelectItem value="3">Phase 3: Exhibition-Level</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="standard"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Standard</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select standard" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="sdr">SDR (Standard Dynamic Range)</SelectItem>
+                                            <SelectItem value="hdr">HDR (High Dynamic Range)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

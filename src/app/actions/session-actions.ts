@@ -3,20 +3,19 @@
 import { createTestSession, getAllSessions } from '@/domain/sessions';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { db } from '@/db';
+import { measurementsBasic, measurementsUniformity, measurementsColor, measurementsGrayscale } from '@/db/schema';
+import { eq, count } from 'drizzle-orm';
 
 const sessionSchema = z.object({
     deviceId: z.coerce.number().min(1, "Device is required"),
     phase: z.coerce.number().min(1).max(3),
+    standard: z.enum(['sdr', 'hdr']),
     date: z.string().min(1, "Date is required"),
     operator: z.string().optional(),
     location: z.string().optional(),
     notes: z.string().optional(),
 });
-
-
-import { db } from '@/db';
-import { measurementsBasic, measurementsUniformity, measurementsColor, measurementsGrayscale } from '@/db/schema';
-import { eq, count } from 'drizzle-orm';
 
 export async function getSessionsAction() {
     return await getAllSessions();
@@ -61,6 +60,7 @@ export async function createSessionAction(formData: FormData) {
     const rawData = {
         deviceId: formData.get('deviceId'),
         phase: formData.get('phase'),
+        standard: formData.get('standard') || 'sdr',
         date: formData.get('date'),
         operator: formData.get('operator') || undefined,
         location: formData.get('location') || undefined,

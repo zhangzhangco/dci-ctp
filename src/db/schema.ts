@@ -45,6 +45,7 @@ export const devices = sqliteTable('devices', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     manufacturer: text('manufacturer').notNull(),
     model: text('model').notNull(),
+    type: text('type').notNull().default('projector'), // 'projector' | 'direct_view'
     serialNumber: text('serial_number'),
     description: text('description'),
     createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
@@ -54,6 +55,7 @@ export const testSessions = sqliteTable('test_sessions', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     deviceId: integer('device_id').references(() => devices.id).notNull(),
     phase: integer('phase').notNull(), // 1, 2, or 3
+    standard: text('standard').notNull().default('sdr'), // 'sdr' | 'hdr'
     date: text('date').notNull(),
     operator: text('operator'),
     location: text('location'),
@@ -140,6 +142,96 @@ export const measurementsPixelStructure = sqliteTable('measurements_pixel_struct
 
     notes: text('notes'),
     images: text('images'), // JSON array of image URLs
+});
+
+// 1. Intra-Frame Contrast
+export const measurementsIntraContrast = sqliteTable('measurements_intra_contrast', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+    standard: text('standard').notNull(), // 'sdr' or 'hdr'
+
+    // White Patches (cd/m2)
+    whiteL: real('white_l'), whiteR: real('white_r'),
+    whiteT: real('white_t'), whiteB: real('white_b'),
+
+    // Black Patches (cd/m2)
+    blackL: real('black_l'), blackR: real('black_r'),
+    blackT: real('black_t'), blackB: real('black_b'),
+
+    contrastRatio: real('contrast_ratio'),
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 2. Inactive Area Black
+export const measurementsInactiveArea = sqliteTable('measurements_inactive_area', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    topBorderCheck: integer('top_border_check', { mode: 'boolean' }),
+    bottomBorderCheck: integer('bottom_border_check', { mode: 'boolean' }),
+    leftBorderCheck: integer('left_border_check', { mode: 'boolean' }),
+    rightBorderCheck: integer('right_border_check', { mode: 'boolean' }),
+
+    measuredLuminance: real('measured_luminance'), // Max luminance found
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 3. Pixel Count
+export const measurementsPixelCount = sqliteTable('measurements_pixel_count', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    patternType: text('pattern_type'), // 'north', 'south', 'east', 'west'
+    pixelBlockComplete: integer('pixel_block_complete', { mode: 'boolean' }),
+    noCropping: integer('no_cropping', { mode: 'boolean' }),
+    noScaling: integer('no_scaling', { mode: 'boolean' }),
+
+    horizontalPixels: integer('horizontal_pixels'),
+    verticalPixels: integer('vertical_pixels'),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 4. Contouring
+export const measurementsContouring = sqliteTable('measurements_contouring', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+    standard: text('standard').notNull(), // 'sdr' or 'hdr'
+
+    monotonicityPass: integer('monotonicity_pass', { mode: 'boolean' }),
+    visualCheckPass: integer('visual_check_pass', { mode: 'boolean' }),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 5. Sub-Pixel Alignment
+export const measurementsSubPixel = sqliteTable('measurements_sub_pixel', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    horizontalLinesPass: integer('horizontal_lines_pass', { mode: 'boolean' }),
+    verticalLinesPass: integer('vertical_lines_pass', { mode: 'boolean' }),
+    noColorFringing: integer('no_color_fringing', { mode: 'boolean' }),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 6. Upscaling Artifacts
+export const measurementsUpscaling = sqliteTable('measurements_upscaling', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    noJaggies: integer('no_jaggies', { mode: 'boolean' }),
+    noRinging: integer('no_ringing', { mode: 'boolean' }),
+    noAliasing: integer('no_aliasing', { mode: 'boolean' }),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
 });
 
 // ==========================================

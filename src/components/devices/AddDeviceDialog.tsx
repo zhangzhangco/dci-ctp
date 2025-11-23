@@ -26,11 +26,19 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 
 const formSchema = z.object({
-    manufacturer: z.string().min(1, 'Manufacturer is required'),
-    model: z.string().min(1, 'Model is required'),
+    manufacturer: z.string().min(1, "Manufacturer is required"),
+    model: z.string().min(1, "Model is required"),
+    type: z.enum(['projector', 'direct_view']),
     serialNumber: z.string().optional(),
     description: z.string().optional(),
 });
@@ -43,6 +51,7 @@ export function AddDeviceDialog() {
         defaultValues: {
             manufacturer: '',
             model: '',
+            type: 'projector',
             serialNumber: '',
             description: '',
         },
@@ -52,6 +61,7 @@ export function AddDeviceDialog() {
         const formData = new FormData();
         formData.append('manufacturer', values.manufacturer);
         formData.append('model', values.model);
+        formData.append('type', values.type);
         if (values.serialNumber) formData.append('serialNumber', values.serialNumber);
         if (values.description) formData.append('description', values.description);
 
@@ -103,6 +113,30 @@ export function AddDeviceDialog() {
                                     <FormControl>
                                         <Input placeholder="e.g. Onyx P3.3" {...field} />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Device Type</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="projector">Projector</SelectItem>
+                                            <SelectItem value="direct_view">Direct View (LED)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

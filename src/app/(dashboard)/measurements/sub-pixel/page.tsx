@@ -1,0 +1,16 @@
+import { SubPixelForm } from '@/components/measurements/SubPixelForm';
+import { notFound } from 'next/navigation';
+
+interface PageProps {
+    searchParams: { sessionId?: string };
+}
+
+export default function SubPixelPage({ searchParams }: PageProps) {
+    const sessionId = searchParams.sessionId ? parseInt(searchParams.sessionId) : null;
+
+    if (!sessionId || isNaN(sessionId)) {
+        notFound();
+    }
+
+    return <SubPixelForm sessionId={sessionId} />;
+}
