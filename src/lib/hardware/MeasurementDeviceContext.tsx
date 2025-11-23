@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { deviceManager, MeasurementDevice } from './DeviceManager';
+import { hardwareApi, MeasurementDeviceInfo } from './api-client';
 import { ColorimetricData } from './cs2000';
 
 interface MeasurementDeviceContextType {
-    devices: MeasurementDevice[];
-    currentDevice: MeasurementDevice | null;
+    devices: MeasurementDeviceInfo[];
+    currentDevice: MeasurementDeviceInfo | null;
     isConnected: boolean;
     selectDevice: (deviceId: string) => Promise<void>;
     measure: () => Promise<ColorimetricData>;

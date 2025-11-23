@@ -128,6 +128,20 @@ export const measurementsBasic = sqliteTable('measurements_basic', {
     notes: text('notes'),
 });
 
+// Pixel Structure (Phase 1: Checklist)
+export const measurementsPixelStructure = sqliteTable('measurements_pixel_structure', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    fillFactorCheck: integer('fill_factor_check', { mode: 'boolean' }),
+    pixelPitchCheck: integer('pixel_pitch_check', { mode: 'boolean' }),
+    subPixelStructureCheck: integer('sub_pixel_structure_check', { mode: 'boolean' }),
+    visualArtifactsCheck: integer('visual_artifacts_check', { mode: 'boolean' }),
+
+    notes: text('notes'),
+    images: text('images'), // JSON array of image URLs
+});
+
 // ==========================================
 // 3. Results Linkage
 // ==========================================
