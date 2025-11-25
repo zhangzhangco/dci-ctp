@@ -26,7 +26,7 @@ import {
 import { MeasurementLayout } from './MeasurementLayout';
 import { GrayscaleChart } from '@/components/charts/GrayscaleChart';
 import { MeasureButton } from './MeasureButton';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 interface GrayscaleFormProps {
     sessionId: number;

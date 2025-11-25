@@ -67,109 +67,172 @@ export async function getCTPOverviewAction(
     }
 
     const standardType = (session.standard || 'sdr') as StandardType;
-    const deviceType = (session.device.type || 'projector') as 'projector' | 'direct_view';
+    const deviceType = (session.device?.type || 'projector') as 'projector' | 'direct_view';
 
-    // Phase 1: Device-Level 测量项
+    // Helper to create placeholder items
+    const createPlaceholder = (id: string, name: string, phase: 1 | 2 | 3, ref: string, standard?: string): MeasurementItemStatus => ({
+        id,
+        name: standard ? `${standard.toUpperCase()} ${name}` : name,
+        category: 'device',
+        phase,
+        status: 'not_tested',
+        standardRef: ref,
+        navigationPath: `/measurements/placeholder?id=${id}` // Placeholder path
+    });
+
+    // Phase 1: Device Baseline (Direct View Geometry / Uniformity / Environment)
     const phase1Items: MeasurementItemStatus[] = [];
 
-    // 1. Peak White & Black Level
-    const peakWhiteData = await db.query.measurementsBasic.findFirst({
-        where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'peak_white'))
-    });
-    const blackLevelData = await db.query.measurementsBasic.findFirst({
-        where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'black_level'))
-    });
-
-    phase1Items.push(await evaluatePeakWhiteBlack(sessionId, { centerWhite: peakWhiteData?.measuredL, centerBlack: blackLevelData?.measuredL }, standardType));
-
-    // 2. Uniformity
-    const uniformityData = await db.query.measurementsUniformity.findMany({
-        where: eq(measurementsUniformity.sessionId, sessionId)
-    });
-
-    phase1Items.push(await evaluateUniformity(sessionId, uniformityData, standardType));
-
-    // 3. Color Volume
-    phase1Items.push({
-        id: 'color-volume',
-        name: '色域覆盖率',
-        category: 'device',
-        phase: 1,
-        status: 'not_tested',
-        standardRef: standardType === 'sdr' ? SDR_COLOR_VOLUME_SPEC.reference : HDR_COLOR_VOLUME_SPEC.reference,
-        navigationPath: `/measurements/color-volume?sessionId=${sessionId}`
-    });
-
-    // 4. Pixel Structure
+    // 7.5.3 Pixel Count / Structure (All)
     const pixelStructureData = await db.query.measurementsPixelStructure.findFirst({
         where: eq(measurementsPixelStructure.sessionId, sessionId)
     });
-
     phase1Items.push(await evaluatePixelStructure(sessionId, pixelStructureData));
 
-    // 5. Pixel Count
     const pixelCountData = await db.query.measurementsPixelCount.findFirst({
         where: eq(measurementsPixelCount.sessionId, sessionId)
     });
     phase1Items.push(await evaluatePixelCount(sessionId, pixelCountData));
 
-    // 6. Sub-Pixel Alignment
-    const subPixelData = await db.query.measurementsSubPixel.findFirst({
-        where: eq(measurementsSubPixel.sessionId, sessionId)
-    });
-    phase1Items.push(await evaluateSubPixel(sessionId, subPixelData));
+    if (deviceType === 'direct_view') {
+        // 7.5.18 SDR Inactive Black (DV)
+        const inactiveAreaDataSDR = await db.query.measurementsInactiveArea.findFirst({
+            where: eq(measurementsInactiveArea.sessionId, sessionId)
+        });
+        phase1Items.push(await evaluateInactiveArea(sessionId, inactiveAreaDataSDR, 'sdr'));
 
-    // 7. Upscaling Artifacts
-    const upscalingData = await db.query.measurementsUpscaling.findFirst({
-        where: eq(measurementsUpscaling.sessionId, sessionId)
-    });
-    phase1Items.push(await evaluateUpscaling(sessionId, upscalingData));
+        // 7.5.19 Off-axis Uniformity (DV)
+        phase1Items.push(createPlaceholder('off-axis-uniformity', 'Off-axis Uniformity', 1, '7.5.19'));
 
-    // 8. Intra-Frame Contrast
+        // 7.5.22 Surface Reflectivity (DV)
+        phase1Items.push(createPlaceholder('surface-reflectivity', 'Surface Reflectivity', 1, '7.5.22'));
+
+        // 7.5.23 Vignetting (DV)
+        phase1Items.push(createPlaceholder('vignetting', 'Vignetting', 1, '7.5.23'));
+
+        // 7.5.27 Sub-pixel (DV)
+        const subPixelData = await db.query.measurementsSubPixel.findFirst({
+            where: eq(measurementsSubPixel.sessionId, sessionId)
+        });
+        phase1Items.push(await evaluateSubPixel(sessionId, subPixelData));
+
+        // 7.5.30 Environment (DV)
+        phase1Items.push(createPlaceholder('dv-environment', 'Direct View Display Environment', 1, '7.5.30'));
+    } else {
+        // Projector Environment (7.5.13)
+        phase1Items.push(createPlaceholder('proj-environment', 'Projector Test Environment', 1, '7.5.13'));
+    }
+
+    // Phase 2: Image Chain Correctness (HDR/SDR EOTF, White Point, Color Accuracy, Black Level, Patterns)
+    const phase2Items: MeasurementItemStatus[] = [];
+
+    // 7.5.8 SDR Intra-frame Contrast (All)
     const intraContrastData = await db.query.measurementsIntraContrast.findFirst({
         where: eq(measurementsIntraContrast.sessionId, sessionId)
     });
-    phase1Items.push(await evaluateIntraContrast(sessionId, intraContrastData, standardType));
+    phase2Items.push(await evaluateIntraContrast(sessionId, intraContrastData, 'sdr'));
 
-    // 9. Inactive Area Black (Direct View Only)
+    // 7.5.9 SDR Grayscale (All)
+    const sdrGrayscaleData = await db.query.measurementsGrayscale.findMany({
+        where: and(eq(measurementsGrayscale.sessionId, sessionId), eq(measurementsGrayscale.standard, 'sdr'))
+    });
+    phase2Items.push(await evaluateGrayscale(sessionId, sdrGrayscaleData, 'sdr'));
+
+    // 7.5.10 SDR Contouring (All)
+    const sdrContouringData = await db.query.measurementsContouring.findFirst({
+        where: and(eq(measurementsContouring.sessionId, sessionId), eq(measurementsContouring.standard, 'sdr'))
+    });
+    phase2Items.push(await evaluateContouring(sessionId, sdrContouringData, 'sdr'));
+
+    // 7.5.11 SDR Transfer Function (All) - Usually covered by Grayscale, but listed separately.
+    phase2Items.push(createPlaceholder('sdr-transfer', 'SDR Transfer Function', 2, '7.5.11'));
+
+    // 7.5.12 SDR Color Accuracy (All)
+    const sdrColorData = await db.query.measurementsColor.findMany({
+        where: and(eq(measurementsColor.sessionId, sessionId), eq(measurementsColor.standard, 'sdr'))
+    });
+    phase2Items.push(await evaluateColorAccuracy(sessionId, sdrColorData, 'sdr'));
+
+    // 7.5.15 SDR White Luminance & Chromaticity (All)
+    const sdrPeakWhiteData = await db.query.measurementsBasic.findFirst({
+        where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'peak_white'), eq(table.standard, 'sdr'))
+    });
+    // 7.5.29 SDR Minimum Active Black Level (All)
+    const sdrBlackLevelData = await db.query.measurementsBasic.findFirst({
+        where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'black_level'), eq(table.standard, 'sdr'))
+    });
+    phase2Items.push(await evaluatePeakWhiteBlack(sessionId, { centerWhite: sdrPeakWhiteData?.measuredL, centerBlack: sdrBlackLevelData?.measuredL }, 'sdr'));
+
+    // 7.5.33 Image Frame Rates (All)
+    phase2Items.push(createPlaceholder('frame-rates', 'Image Frame Rates', 2, '7.5.33'));
+
+    if (standardType === 'hdr') {
+        // 7.5.14 HDR White Luminance & Chromaticity
+        const hdrPeakWhiteData = await db.query.measurementsBasic.findFirst({
+            where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'peak_white'), eq(table.standard, 'hdr'))
+        });
+        // 7.5.17 HDR Minimum Active Black
+        const hdrBlackLevelData = await db.query.measurementsBasic.findFirst({
+            where: (table, { and, eq }) => and(eq(table.sessionId, sessionId), eq(table.type, 'black_level'), eq(table.standard, 'hdr'))
+        });
+        phase2Items.push(await evaluatePeakWhiteBlack(sessionId, { centerWhite: hdrPeakWhiteData?.measuredL, centerBlack: hdrBlackLevelData?.measuredL }, 'hdr'));
+
+        // 7.5.16 HDR Color Accuracy
+        const hdrColorData = await db.query.measurementsColor.findMany({
+            where: and(eq(measurementsColor.sessionId, sessionId), eq(measurementsColor.standard, 'hdr'))
+        });
+        phase2Items.push(await evaluateColorAccuracy(sessionId, hdrColorData, 'hdr'));
+
+        // 7.5.28 HDR Transfer Function
+        const hdrGrayscaleData = await db.query.measurementsGrayscale.findMany({
+            where: and(eq(measurementsGrayscale.sessionId, sessionId), eq(measurementsGrayscale.standard, 'hdr'))
+        });
+        phase2Items.push(await evaluateGrayscale(sessionId, hdrGrayscaleData, 'hdr'));
+
+        // 7.5.31 Auto SDR/HDR Switching
+        phase2Items.push(createPlaceholder('auto-switch', 'Auto SDR/HDR Switching', 2, '7.5.31'));
+
+        // 7.5.32 HDR Inactive Black (DV)
+        if (deviceType === 'direct_view') {
+            phase2Items.push(createPlaceholder('hdr-inactive-black', 'HDR Inactive Black (DV)', 2, '7.5.32'));
+        }
+
+        // 7.5.35 HDR Contouring
+        const hdrContouringData = await db.query.measurementsContouring.findFirst({
+            where: and(eq(measurementsContouring.sessionId, sessionId), eq(measurementsContouring.standard, 'hdr'))
+        });
+        phase2Items.push(await evaluateContouring(sessionId, hdrContouringData, 'hdr'));
+    }
+
+    // Phase 3: System / Content Level (Upscaling, 3D, Stability)
+    const phase3Items: MeasurementItemStatus[] = [];
+
+    // 7.5.25 Image Upscaling Artifacts (DV)
     if (deviceType === 'direct_view') {
-        const inactiveAreaData = await db.query.measurementsInactiveArea.findFirst({
-            where: eq(measurementsInactiveArea.sessionId, sessionId)
+        const upscalingData = await db.query.measurementsUpscaling.findFirst({
+            where: eq(measurementsUpscaling.sessionId, sessionId)
         });
-        phase1Items.push(await evaluateInactiveArea(sessionId, inactiveAreaData));
+        phase3Items.push(await evaluateUpscaling(sessionId, upscalingData));
     }
 
-    // Phase 2: System-Level 测量项
-    const phase2Items: MeasurementItemStatus[] = [];
+    // 3D Optional Items (Placeholders)
+    phase3Items.push(createPlaceholder('stereo-extinction', 'Stereoscopic Extinction Ratio (Optional)', 3, '7.5.20'));
+    phase3Items.push(createPlaceholder('stereo-peak-white', 'SDR Stereoscopic Peak White (Optional)', 3, '7.5.21'));
+    phase3Items.push(createPlaceholder('stereo-black', 'SDR 3D Minimum Active Black (Optional)', 3, '7.5.24'));
+    phase3Items.push(createPlaceholder('stereo-color', 'SDR 3D Color Accuracy (Optional)', 3, '7.5.26'));
+    phase3Items.push(createPlaceholder('stereo-frame-rates', 'Stereoscopic Image Frame Rates (Optional)', 3, '7.5.34'));
 
-    // 1. Grayscale & Gamma
-    const grayscaleData = await db.query.measurementsGrayscale.findMany({
-        where: eq(measurementsGrayscale.sessionId, sessionId)
-    });
+    // 7.5.33 Image Frame Rates (Repeated for System Playback emphasis)
+    phase3Items.push(createPlaceholder('frame-rates-system', 'Image Frame Rates (System)', 3, '7.5.33'));
 
-    phase2Items.push(await evaluateGrayscale(sessionId, grayscaleData, standardType));
-
-    // 2. Color Accuracy
-    const colorAccuracyData = await db.query.measurementsColor.findMany({
-        where: eq(measurementsColor.sessionId, sessionId)
-    });
-
-    phase2Items.push(await evaluateColorAccuracy(sessionId, colorAccuracyData, standardType));
-
-    // 3. Contouring (SDR Only)
-    if (standardType === 'sdr') {
-        const contouringData = await db.query.measurementsContouring.findFirst({
-            where: eq(measurementsContouring.sessionId, sessionId)
-        });
-        phase2Items.push(await evaluateContouring(sessionId, contouringData, standardType));
-    }
 
     // 计算阶段状态
-    const phase1 = calculatePhaseStatus('Phase 1: Device-Level', 1, phase1Items);
-    const phase2 = calculatePhaseStatus('Phase 2: System-Level', 2, phase2Items);
+    const phase1 = calculatePhaseStatus('Phase 1: Device Baseline', 1, phase1Items);
+    const phase2 = calculatePhaseStatus('Phase 2: Image Chain Correctness', 2, phase2Items);
+    const phase3 = calculatePhaseStatus('Phase 3: System / Content Level', 3, phase3Items);
 
     // 计算总体状态
-    const allItems = [...phase1Items, ...phase2Items];
+    const allItems = [...phase1Items, ...phase2Items, ...phase3Items];
     const completedItems = allItems.filter(item => item.status !== 'not_tested').length;
     const passedItems = allItems.filter(item => item.status === 'pass').length;
     const failedItems = allItems.filter(item => item.status === 'fail').length;
@@ -197,7 +260,8 @@ export async function getCTPOverviewAction(
         completionPercentage: Math.round((completedItems / allItems.length) * 100),
         phases: {
             phase1,
-            phase2
+            phase2,
+            phase3
         },
         totalItems: allItems.length,
         completedItems,
@@ -216,13 +280,13 @@ async function evaluatePeakWhiteBlack(
 ): Promise<MeasurementItemStatus> {
     if (!data || data.centerWhite === undefined) {
         return {
-            id: 'peak-white-black',
-            name: '峰值白电平与黑电平',
+            id: `peak-white-black-${standardType}`,
+            name: `${standardType.toUpperCase()} 峰值白电平与黑电平`,
             category: 'device',
             phase: 1,
             status: 'not_tested',
             standardRef: standardType === 'sdr' ? SDR_WHITE_SPEC.reference : HDR_WHITE_SPEC.reference,
-            navigationPath: `/measurements/peak-white-black?sessionId=${sessionId}`
+            navigationPath: `/measurements/peak-white-black?sessionId=${sessionId}&standard=${standardType}`
         };
     }
 
@@ -245,15 +309,15 @@ async function evaluatePeakWhiteBlack(
     }
 
     return {
-        id: 'peak-white-black',
-        name: '峰值白电平与黑电平',
+        id: `peak-white-black-${standardType}`,
+        name: `${standardType.toUpperCase()} 峰值白电平与黑电平`,
         category: 'device',
         phase: 1,
         status,
         standardRef: spec.reference,
         summary: `白: ${data.centerWhite?.toFixed(1)} cd/m², 黑: ${data.centerBlack?.toFixed(4)} cd/m²`,
         issues: issues.length > 0 ? issues : undefined,
-        navigationPath: `/measurements/peak-white-black?sessionId=${sessionId}`
+        navigationPath: `/measurements/peak-white-black?sessionId=${sessionId}&standard=${standardType}`
     };
 }
 
@@ -594,17 +658,18 @@ async function evaluateIntraContrast(
 
 async function evaluateInactiveArea(
     sessionId: number,
-    data: any
+    data: any,
+    standardType: StandardType
 ): Promise<MeasurementItemStatus> {
     if (!data) {
         return {
-            id: 'inactive-area',
-            name: '非活动区域黑电平',
+            id: `inactive-area-${standardType}`,
+            name: `${standardType.toUpperCase()} 非活动区域黑电平`,
             category: 'device',
             phase: 1,
             status: 'not_tested',
             standardRef: 'DCI CTP §7.5.18',
-            navigationPath: `/measurements/inactive-area?sessionId=${sessionId}`
+            navigationPath: `/measurements/inactive-area?sessionId=${sessionId}&standard=${standardType}`
         };
     }
 
@@ -615,15 +680,15 @@ async function evaluateInactiveArea(
     if (!data.rightBorderCheck) issues.push('右边界不合格');
 
     return {
-        id: 'inactive-area',
-        name: '非活动区域黑电平',
+        id: `inactive-area-${standardType}`,
+        name: `${standardType.toUpperCase()} 非活动区域黑电平`,
         category: 'device',
         phase: 1,
         status: issues.length > 0 ? 'fail' : 'pass',
         standardRef: 'DCI CTP §7.5.18',
         summary: issues.length > 0 ? '边界检查失败' : '所有边界合格',
         issues: issues.length > 0 ? issues : undefined,
-        navigationPath: `/measurements/inactive-area?sessionId=${sessionId}`
+        navigationPath: `/measurements/inactive-area?sessionId=${sessionId}&standard=${standardType}`
     };
 }
 
@@ -661,7 +726,7 @@ async function evaluateContouring(
     };
 }
 
-function calculatePhaseStatus(name: string, phase: number, items: MeasurementItemStatus[]): PhaseStatus {
+function calculatePhaseStatus(name: string, phase: 1 | 2 | 3, items: MeasurementItemStatus[]): PhaseStatus {
     const completedItems = items.filter(item => item.status !== 'not_tested').length;
     const failedItems = items.filter(item => item.status === 'fail').length;
     const warningItems = items.filter(item => item.status === 'warning').length;

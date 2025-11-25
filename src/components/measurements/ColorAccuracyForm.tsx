@@ -29,7 +29,7 @@ import {
 } from '@/domain/standards/ctpColorAccuracySpec';
 import { CIEPlot, CIEPoint } from '@/components/charts/CIEPlot';
 import { MeasureButton } from './MeasureButton';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 import {
     P3_COLOR_SPEC,
     HDR_P3_COLOR_SPEC

@@ -122,6 +122,7 @@ export const measurementsBasic = sqliteTable('measurements_basic', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     sessionId: integer('session_id').references(() => testSessions.id).notNull(),
     type: text('type').notNull(), // 'peak_white', 'black_level'
+    standard: text('standard').default('sdr').notNull(), // 'sdr' or 'hdr'
 
     measuredL: real('measured_l'), // cd/m2
     measuredX: real('measured_x'), // Optional for Black Level
@@ -248,3 +249,105 @@ export const testResults = sqliteTable('test_results', {
 
     createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
+
+// Relations
+import { relations } from 'drizzle-orm';
+
+export const devicesRelations = relations(devices, ({ many }) => ({
+    sessions: many(testSessions),
+}));
+
+export const testSessionsRelations = relations(testSessions, ({ one, many }) => ({
+    device: one(devices, {
+        fields: [testSessions.deviceId],
+        references: [devices.id],
+    }),
+    measurementsGrayscale: many(measurementsGrayscale),
+    measurementsColor: many(measurementsColor),
+    measurementsUniformity: many(measurementsUniformity),
+    measurementsBasic: many(measurementsBasic),
+    measurementsPixelStructure: many(measurementsPixelStructure),
+    measurementsIntraContrast: many(measurementsIntraContrast),
+    measurementsInactiveArea: many(measurementsInactiveArea),
+    measurementsPixelCount: many(measurementsPixelCount),
+    measurementsContouring: many(measurementsContouring),
+    measurementsSubPixel: many(measurementsSubPixel),
+    measurementsUpscaling: many(measurementsUpscaling),
+}));
+
+export const measurementsGrayscaleRelations = relations(measurementsGrayscale, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsGrayscale.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsColorRelations = relations(measurementsColor, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsColor.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsUniformityRelations = relations(measurementsUniformity, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsUniformity.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsBasicRelations = relations(measurementsBasic, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsBasic.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsPixelStructureRelations = relations(measurementsPixelStructure, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsPixelStructure.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsIntraContrastRelations = relations(measurementsIntraContrast, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsIntraContrast.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsInactiveAreaRelations = relations(measurementsInactiveArea, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsInactiveArea.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsPixelCountRelations = relations(measurementsPixelCount, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsPixelCount.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsContouringRelations = relations(measurementsContouring, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsContouring.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsSubPixelRelations = relations(measurementsSubPixel, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsSubPixel.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsUpscalingRelations = relations(measurementsUpscaling, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsUpscaling.sessionId],
+        references: [testSessions.id],
+    }),
+}));

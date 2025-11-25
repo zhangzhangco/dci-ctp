@@ -19,7 +19,7 @@ import {
     getColorMeasurementsAction
 } from '@/app/actions/measurement-actions';
 import { MeasureButton } from './MeasureButton';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 import { MeasurementLayout } from './MeasurementLayout';
 import { CIEPlot } from '@/components/charts/CIEPlot';
 

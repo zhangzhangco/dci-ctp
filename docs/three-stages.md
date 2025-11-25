@@ -1,27 +1,78 @@
+下面是在你这段文字**基础上按“最新四阶段逻辑”重排+补充**后的版本：
+我没有删掉任何原有描述，只是：
+
+* 在前面加了一个 **“阶段零：物理摸底（Pre-CTP）”**；
+* 把原来的三阶段说明嵌入到新四阶段框架里；
+* 后面三个阶段的表格内容完全保留，只调整了标题和少量衔接语。
+
+---
+
 > 测试大类 → 代表测试 → CTP 入口路径 → 规范依据 → 测试过程要点 → 指标/判定标准出处
 
 ---
 
-## 一、阶段划分与总览
+## 一、阶段划分与总览（按 LED HDR 直显 + CTP 逻辑重构）
 
-* **阶段一：设备级（Device-Level）**
-  把 LED 屏当成一个“HDR 直显设备”，不管播放器，只测它本身的**物理能力**。
+结合 LED 直显 HDR 的实际研发流程，以及 CTP 26.2.1 中 28 个图像相关测试的结构，可以把整体测试划分为 **四个阶段**：
 
-* **阶段二：系统级（System-Level）**
-  播放链路 + 媒体块 + 显示设备一起，验证**信号→光的还原行为**（EOTF、灰阶、色彩等）。
+* **阶段零：物理摸底（Pre-CTP / Device Physics）**
+  在真正进入 CTP 之前，先针对灯珠、模组、驱动方式等做**物理层能力摸底**。
+  例如：L-I 曲线、低灰泄漏、寄生电容影响、发光角度分布、模组间散布、PWM / 扫描方式等。
+  这一阶段不直接对应 CTP 条款，但决定后续能否在 7.5.14、7.5.17、7.5.28、7.5.35 等 HDR 关键条款上达标，是 **CTP 的前置门槛**。
 
-* **阶段三：影厅级（Auditorium-Level）**
+* **阶段一：设备级（Device-Level / 设备基线）**
+  在阶段零完成物理摸底之后，**把 LED 屏当成一个“HDR 直显设备”**，不管播放器，只测它本身的**光学与几何能力**：
+  分辨率、像素结构、亮度均匀性、inactive black、反射率、vignetting、子像素重合、直显专用的环境测试等。
+  核心是建立“屏体+安装结构+环境”的**设备基线**。
+
+* **阶段二：系统级（System-Level / 成像链行为）**
+  在设备基线确认无硬伤之后，进入完整链路：
+  **播放链路 + 媒体块 + 显示设备一起**，验证**信号→光的还原行为**是否符合 DCI/HDR 预期。
+  关注 EOTF（PQ）、灰阶 tracking、轮廓（contouring）、色彩准确性、对比度、模式切换、缩放伪影等。
+  这一层基本就是“把 CTP 7.5 当成系统级 test library”。
+
+* **阶段三：影厅/系统级呈现（Auditorium-Level / 空间 + 视角 +环境）**
   把设备装到影厅里，考虑**环境光、座位位置、视角、屏幕几何**带来的实际呈现变化。
+  这里既包括 CTP 中显式的影厅/环境测试（如 7.1 测试环境，7.5.19 off-axis，7.5.22 反射，7.5.32 HDR inactive black 等），
+  也包括它们与 SMPTE 431-1 / RP 431-2、HDR Addendum、Direct View Addendum 的联合约束。
+  本质上是 **“在影院空间里验证系统级表现是否可复制”**。
 
 下面按阶段展开。
 
 ---
 
-## 二、阶段一：设备级测试（Device-Level）
+## 二、阶段零：物理摸底与前置测试（Pre-CTP / Device Physics）
+
+> 这个阶段不直接在 CTP 里列条款，但所有 CTP 成功与否都被它“预先写死了边界”。
+
+典型内容示意（只列方向，不细拆成表）：
+
+* 灯珠 / 模组：
+
+  * L-I 曲线（特别是 0.005~1 nit 区间的低灰行为）
+  * 不同批次 / 不同模组的亮度、色度散布
+* 驱动 / 扫描：
+
+  * PWM 频率、扫描方式对低灰闪烁、噪声、残影的影响
+  * 低灰泄漏、电流串扰、寄生电容导致的 **物理黑位抬高** 或“首行暗亮”
+* 光学结构：
+
+  * 发光角度（半峰全宽）与箱体结构组合后的出光分布
+  * 模组平整度与箱体机械结构对后续 vignetting / off-axis 的影响
+
+这些摸底结果，会直接影响后续阶段中：
+
+* 能否满足 **7.5.14/7.5.17/7.5.28/7.5.35** 等 HDR 关键条款的目标；
+* 阶段一中 **7.5.19 / 7.5.22 / 7.5.23 / 7.5.27 / 7.5.30** 等“设备基线”类测试的通过难度；
+* 阶段二在做 HDR EOTF / 黑位 / 灰阶校正时的可玩空间。
+
+---
+
+## 三、阶段一：设备级测试（Device-Level / 设备基线）
 
 > 核心入口：**CTP 第 26 章 – HDR Direct View Display Test Sequences**
-> 尤其是：26.2 HDR Direct View Display Consolidated Test Sequence / 26.2.1 Practical Procedures 
-> 以及影像测试章节 7.5.x 被 26.2 调用 
+> 尤其是：26.2 HDR Direct View Display Consolidated Test Sequence / 26.2.1 Practical Procedures
+> 以及影像测试章节 7.5.x 被 26.2 调用
 
 ### 阶段一测试矩阵（设备本体能力）
 
@@ -36,10 +87,11 @@
 | **7. 表面反射（设备本体属性）**  | Surface Reflectivity（Diffused/Specular） | CTP 26.2.1 → 调用 7.5.22 *Surface Reflectivity*（直接视显）                                                                 | Direct View Addendum 6.8 *Surface Reflectivity*（6.8.1 diffuse、6.8.2 specular）                                                             | CTP 7.5.22：使用指定反射率标准板和测量几何，测定屏幕的漫反射与镜面反射分量，用于评估对环境光的敏感程度。                                                | Direct View Addendum 6.8 要求设备的漫反射和镜面反射系数不超过一定数值，以保证在影院环境下不会严重抬升黑位或产生明显镜面高光。                                                                                   |
 
 > 小结：阶段一所有测试都可以从 **CTP 26.2 HDR Direct View Display** 作为入口，它组织并调用 7.5.x 具体测量，而 7.5.x 的数值容差则来自 **HDR Addendum + Direct View Addendum**。
+> 阶段零给这些测试设定了一个“物理上限”，阶段一是在这个上限内确认设备的 CTP 级基线是否成立。
 
 ---
 
-## 三、阶段二：系统级测试（System-Level）
+## 四、阶段二：系统级测试（System-Level / 成像链行为）
 
 > 核心入口：**CTP 第 7.5 章 – Image Reproduction**（由 24/26/28 章的各类设备 Test Sequence 调用）
 
@@ -49,7 +101,7 @@
 
 | 测试大类                                  | 代表测试 / 子项                               | CTP 入口路径                                                                                           | 规范依据                                                                                                       | 测试过程摘要                                                                                     | 指标/出处                                                                                                            |
 | ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| **1. HDR EOTF / 传递函数跟踪**              | HDR Transfer Function Tracking          | 对于 HDR Direct View：CTP 26.2.1 → 调用 7.5.28 *HDR Transfer Function*（对 E′→L 关系进行拟合）                   | HDR Addendum 8.4.6 *Electro-Optical Transfer Function*，要求参考显示跟踪 ST 2084（PQ）并在给定容差内                         | CTP 7.5.28：播放一系列编码为不同灰阶等级的测试帧，测量相应的屏幕亮度，拟合实际 EOTF，并与理论 PQ 曲线比较（例如以 log域或 delta L/L 度量）。    | HDR Addendum 8.4.6.2 给出了 EOTF 跟踪误差的允许范围（附录表中）；系统级通过/失败以内插的 PQ 曲线偏差是否在容差内判断。                                      |
+| **1. HDR EOTF / 传递函数跟踪**              | HDR Transfer Function Tracking          | 对于 HDR Direct View：CTP 26.2.1 → 调用 7.5.28 *HDR Transfer Function*（对 E′→L 关系进行拟合）                   | HDR Addendum 8.4.6 *Electro-Optical Transfer Function*，要求参考显示跟踪 ST 2084（PQ）并在给定容差内                         | CTP 7.5.28：播放一系列编码为不同灰阶等级的测试帧，测量相应的屏幕亮度，拟合实际 EOTF，并与理论 PQ 曲线比较（例如以 log 域或 delta L/L 度量）。   | HDR Addendum 8.4.6.2 给出了 EOTF 跟踪误差的允许范围（附录表中）；系统级通过/失败以内插的 PQ 曲线偏差是否在容差内判断。                                      |
 | **2. 灰阶 tracking & 轮廓**               | HDR/SDR Grayscale Tracking & Contouring | CTP 7.5.9 *Grayscale Tracking*；7.5.35 *HDR Contouring*（被 26.2/28.2 等章节调用）                          | HDR Addendum Annex B *Subjective Parameters* 中 B.1 *Grayscale Tracking*、B.2 *Contouring*；ST 2084 作为基础 EOTF | CTP 7.5.9：播放从黑到白阶梯图，测量每级亮度与色度，检查是否单调、色温稳定；7.5.35：观察灰阶渐变中有无明显轮廓带状伪影。                        | HDR Addendum B.1/B.2 定义了“良好灰阶 tracking”和“可接受轮廓程度”的主观标准；与 CTP 中“无明显色偏或突跳”“无明显 contouring 条纹”结合使用。                 |
 | **3. HDR 对比度 / Intra-frame Contrast** | Checkerboard (ANSI 样式) 对比度              | CTP 7.5.8 *SDR Intra-frame Contrast* + HDR 场景下可扩展使用；被 HDR Projector / Direct View Test Sequence 引用 | DCSS 对投影机对比度的总要求（8.3.3）；HDR Addendum 在 8.4.4/8.4.3 中用峰值和黑位间接限定系统对比度                                        | CTP 7.5.8：使用黑白棋盘格图案，测量黑白方块的平均亮度，计算对比度（白/黑），从系统视角评估“同帧内可见动态范围”。                             | 对于 HDR 模式，实测对比度应满足由白场 300 cd/m² 与 Minimum Active Black（HDR Addendum 8.4.4 给出）推导出的目标范围（考虑设备黑位裕度和环境残光）。            |
 | **4. 色彩准确性（系统链路）**                    | HDR Color Accuracy                      | CTP 7.5.12 *SDR Color Accuracy* + HDR 对应测试 7.5.16；由 24/26/28 各设备测试引用                               | HDR Addendum 8.4.8 *Color Accuracy* + Annex A Table 9（色差阈值使用 CIEDE2000）                                    | CTP 7.5.12/7.5.16：播放一组标准色块（覆盖原色、次原色、肤色、灰阶），测量实测 XYZ/色度，与名义值比较，计算 ΔE。                       | HDR Addendum 8.4.8 要求：基于 CIEDE2000 的色差 ΔE 在定义的最大限值之下（具体限值在 Annex A 表中），以保证 HDR 内容在参考链路上的色彩可预期。                   |
@@ -57,22 +109,25 @@
 | **6. 图像缩放 / 采样伪影**                    | Upscaling & Sampling Artifacts          | CTP 7.5.25 *Image Upscaling Artifacts*（由各设备 Test Sequence 调用）                                      | DCSS 对图像结构与容器的要求（3.2、8.2.2.7），保证缩放过程不破坏可读性与几何形态                                                            | CTP 7.5.25：用线条、zone-plate 和几何图案检查缩放和重采样带来的 aliasing、ringing、jaggies 等伪影。                   | 要求：在规定观影距离下不可出现严重 aliasing、ringing；CTP 配图 7.25(a)(b)(c) 提供了典型伪影示例作为参考。                                           |
 
 > 小结：阶段二基本就是“把 7.5 全部当成系统级 test library”，每个设备类型（HDR Projector / Direct View / SDR Projector）在 24/26/28 章从这里抽取需要的测试组合。
+> 阶段一确保“设备层面没有明显硬伤”，阶段二确认“链路实现真正符合 DCI HDR 语义”。
 
 ---
 
-## 四、阶段三：影厅级测试（Auditorium-Level）
+## 五、阶段三：影厅级测试（Auditorium-Level / 空间 + 视角 + 环境）
 
 > 这里的特点：**它既存在于 CTP 里，又“藏”在 SMPTE 环境规范里。**
 > 不是单独一条“测影院好不好看”的 test，而是**所有影像测试的前置条件 + 部分 off-axis/反射测试本身也具有影厅属性**。
+> 对 LED HDR 直显来说，这一层特别体现在：7.1 测试环境、7.5.19 off-axis、7.5.22 反射、7.5.32 HDR inactive black 等条款如何在影院空间落地。
 
 ### 阶段三测试矩阵（影院空间 & 视角）
 
-| 测试大类                          | 代表测试 / 子项                                             | CTP 入口路径                                                                                                                                   | 规范依据                                                                                                                                                                             | 测试过程摘要                                                                                     | 指标/出处                                                                                                               |
-| ----------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| **1. 测试环境几何与测量位置**            | Test Environment Geometry                             | CTP 7.1 *Test Environment for Image Measurements*：7.1.1 General；7.1.2 Projector；7.1.3 Direct View Display；7.1.4 Stereoscopic Measurements  | SMPTE RP 431-2 *Reference Projector and Environment for D-Cinema Quality*；SMPTE ST 431-1 *Screen Luminance Level, Chromaticity and Uniformity*（被 DCSS 和 Direct View Addendum 引用） | CTP 7.1：规定测量必须在**影厅内的参考观众位置**进行（通常是大厅中心、1.0–1.2 m 高度），并描述测量视角、设备预热时间、暗适应时间等。               | RP 431-2/ST 431-1 指定了参考观众位置、视角范围以及环境条件（例如墙面反射控制），这些成为 CTP 测试有效性的先决条件。                                               |
-| **2. 环境光（Ambient Luminance）** | Ambient Light & Inactive Black Level                  | HDR 参考显示环境：HDR Addendum 8.3.1 *Ambient Luminance*；直显设备影院环境：CTP 7.5.32 *HDR Inactive Black Level (Direct View Display)*（考察设备灭像时的环境黑）        | HDR Addendum 8.3 对 Review Room / Exhibition Theater 的环境光上限提出要求；Direct View Addendum 6.8 Surface Reflectivity 与 6.3 最小黑位共同决定“影厅黑”                                                 | CTP 7.5.32：在设备无信号或显示全黑（inactive）时，从观众位置测量屏幕亮度，这一数值体现**环境光 + 表面反射**共同作用下的“影院地板黑”。           | HDR Addendum 8.3.1 要求环境光应被**最小化或消除**，并在附表中给出最大允许环境亮度；CTP 要求 Inactive Black 不得超过该环境上限与设备 Minimum Active Black 的组合阈值。 |
-| **3. 水平/垂直视角均匀性**             | Horizontal / Vertical Full Screen Off-Axis Uniformity | CTP 7.5.19 *Horizontal and Vertical Full Screen Off-Axis Uniformity (Direct View Display)*（配合表 7.1）                                        | Direct View Addendum 6.6.2 *Horizontal Off-Axis Luminance Uniformity*、6.6.3 *Vertical Off-Axis Luminance Uniformity*（分别定义 ± 水平 / 垂直角度下的亮度变化容差）                                   | CTP 7.5.19：在指定的**水平/垂直偏轴角度**（例如 ±20° / ±30° 等），测量全屏白场亮度与色度，比较与轴上值的偏差，用以评估观众在不同座位行/列的体验一致性。 | Direct View Addendum 6.6.2/6.6.3 给出 off-axis 方向的最大亮度衰减与色度漂移百分比；这些指标直接决定“坐偏一点看是不是明显暗/偏色”。                            |
-| **4. 白色色度均匀性（影厅水平）**          | White Chromaticity Uniformity (On/Off-Axis)           | CTP 7.5.14(b) + 7.5.21/7.5.23 相关的 chromaticity uniformity 测试（直显部分）                                                                         | Direct View Addendum 6.7 *White Chromaticity Uniformity*（6.7.1 轴上、6.7.2 水平 off-axis、6.7.3 垂直 off-axis）                                                                           | CTP：在不同座位对应视角测量白场色度，验证坐在不同位置观众看到的白色是否落在 D65（或规定白点）的小范围容差之内。                                | Direct View Addendum 6.7.x 给出 x,y 偏移容差；这本质上是一个**影厅级观感一致性**指标：同一部片子在不同座位不应出现“左边偏绿、右边偏红”的明显差异。                        |
-| **5. 眩光/镜面反射与观众视角**           | Specular Glare Visibility                             | CTP 7.5.22 *Surface Reflectivity*（结果需要从观众位置进行主观复核）                                                                                         | Direct View Addendum 6.8.2 *Specular Reflectivity*；SMPTE 431-1 也要求屏幕周围反射控制，以减少二次反射进入观众视场                                                                                         | 在 CTP 实际执行时，除了定量测反射系数，还会从观众位置观察是否出现观众可感知的**亮点、眩光或对比度下降区域**，尤其在存在紧邻走道灯、出口牌提示灯时。             | Direct View Addendum 6.8.2 指出应限制镜面反射以避免在典型观众视角内产生明显反射热点；这些约束与 7.5.22 的反射测量结果一起用来判断影院是否适合安装对应直显设备。                   |
+| 测试大类                          | 代表测试 / 子项                                             | CTP 入口路径                                                                                                                                  | 规范依据                                                                                                                                                                             | 测试过程摘要                                                                                     | 指标/出处                                                                                                               |
+| ----------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **1. 测试环境几何与测量位置**            | Test Environment Geometry                             | CTP 7.1 *Test Environment for Image Measurements*：7.1.1 General；7.1.2 Projector；7.1.3 Direct View Display；7.1.4 Stereoscopic Measurements | SMPTE RP 431-2 *Reference Projector and Environment for D-Cinema Quality*；SMPTE ST 431-1 *Screen Luminance Level, Chromaticity and Uniformity*（被 DCSS 和 Direct View Addendum 引用） | CTP 7.1：规定测量必须在**影厅内的参考观众位置**进行（通常是大厅中心、1.0–1.2 m 高度），并描述测量视角、设备预热时间、暗适应时间等。               | RP 431-2/ST 431-1 指定了参考观众位置、视角范围以及环境条件（例如墙面反射控制），这些成为 CTP 测试有效性的先决条件。                                               |
+| **2. 环境光（Ambient Luminance）** | Ambient Light & Inactive Black Level                  | HDR 参考显示环境：HDR Addendum 8.3.1 *Ambient Luminance*；直显设备影院环境：CTP 7.5.32 *HDR Inactive Black Level (Direct View Display)*（考察设备灭像时的环境黑）       | HDR Addendum 8.3 对 Review Room / Exhibition Theater 的环境光上限提出要求；Direct View Addendum 6.8 Surface Reflectivity 与 6.3 最小黑位共同决定“影厅黑”                                                 | CTP 7.5.32：在设备无信号或显示全黑（inactive）时，从观众位置测量屏幕亮度，这一数值体现**环境光 + 表面反射**共同作用下的“影院地板黑”。           | HDR Addendum 8.3.1 要求环境光应被**最小化或消除**，并在附表中给出最大允许环境亮度；CTP 要求 Inactive Black 不得超过该环境上限与设备 Minimum Active Black 的组合阈值。 |
+| **3. 水平/垂直视角均匀性**             | Horizontal / Vertical Full Screen Off-Axis Uniformity | CTP 7.5.19 *Horizontal and Vertical Full Screen Off-Axis Uniformity (Direct View Display)*（配合表 7.1）                                       | Direct View Addendum 6.6.2 *Horizontal Off-Axis Luminance Uniformity*、6.6.3 *Vertical Off-Axis Luminance Uniformity*（分别定义 ± 水平 / 垂直角度下的亮度变化容差）                                   | CTP 7.5.19：在指定的**水平/垂直偏轴角度**（例如 ±20° / ±30° 等），测量全屏白场亮度与色度，比较与轴上值的偏差，用以评估观众在不同座位行/列的体验一致性。 | Direct View Addendum 6.6.2/6.6.3 给出 off-axis 方向的最大亮度衰减与色度漂移百分比；这些指标直接决定“坐偏一点看是不是明显暗/偏色”。                            |
+| **4. 白色色度均匀性（影厅水平）**          | White Chromaticity Uniformity (On/Off-Axis)           | CTP 7.5.14(b) + 7.5.21/7.5.23 相关的 chromaticity uniformity 测试（直显部分）                                                                        | Direct View Addendum 6.7 *White Chromaticity Uniformity*（6.7.1 轴上、6.7.2 水平 off-axis、6.7.3 垂直 off-axis）                                                                           | CTP：在不同座位对应视角测量白场色度，验证坐在不同位置观众看到的白色是否落在 D65（或规定白点）的小范围容差之内。                                | Direct View Addendum 6.7.x 给出 x,y 偏移容差；这本质上是一个**影厅级观感一致性**指标：同一部片子在不同座位不应出现“左边偏绿、右边偏红”的明显差异。                        |
+| **5. 眩光/镜面反射与观众视角**           | Specular Glare Visibility                             | CTP 7.5.22 *Surface Reflectivity*（结果需要从观众位置进行主观复核）                                                                                        | Direct View Addendum 6.8.2 *Specular Reflectivity*；SMPTE 431-1 也要求屏幕周围反射控制，以减少二次反射进入观众视场                                                                                         | 在 CTP 实际执行时，除了定量测反射系数，还会从观众位置观察是否出现观众可感知的**亮点、眩光或对比度下降区域**，尤其在存在紧邻走道灯、出口牌提示灯时。             | Direct View Addendum 6.8.2 指出应限制镜面反射以避免在典型观众视角内产生明显反射热点；这些约束与 7.5.22 的反射测量结果一起用来判断影院是否适合安装对应直显设备。                   |
 
 > 小结：阶段三里，**7.1 是“空间+环境”入口，7.5.19/22/32 等是“带影厅属性的测试”**，而具体阈值和行为定义来自 Direct View Addendum + HDR Addendum + SMPTE 431-1 / RP 431-2 联合约束。
+> 配合前面三个阶段，就把“从灯珠物理 → 屏体基线 → 成像链 → 影厅表现”这条路径在 CTP 框架内完整闭环了。

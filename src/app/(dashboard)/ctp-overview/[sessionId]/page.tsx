@@ -40,7 +40,7 @@ export default async function CTPOverviewPage({ params }: PageProps) {
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">CTP 合规性总览</h1>
                         <p className="text-muted-foreground mt-2">
-                            测试会话: {session.name || `Session #${session.id}`} • 设备: {session.device?.model || 'Unknown Device'} ({session.device?.type === 'direct_view' ? 'Direct View' : 'Projector'})
+                            测试会话: {`Session #${session.id}`} • 设备: {session.device?.model || 'Unknown Device'} ({session.device?.type === 'direct_view' ? 'Direct View' : 'Projector'})
                         </p>
                     </div>
 
@@ -60,8 +60,13 @@ export default async function CTPOverviewPage({ params }: PageProps) {
             {/* Phase 1: Device-Level */}
             <PhaseSection phase={overview.phases.phase1} />
 
-            {/* Phase 2: System-Level */}
+            {/* Phase 2: Image Chain Correctness */}
             <PhaseSection phase={overview.phases.phase2} />
+
+            {/* Phase 3: System / Content Level */}
+            {overview.phases.phase3 && (
+                <PhaseSection phase={overview.phases.phase3} />
+            )}
         </div>
     );
 }

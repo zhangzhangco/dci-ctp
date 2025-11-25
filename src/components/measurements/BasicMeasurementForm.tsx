@@ -25,7 +25,7 @@ import {
 import { BasicMeasurementType } from '@/domain/measurements/basic';
 import { MeasurementLayout } from './MeasurementLayout';
 import { MeasureButton } from './MeasureButton';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 interface BasicMeasurementFormProps {
     sessionId: number;

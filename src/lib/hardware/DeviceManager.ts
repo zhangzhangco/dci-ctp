@@ -1,4 +1,4 @@
-import type { CS2000Config, ColorimetricData } from './cs2000';
+import type { CS2000Config, ColorimetricData } from './cs2000/types';
 
 // 动态导入 CS2000 以避免在客户端加载 serialport
 async function loadCS2000() {

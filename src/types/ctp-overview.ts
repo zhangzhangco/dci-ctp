@@ -8,7 +8,7 @@ export interface MeasurementItemStatus {
     id: string;
     name: string;
     category: 'device' | 'system';
-    phase: 1 | 2;
+    phase: 1 | 2 | 3;
     status: MeasurementStatus;
     standardRef: string;
     summary?: string; // 简要结果摘要
@@ -18,7 +18,7 @@ export interface MeasurementItemStatus {
 
 export interface PhaseStatus {
     name: string;
-    phase: 1 | 2;
+    phase: 1 | 2 | 3;
     status: OverallStatus;
     completedItems: number;
     totalItems: number;
@@ -34,6 +34,7 @@ export interface CTPOverview {
     phases: {
         phase1: PhaseStatus;
         phase2: PhaseStatus;
+        phase3?: PhaseStatus;
     };
 
     totalItems: number;

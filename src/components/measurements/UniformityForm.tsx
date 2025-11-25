@@ -24,7 +24,7 @@ import {
     calculateChromaticityDistance
 } from '@/domain/standards/ctpUniformitySpec';
 import { MeasureButton } from './MeasureButton';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 const POSITIONS = [
     'TopLeft', 'TopCenter', 'TopRight',

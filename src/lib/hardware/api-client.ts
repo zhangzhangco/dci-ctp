@@ -3,7 +3,7 @@
  * 用于从客户端组件与服务端硬件管理器通信
  */
 
-import type { ColorimetricData } from './cs2000';
+import type { ColorimetricData } from './cs2000/types';
 
 export interface MeasurementDeviceInfo {
     id: string;

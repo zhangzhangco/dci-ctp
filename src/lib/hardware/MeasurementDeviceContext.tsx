@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { hardwareApi, MeasurementDeviceInfo } from './api-client';
-import { ColorimetricData } from './cs2000';
+import { ColorimetricData } from './cs2000/types';
 
 interface MeasurementDeviceContextType {
     devices: MeasurementDeviceInfo[];

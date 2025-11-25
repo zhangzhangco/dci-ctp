@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Activity } from 'lucide-react';
 import { useMeasurementDevice } from '@/lib/hardware/MeasurementDeviceContext';
-import { ColorimetricData } from '@/lib/hardware/cs2000';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 interface MeasureButtonProps {
     onMeasured: (data: ColorimetricData) => void;
