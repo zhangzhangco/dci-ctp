@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useMeasurementDevice } from '@/lib/hardware/MeasurementDeviceContext';
 import {
     Select,
@@ -11,16 +11,27 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Circle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Circle, RefreshCw } from 'lucide-react';
 
 export function DeviceSelector() {
-    const { devices, currentDevice, isConnected, selectDevice } = useMeasurementDevice();
+    const { devices, currentDevice, isConnected, selectDevice, scanDevices } = useMeasurementDevice();
+    const [isScanning, setIsScanning] = useState(false);
 
     const handleDeviceChange = async (deviceId: string) => {
         try {
             await selectDevice(deviceId);
         } catch (error) {
             console.error('Failed to change device:', error);
+        }
+    };
+
+    const handleScan = async () => {
+        setIsScanning(true);
+        try {
+            await scanDevices();
+        } finally {
+            setIsScanning(false);
         }
     };
 
@@ -75,6 +86,17 @@ export function DeviceSelector() {
                     </SelectGroup>
                 </SelectContent>
             </Select>
+
+            {/* 扫描按钮 */}
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleScan}
+                disabled={isScanning}
+                title="扫描新设备"
+            >
+                <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
+            </Button>
         </div>
     );
 }

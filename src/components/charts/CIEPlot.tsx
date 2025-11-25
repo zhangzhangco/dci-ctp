@@ -139,11 +139,26 @@ export function CIEPlot({ primaries, measuredPrimaries, points, title }: CIEPlot
                             <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
                                 <path d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" strokeWidth="0.5" opacity="0.2" />
                             </pattern>
+                            <clipPath id="spectral-clip">
+                                <path d={spectralPath} />
+                            </clipPath>
                         </defs>
                         <rect width="800" height="900" fill="url(#grid)" />
 
-                        {/* Spectral Locus */}
-                        <path d={spectralPath} fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400" />
+                        {/* Background Image (Clipped to Spectral Locus) */}
+                        <image
+                            href="/images/cie1931_gradient.png"
+                            x="0"
+                            y="0"
+                            width="800"
+                            height="900"
+                            preserveAspectRatio="none"
+                            opacity="0.8"
+                            clipPath="url(#spectral-clip)"
+                        />
+
+                        {/* Spectral Locus Outline */}
+                        <path d={spectralPath} fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-900 dark:text-slate-200" />
 
                         {/* Reference Gamut */}
                         {gamutPath && (

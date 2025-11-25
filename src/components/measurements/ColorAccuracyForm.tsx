@@ -214,6 +214,11 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
+                            target={{
+                                x: target.targetX,
+                                y: target.targetY,
+                                Y: target.targetL
+                            }}
                             onMeasured={(data: ColorimetricData) => {
                                 form.setValue(`${target.name}.measuredX`, parseFloat(data.x.toFixed(4)));
                                 form.setValue(`${target.name}.measuredY`, parseFloat(data.y.toFixed(4)));

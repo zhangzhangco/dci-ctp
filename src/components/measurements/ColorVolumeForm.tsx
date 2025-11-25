@@ -142,6 +142,7 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
+                            target={{ x: target.targetX, y: target.targetY }}
                             onMeasured={(data: ColorimetricData) => {
                                 updatePoint(color, 'x', data.x.toFixed(4));
                                 updatePoint(color, 'y', data.y.toFixed(4));

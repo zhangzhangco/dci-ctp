@@ -235,6 +235,24 @@ export const measurementsUpscaling = sqliteTable('measurements_upscaling', {
     notes: text('notes')
 });
 
+// 7. Exhibition Environment
+export const measurementsExhibition = sqliteTable('measurements_exhibition', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    ambientLightPass: integer('ambient_light_pass', { mode: 'boolean' }),
+    maskingPass: integer('masking_pass', { mode: 'boolean' }),
+    portWindowPass: integer('port_window_pass', { mode: 'boolean' }),
+    hvacNoisePass: integer('hvac_noise_pass', { mode: 'boolean' }),
+
+    ambientLightLevel: real('ambient_light_level'),
+    temperature: real('temperature'),
+    humidity: real('humidity'),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
 // ==========================================
 // 3. Results Linkage
 // ==========================================
@@ -273,6 +291,7 @@ export const testSessionsRelations = relations(testSessions, ({ one, many }) => 
     measurementsContouring: many(measurementsContouring),
     measurementsSubPixel: many(measurementsSubPixel),
     measurementsUpscaling: many(measurementsUpscaling),
+    measurementsExhibition: many(measurementsExhibition),
 }));
 
 export const measurementsGrayscaleRelations = relations(measurementsGrayscale, ({ one }) => ({
@@ -348,6 +367,13 @@ export const measurementsSubPixelRelations = relations(measurementsSubPixel, ({ 
 export const measurementsUpscalingRelations = relations(measurementsUpscaling, ({ one }) => ({
     session: one(testSessions, {
         fields: [measurementsUpscaling.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsExhibitionRelations = relations(measurementsExhibition, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsExhibition.sessionId],
         references: [testSessions.id],
     }),
 }));

@@ -32,6 +32,19 @@ export class HardwareApiClient {
     }
 
     /**
+     * 扫描新设备
+     */
+    async scanDevices(): Promise<MeasurementDeviceInfo[]> {
+        const response = await fetch(`${this.baseUrl}/devices/scan`, {
+            method: 'POST'
+        });
+        if (!response.ok) {
+            throw new Error('Failed to scan devices');
+        }
+        return response.json();
+    }
+
+    /**
      * 获取当前活动设备
      */
     async getCurrentDevice(): Promise<MeasurementDeviceInfo | null> {
@@ -60,10 +73,13 @@ export class HardwareApiClient {
 
     /**
      * 执行测量
+     * @param target 可选的目标值提示（用于模拟测量）
      */
-    async measure(): Promise<ColorimetricData> {
+    async measure(target?: { x?: number, y?: number, Y?: number }): Promise<ColorimetricData> {
         const response = await fetch(`${this.baseUrl}/measure`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target }),
         });
 
         if (!response.ok) {

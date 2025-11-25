@@ -12,6 +12,7 @@ interface MeasureButtonProps {
     size?: 'default' | 'sm' | 'lg' | 'icon';
     variant?: 'default' | 'outline' | 'ghost' | 'secondary';
     className?: string;
+    target?: { x?: number, y?: number, Y?: number }; // 目标值提示（用于模拟）
 }
 
 /**
@@ -24,6 +25,7 @@ export function MeasureButton({
     size = 'sm',
     variant = 'outline',
     className = '',
+    target,
 }: MeasureButtonProps) {
     const { measure, isConnected } = useMeasurementDevice();
     const [isMeasuring, setIsMeasuring] = useState(false);
@@ -39,7 +41,7 @@ export function MeasureButton({
         setError(null);
 
         try {
-            const data = await measure();
+            const data = await measure(target);
             onMeasured(data);
         } catch (err: any) {
             console.error('测量失败:', err);

@@ -4,8 +4,10 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle, ArrowRight, Lock } from 'lucide-react';
+import { CheckCircle2, Circle, ArrowRight, Lock, XCircle, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import { ResetSessionButton } from '@/components/ResetSessionButton';
 
 // 测试项目定义
 const TEST_DEFINITIONS = [
@@ -59,7 +61,16 @@ const TEST_DEFINITIONS = [
         description: 'Color Accuracy - DCI CTP §7.5.12',
         route: '/measurements/color-accuracy',
         category: '系统性能',
-        disabled: true,
+        disabled: false,
+    },
+    // Phase 3
+    {
+        id: 'exhibition-environment',
+        phase: 3,
+        name: '放映环境检查',
+        description: 'Exhibition Environment - DCI CTP §2.0',
+        route: '/measurements/exhibition',
+        category: '环境检测',
     },
 ];
 
@@ -87,14 +98,17 @@ export default async function SessionDetailPage({
     // Phase 2 Session 显示 Phase 1 + Phase 2 测试
     const visibleTests = TEST_DEFINITIONS.filter(t => t.phase <= session.phase);
 
-    const completedTests = visibleTests.filter(t => testStatus[t.id as keyof typeof testStatus]).length;
+    const completedTests = visibleTests.filter(t => {
+        const status = testStatus[t.id as keyof typeof testStatus];
+        return status === 'pass' || status === 'fail' || status === 'incomplete';
+    }).length;
     const totalTests = visibleTests.filter(t => !t.disabled).length;
     const progress = totalTests > 0 ? (completedTests / totalTests) * 100 : 0;
 
     return (
         <div className="container mx-auto py-10 space-y-8">
             {/* 会话信息卡片 */}
-            <Card>
+            <Card className="border-2 border-primary/10 animate-fade-in">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div>
@@ -104,44 +118,58 @@ export default async function SessionDetailPage({
                                 {device.serialNumber && ` - SN: ${device.serialNumber}`}
                             </CardDescription>
                         </div>
-                        <Badge variant={session.phase === 1 ? 'default' : 'secondary'}>
-                            Phase {session.phase}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <ResetSessionButton sessionId={sessionId} />
+                            <Badge
+                                variant={session.phase === 1 ? 'default' : session.phase === 2 ? 'secondary' : 'outline'}
+                                className="text-base px-4 py-1"
+                            >
+                                Phase {session.phase}
+                            </Badge>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <div className="text-sm text-muted-foreground">测试日期</div>
-                            <div className="font-medium">{session.date}</div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* 左侧：信息 */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <div className="text-sm text-muted-foreground">测试日期</div>
+                                <div className="font-medium">{session.date}</div>
+                            </div>
+                            {session.operator && (
+                                <div className="space-y-1">
+                                    <div className="text-sm text-muted-foreground">操作人员</div>
+                                    <div className="font-medium">{session.operator}</div>
+                                </div>
+                            )}
+                            {session.location && (
+                                <div className="space-y-1">
+                                    <div className="text-sm text-muted-foreground">测试地点</div>
+                                    <div className="font-medium">{session.location}</div>
+                                </div>
+                            )}
+                            <div className="space-y-1">
+                                <div className="text-sm text-muted-foreground">完成进度</div>
+                                <div className="font-medium">{completedTests}/{totalTests} 项测试</div>
+                            </div>
                         </div>
-                        {session.operator && (
-                            <div>
-                                <div className="text-sm text-muted-foreground">操作人员</div>
-                                <div className="font-medium">{session.operator}</div>
-                            </div>
-                        )}
-                        {session.location && (
-                            <div>
-                                <div className="text-sm text-muted-foreground">测试地点</div>
-                                <div className="font-medium">{session.location}</div>
-                            </div>
-                        )}
-                        <div>
-                            <div className="text-sm text-muted-foreground">完成进度</div>
-                            <div className="font-medium">{completedTests}/{totalTests} 项测试</div>
+
+                        {/* 右侧：进度环 */}
+                        <div className="flex items-center justify-center">
+                            <CircularProgress value={progress} size={140} />
                         </div>
                     </div>
 
                     {/* 进度条 */}
-                    <div className="mt-4">
+                    <div className="mt-6">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">整体进度</span>
                             <span className="text-sm text-muted-foreground">{progress.toFixed(0)}%</span>
                         </div>
-                        <div className="w-full bg-muted rounded-full h-2">
+                        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                             <div
-                                className="bg-primary h-2 rounded-full transition-all"
+                                className="h-3 rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-primary to-chart-1"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -160,8 +188,45 @@ export default async function SessionDetailPage({
 
                 <div className="grid gap-4">
                     {visibleTests.map((test) => {
-                        const isCompleted = testStatus[test.id as keyof typeof testStatus];
+                        const status = testStatus[test.id as keyof typeof testStatus] || 'none';
                         const isDisabled = test.disabled;
+
+                        let StatusIcon = Circle;
+                        let iconColor = "text-muted-foreground";
+                        let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "outline";
+                        let badgeText = "";
+
+                        switch (status) {
+                            case 'pass':
+                                StatusIcon = CheckCircle2;
+                                iconColor = "text-green-600";
+                                badgeVariant = "default"; // or green custom
+                                badgeText = "Pass";
+                                break;
+                            case 'fail':
+                                StatusIcon = XCircle;
+                                iconColor = "text-red-600";
+                                badgeVariant = "destructive";
+                                badgeText = "Fail";
+                                break;
+                            case 'incomplete':
+                                StatusIcon = AlertTriangle;
+                                iconColor = "text-yellow-500";
+                                badgeVariant = "secondary";
+                                badgeText = "Incomplete";
+                                break;
+                            default:
+                                StatusIcon = Circle;
+                                iconColor = "text-muted-foreground";
+                                badgeVariant = "outline";
+                                badgeText = "Not Started";
+                                break;
+                        }
+
+                        if (isDisabled) {
+                            badgeText = "Coming Soon";
+                            badgeVariant = "outline";
+                        }
 
                         return (
                             <Card key={test.id} className={isDisabled ? 'opacity-60' : ''}>
@@ -169,21 +234,17 @@ export default async function SessionDetailPage({
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-start gap-4">
                                             <div className="mt-1">
-                                                {isCompleted ? (
-                                                    <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                                ) : (
-                                                    <Circle className="h-6 w-6 text-muted-foreground" />
-                                                )}
+                                                <StatusIcon className={`h-6 w-6 ${iconColor}`} />
                                             </div>
                                             <div>
                                                 <h3 className="font-semibold text-lg flex items-center gap-2">
                                                     {test.name}
                                                     <Badge variant="outline" className="text-xs">Phase {test.phase}</Badge>
-                                                    {isDisabled && (
-                                                        <Badge variant="outline" className="text-xs">即将推出</Badge>
-                                                    )}
-                                                    {isCompleted && (
-                                                        <Badge variant="default" className="text-xs">已完成</Badge>
+
+                                                    {status !== 'none' && !isDisabled && (
+                                                        <Badge variant={badgeVariant} className={`text-xs ${status === 'pass' ? 'bg-green-600 hover:bg-green-700' : ''}`}>
+                                                            {badgeText}
+                                                        </Badge>
                                                     )}
                                                 </h3>
                                                 <p className="text-sm text-muted-foreground mt-1">
@@ -202,8 +263,8 @@ export default async function SessionDetailPage({
                                                 </Button>
                                             ) : (
                                                 <Link href={`${test.route}?sessionId=${sessionId}`}>
-                                                    <Button variant={isCompleted ? "outline" : "default"}>
-                                                        {isCompleted ? '查看/编辑' : '开始测试'}
+                                                    <Button variant={status !== 'none' ? "outline" : "default"}>
+                                                        {status !== 'none' ? '查看/编辑' : '开始测试'}
                                                         <ArrowRight className="ml-2 h-4 w-4" />
                                                     </Button>
                                                 </Link>

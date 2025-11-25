@@ -9,8 +9,9 @@ interface MeasurementDeviceContextType {
     currentDevice: MeasurementDeviceInfo | null;
     isConnected: boolean;
     selectDevice: (deviceId: string) => Promise<void>;
-    measure: () => Promise<ColorimetricData>;
+    measure: (target?: { x?: number, y?: number, Y?: number }) => Promise<ColorimetricData>;
     refreshDevices: () => Promise<void>;
+    scanDevices: () => Promise<void>;
 }
 
 const MeasurementDeviceContext = createContext<MeasurementDeviceContextType | null>(null);
@@ -50,9 +51,9 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
     }, [refreshDevices]);
 
     // 执行测量
-    const measure = useCallback(async (): Promise<ColorimetricData> => {
+    const measure = useCallback(async (target?: { x?: number, y?: number, Y?: number }): Promise<ColorimetricData> => {
         try {
-            const data = await hardwareApi.measure();
+            const data = await hardwareApi.measure(target);
             return data;
         } catch (error) {
             console.error('Measurement failed:', error);
@@ -60,24 +61,40 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
         }
     }, []);
 
+    // 扫描设备
+    const scanDevices = useCallback(async () => {
+        try {
+            const newDevices = await hardwareApi.scanDevices();
+            setDevices(newDevices);
+
+            // Update current device info as well
+            const current = await hardwareApi.getCurrentDevice();
+            setCurrentDevice(current);
+            setIsConnected(current?.isConnected || false);
+        } catch (error) {
+            console.error('Failed to scan devices:', error);
+        }
+    }, []);
+
     // 初始化：加载设备列表并选择默认设备
     useEffect(() => {
+        // 先获取列表，然后尝试扫描新设备
         refreshDevices().then(() => {
-            // 自动连接 Mock 设备 (Check if it exists in the fetched list)
-            // We can't access 'devices' state immediately here as it's a closure, 
-            // but we can fetch again or just try to select.
-            // Better to just try selecting if we know we want it.
-            // Or check the list from API.
-            hardwareApi.getDevices().then(devs => {
-                const mockDevice = devs.find(d => d.id === 'cs2000-mock');
-                if (mockDevice) {
-                    selectDevice('cs2000-mock').catch(err => {
-                        console.error('Failed to connect to mock device:', err);
-                    });
-                }
+            scanDevices().then(() => {
+                // Check if we need to auto-connect mock if nothing else is there
+                hardwareApi.getCurrentDevice().then(current => {
+                    if (!current) {
+                        hardwareApi.getDevices().then(devs => {
+                            const mockDevice = devs.find(d => d.id === 'cs2000-mock');
+                            if (mockDevice) {
+                                selectDevice('cs2000-mock').catch(console.error);
+                            }
+                        });
+                    }
+                });
             });
         });
-    }, [refreshDevices, selectDevice]);
+    }, [refreshDevices, selectDevice, scanDevices]);
 
     // 心跳检测：每 5 秒检查一次设备状态
     useEffect(() => {
@@ -108,6 +125,7 @@ export function MeasurementDeviceProvider({ children }: MeasurementDeviceProvide
         selectDevice,
         measure,
         refreshDevices,
+        scanDevices,
     };
 
     return (

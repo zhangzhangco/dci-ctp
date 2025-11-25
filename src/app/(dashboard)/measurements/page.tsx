@@ -4,13 +4,16 @@ import { SessionSelector } from '@/components/measurements/SessionSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSessionsAction } from '@/app/actions/session-actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MeasurementsPage({
     searchParams,
 }: {
-    searchParams: { sessionId?: string };
+    searchParams: Promise<{ sessionId?: string }>;
 }) {
+    const { sessionId: idStr } = await searchParams;
     const sessions = await getSessionsAction();
-    const sessionId = searchParams.sessionId ? parseInt(searchParams.sessionId) : sessions[0]?.session.id;
+    const sessionId = idStr ? parseInt(idStr) : sessions[0]?.session.id;
 
     return (
         <div className="container mx-auto py-10 space-y-8">

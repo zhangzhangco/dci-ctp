@@ -43,6 +43,15 @@ export class DeviceManager {
     }
 
     /**
+     * 扫描可用设备
+     */
+    async scanForDevices(): Promise<MeasurementDevice[]> {
+        // 在此处实现实际的扫描逻辑
+        // 目前仅返回已注册的设备
+        return this.getDevices();
+    }
+
+    /**
      * 获取所有已注册的设备
      */
     getDevices(): MeasurementDevice[] {

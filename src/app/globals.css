@@ -118,5 +118,104 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, 
+      oklch(var(--background)) 0%, 
+      oklch(from var(--muted) l c h / 0.3) 100%);
+    background-attachment: fixed;
   }
 }
+
+/* 动画关键帧 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px oklch(from var(--primary) l c h / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px oklch(from var(--primary) l c h / 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* 工具类 */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out;
+  }
+  
+  .glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-black/10 backdrop-blur-lg border border-white/10;
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, 
+      oklch(from var(--primary) l c h) 0%, 
+      oklch(from var(--primary) calc(l * 0.8) c h) 100%);
+  }
+  
+  .gradient-accent {
+    background: linear-gradient(135deg, 
+      oklch(from var(--accent) l c h) 0%, 
+      oklch(from var(--muted) l c h) 100%);
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, 
+      oklch(from var(--primary) l c h) 0%, 
+      oklch(from var(--chart-1) l c h) 100%);
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+  }
+  
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(from var(--primary) l c h / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+}
+

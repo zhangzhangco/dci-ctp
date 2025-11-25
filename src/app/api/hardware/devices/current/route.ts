@@ -9,23 +9,35 @@ export async function GET() {
     try {
         const device = deviceManager.getCurrentDevice();
 
+        // 如果没有当前设备，返回默认的 Mock 设备
         if (!device) {
-            return NextResponse.json(null);
+            console.log('[API] No current device, returning mock device');
+            return NextResponse.json({
+                id: 'cs2000-mock',
+                name: 'CS-2000 Mock (模拟设备)',
+                type: 'cs2000',
+                isConnected: true,
+                isMock: true,
+            });
         }
 
         return NextResponse.json({
             id: device.id,
             name: device.name,
             type: device.type,
-            isConnected: device.isConnected,
+            isConnected: device.isMock ? true : device.isConnected, // Mock 设备始终在线
             isMock: device.isMock,
         });
     } catch (error) {
         console.error('[API] Failed to get current device:', error);
-        return NextResponse.json(
-            { error: 'Failed to get current device', message: error instanceof Error ? error.message : 'Unknown error' },
-            { status: 500 }
-        );
+        // 发生错误时返回 Mock 设备
+        return NextResponse.json({
+            id: 'cs2000-mock',
+            name: 'CS-2000 Mock (模拟设备)',
+            type: 'cs2000',
+            isConnected: true,
+            isMock: true,
+        });
     }
 }
 
@@ -42,6 +54,18 @@ export async function POST(request: Request) {
                 { error: 'Invalid device ID' },
                 { status: 400 }
             );
+        }
+
+        // 如果是 Mock 设备，直接返回成功
+        if (deviceId === 'cs2000-mock') {
+            console.log('[API] Selected mock device');
+            return NextResponse.json({
+                id: 'cs2000-mock',
+                name: 'CS-2000 Mock (模拟设备)',
+                type: 'cs2000',
+                isConnected: true,
+                isMock: true,
+            });
         }
 
         await deviceManager.setCurrentDevice(deviceId);

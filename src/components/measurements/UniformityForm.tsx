@@ -156,6 +156,11 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                             size="icon"
                             variant="ghost"
                             className="h-6 w-6"
+                            target={{
+                                x: standardType === 'hdr' ? 0.3127 : 0.314,
+                                y: standardType === 'hdr' ? 0.3290 : 0.351,
+                                Y: standardType === 'hdr' ? 100 : 48
+                            }}
                             onMeasured={(data: ColorimetricData) => {
                                 form.setValue(`${pos}.measuredL`, parseFloat(data.Lv.toFixed(3)));
                                 form.setValue(`${pos}.measuredX`, parseFloat(data.x.toFixed(4)));

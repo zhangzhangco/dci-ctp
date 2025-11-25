@@ -187,6 +187,11 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                         />
                                         <MeasureButton
                                             size="icon"
+                                            target={{
+                                                x: spec.targetX,
+                                                y: spec.targetY,
+                                                Y: spec.targetLuminance
+                                            }}
                                             onMeasured={(data: ColorimetricData) => {
                                                 setWhiteL(data.Lv.toFixed(3));
                                                 setWhiteX(data.x.toFixed(4));
@@ -250,6 +255,11 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                         />
                                         <MeasureButton
                                             size="icon"
+                                            target={{
+                                                x: spec.targetX,
+                                                y: spec.targetY,
+                                                Y: spec.maxBlackLevel / 2
+                                            }}
                                             onMeasured={(data: ColorimetricData) => {
                                                 setBlackL(data.Lv.toFixed(3));
                                             }}

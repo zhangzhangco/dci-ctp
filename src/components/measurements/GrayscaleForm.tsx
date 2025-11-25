@@ -182,6 +182,11 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
+                            target={{
+                                x: activeTab === 'hdr-eotf' ? 0.3127 : 0.314,
+                                y: activeTab === 'hdr-eotf' ? 0.3290 : 0.351,
+                                Y: step.nominalLuminance
+                            }}
                             onMeasured={(data: ColorimetricData) => {
                                 updateMeasurement(stepName, data.Lv.toFixed(3));
                             }}
