@@ -63,6 +63,7 @@
     "typescript": "^5"
   },
   "build": {
+    "asar": false,
     "appId": "com.dci.ctp",
     "productName": "DCI CTP",
     "directories": {
@@ -112,9 +113,6 @@
         "AppImage"
       ],
       "category": "Development"
-    },
-    "asarUnpack": [
-      "**/*.node"
-    ]
+    }
   }
 }
