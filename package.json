@@ -2,6 +2,8 @@
   "name": "dci-ctp",
   "version": "0.1.3",
   "private": true,
+  "description": "DCI CTP Display Measurement Tool",
+  "author": "ZhangZhangCo",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
