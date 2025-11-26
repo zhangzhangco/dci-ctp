@@ -2,6 +2,7 @@
   "name": "dci-ctp",
   "version": "0.1.4",
   "private": true,
+  "main": "electron/main.js",
   "description": "DCI CTP Display Measurement Tool",
   "author": "ZhangZhangCo",
   "scripts": {
