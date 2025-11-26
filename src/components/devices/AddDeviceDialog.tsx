@@ -34,6 +34,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     manufacturer: z.string().min(1, "Manufacturer is required"),
@@ -44,6 +45,7 @@ const formSchema = z.object({
 });
 
 export function AddDeviceDialog() {
+    const t = useTranslations('Devices');
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const form = useForm<z.infer<typeof formSchema>>({
@@ -79,14 +81,14 @@ export function AddDeviceDialog() {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Add Device
+                    <Plus className="mr-2 h-4 w-4" /> {t('addDevice')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Device</DialogTitle>
+                    <DialogTitle>{t('addDialog.title')}</DialogTitle>
                     <DialogDescription>
-                        Enter the details of the LED display or projector.
+                        {t('addDialog.description')}
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -96,7 +98,7 @@ export function AddDeviceDialog() {
                             name="manufacturer"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Manufacturer</FormLabel>
+                                    <FormLabel>{t('table.name')}</FormLabel>
                                     <FormControl>
                                         <Input placeholder="e.g. Sony, Samsung" {...field} />
                                     </FormControl>
@@ -109,7 +111,7 @@ export function AddDeviceDialog() {
                             name="model"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Model</FormLabel>
+                                    <FormLabel>{t('table.model')}</FormLabel>
                                     <FormControl>
                                         <Input placeholder="e.g. Onyx P3.3" {...field} />
                                     </FormControl>
@@ -122,7 +124,7 @@ export function AddDeviceDialog() {
                             name="type"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Device Type</FormLabel>
+                                    <FormLabel>{t('table.type')}</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
@@ -133,8 +135,8 @@ export function AddDeviceDialog() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="projector">Projector</SelectItem>
-                                            <SelectItem value="direct_view">Direct View (LED)</SelectItem>
+                                            <SelectItem value="projector">{t('types.projector')}</SelectItem>
+                                            <SelectItem value="direct_view">{t('types.direct_view')}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -146,7 +148,7 @@ export function AddDeviceDialog() {
                             name="serialNumber"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Serial Number</FormLabel>
+                                    <FormLabel>{t('table.sn')}</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Optional" {...field} />
                                     </FormControl>
@@ -154,21 +156,8 @@ export function AddDeviceDialog() {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Additional notes..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <DialogFooter>
-                            <Button type="submit">Save Device</Button>
+                            <Button type="submit">{t('addDialog.submit')}</Button>
                         </DialogFooter>
                     </form>
                 </Form>

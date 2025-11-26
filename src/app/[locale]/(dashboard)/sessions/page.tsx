@@ -5,45 +5,53 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { DeleteSessionButton } from '@/components/sessions/DeleteSessionButton';
+import { ClearAllSessionsButton } from '@/components/sessions/ClearAllSessionsButton';
+import { getTranslations } from 'next-intl/server';
 
 export default async function SessionsPage() {
     const sessions = await getSessionsAction();
     const devices = await getDevicesAction();
+    const t = await getTranslations('Session');
+    const tCommon = await getTranslations('Common');
 
     return (
         <div className="container mx-auto py-10 space-y-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">测试会话</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
                     <p className="text-muted-foreground">
-                        查看和管理CTP测试会话。点击"查看详情"进入测试项目。
+                        {t('pageSubtitle')}
                     </p>
                 </div>
-                <AddSessionDialog devices={devices} />
+                <div className="flex gap-2">
+                    <ClearAllSessionsButton />
+                    <AddSessionDialog devices={devices} />
+                </div>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>所有会话</CardTitle>
-                    <CardDescription>选择一个会话查看详细的测试项目</CardDescription>
+                    <CardTitle>{t('listTitle')}</CardTitle>
+                    <CardDescription>{t('listDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {sessions.length === 0 ? (
                         <p className="text-center text-muted-foreground py-8">
-                            还没有测试会话。点击右上角创建一个新会话。
+                            {t('noSessions')}
                         </p>
                     ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>ID</TableHead>
-                                    <TableHead>设备</TableHead>
-                                    <TableHead>阶段</TableHead>
-                                    <TableHead>日期</TableHead>
-                                    <TableHead>操作人员</TableHead>
-                                    <TableHead>地点</TableHead>
-                                    <TableHead>操作</TableHead>
+                                    <TableHead>{t('table.id')}</TableHead>
+                                    <TableHead>{t('table.device')}</TableHead>
+                                    <TableHead>{t('table.phase')}</TableHead>
+                                    <TableHead>{t('table.date')}</TableHead>
+                                    <TableHead>{t('table.operator')}</TableHead>
+                                    <TableHead>{t('table.location')}</TableHead>
+                                    <TableHead>{t('table.actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -60,11 +68,14 @@ export default async function SessionsPage() {
                                         <TableCell>{session.operator || '-'}</TableCell>
                                         <TableCell>{session.location || '-'}</TableCell>
                                         <TableCell>
-                                            <Link href={`/sessions/${session.id}`}>
-                                                <Button variant="outline" size="sm">
-                                                    查看详情
-                                                </Button>
-                                            </Link>
+                                            <div className="flex items-center gap-2">
+                                                <Link href={`/sessions/${session.id}`}>
+                                                    <Button variant="outline" size="sm">
+                                                        {t('viewDetails')}
+                                                    </Button>
+                                                </Link>
+                                                <DeleteSessionButton sessionId={session.id} />
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -76,3 +87,4 @@ export default async function SessionsPage() {
         </div>
     );
 }
+

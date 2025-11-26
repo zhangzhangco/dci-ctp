@@ -89,28 +89,37 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
         try {
             const prefix = testType === 'sdr-white' ? 'sdr' : 'hdr';
 
-            // Save White
-            if (whiteL && whiteX && whiteY) {
+            // Parse and validate White values
+            const valWhiteL = parseFloat(whiteL);
+            const valWhiteX = parseFloat(whiteX);
+            const valWhiteY = parseFloat(whiteY);
+
+            // Save White only if all values are valid numbers
+            if (!isNaN(valWhiteL) && !isNaN(valWhiteX) && !isNaN(valWhiteY)) {
                 await saveBasicMeasurementAction({
                     sessionId,
                     type: `${prefix}_peak_white` as BasicMeasurementType,
-                    measuredL: parseFloat(whiteL),
-                    measuredX: parseFloat(whiteX),
-                    measuredY: parseFloat(whiteY),
+                    measuredL: valWhiteL,
+                    measuredX: valWhiteX,
+                    measuredY: valWhiteY,
                 });
             }
 
-            // Save Black
-            if (blackL) {
+            // Parse and validate Black value
+            const valBlackL = parseFloat(blackL);
+
+            // Save Black only if valid number
+            if (!isNaN(valBlackL)) {
                 await saveBasicMeasurementAction({
                     sessionId,
                     type: `${prefix}_black_level` as BasicMeasurementType,
-                    measuredL: parseFloat(blackL),
+                    measuredL: valBlackL,
                 });
             }
 
             alert('数据已保存');
         } catch (error) {
+            console.error("Save failed:", error);
             alert('保存失败');
         } finally {
             setIsSaving(false);

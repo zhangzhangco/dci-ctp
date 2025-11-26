@@ -4,13 +4,24 @@ import { saveBasicMeasurement, getBasicMeasurements, BasicMeasurementInput } fro
 import { revalidatePath } from "next/cache";
 
 export async function saveBasicMeasurementAction(input: BasicMeasurementInput) {
+    console.log("saveBasicMeasurementAction called with:", JSON.stringify(input));
     try {
-        await saveBasicMeasurement(input);
-        revalidatePath('/measurements/basic'); // Adjust path as needed
+        const result = await saveBasicMeasurement(input);
+        console.log("saveBasicMeasurement result:", result);
+
+        try {
+            revalidatePath('/[locale]/measurements/basic', 'page');
+            console.log("revalidatePath('/[locale]/measurements/basic') success");
+        } catch (revalError) {
+            console.error("revalidatePath failed:", revalError);
+            // Don't fail the action if revalidation fails
+        }
+
         return { success: true };
     } catch (error) {
         console.error("Failed to save basic measurement:", error);
-        return { success: false, error: "Failed to save measurement" };
+        // Ensure we return a serializable object
+        return { success: false, error: error instanceof Error ? error.message : "Failed to save measurement" };
     }
 }
 

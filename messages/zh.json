@@ -1,0 +1,210 @@
+{
+    "Common": {
+        "save": "保存",
+        "cancel": "取消",
+        "delete": "删除",
+        "reset": "重置",
+        "confirm": "确认",
+        "loading": "加载中...",
+        "unknownError": "未知错误"
+    },
+    "Navigation": {
+        "home": "首页",
+        "devices": "设备管理",
+        "sessions": "测试会话",
+        "ctp": "CTP 总览"
+    },
+    "Session": {
+        "title": "测试会话详情",
+        "pageTitle": "测试会话",
+        "pageSubtitle": "查看和管理CTP测试会话。点击'查看详情'进入测试项目。",
+        "listTitle": "所有会话",
+        "listDescription": "选择一个会话查看详细的测试项目",
+        "noSessions": "还没有测试会话。点击右上角创建一个新会话。",
+        "viewDetails": "查看详情",
+        "deleteButton": "删除",
+        "deleteConfirmTitle": "确认删除会话",
+        "deleteConfirmDesc": "此操作将永久删除该会话及其所有测量数据。此操作不可撤销。",
+        "deleteFailed": "删除失败",
+        "clearAllButton": "清空所有",
+        "clearAllConfirmTitle": "确认清空所有会话",
+        "clearAllConfirmDesc": "此操作将永久删除所有会话及其所有测量数据。此操作不可撤销。",
+        "clearAllFailed": "清空失败",
+        "resetTitle": "确认重置会话",
+        "resetDescription": "此操作将删除该会话的所有测量数据，但保留会话配置。此操作不可撤销。",
+        "resetButton": "重置会话",
+        "resetting": "重置中...",
+        "phase": "阶段",
+        "date": "测试日期",
+        "operator": "操作人员",
+        "location": "测试地点",
+        "progress": "完成进度",
+        "overallProgress": "整体进度",
+        "testList": "测试项目列表",
+        "table": {
+            "id": "ID",
+            "device": "设备",
+            "phase": "阶段",
+            "date": "日期",
+            "operator": "操作人员",
+            "location": "地点",
+            "actions": "操作"
+        }
+    },
+    "Home": {
+        "title": "LED Cinema CTP 测试系统",
+        "subtitle": "DCI 合规性测试平台 - 管理 LED 影院显示系统的三阶段测试流程",
+        "phase1Title": "Phase 1: 设备级测试",
+        "phase1Desc": "在实验室环境下测试 LED 屏本体的物理性能",
+        "phase1Items": "亮度、对比度、灰阶、色彩精度、均匀性",
+        "manageDevices": "管理设备",
+        "phase2Title": "Phase 2: 系统级测试",
+        "phase2Desc": "CTP 原生测试 - 完整链路合规性验证",
+        "phase2Items": "DCP → 服务器 → 处理器 → LED 屏",
+        "ctpOverview": "CTP 总览",
+        "phase3Title": "Phase 3: 影厅级测试",
+        "phase3Desc": "真实影厅环境下的呈现质量验证",
+        "phase3Items": "环境光、视角、安装质量、观影体验",
+        "testRecords": "测试记录",
+        "quickStart": "快速开始",
+        "step1": "在 <link>设备管理</link> 中添加需要测试的 LED 设备",
+        "step2": "在 <link>测试会话</link> 中创建新的测试轮次",
+        "step3": "根据测试阶段，填写相应的测量数据",
+        "step4": "在 <link>CTP 总览</link> 中查看合规性结果"
+    },
+    "Diagram": {
+        "title": "LED HDR CTP 认证路径图",
+        "subtitle": "DCI CTP 1.4.3 / Direct View Display",
+        "totalItems": "共 28 个测试项",
+        "timeline": "测试流程推进",
+        "phase0": {
+            "title": "阶段 0：物理摸底",
+            "subtitle": "灯珠 / 模组 / 驱动底层",
+            "rootCause": "核心关注 (Root Cause):",
+            "rootCauseItems": [
+                "低灰泄漏/寄生电容",
+                "模组/灯珠一致性",
+                "PWM 刷新率限制"
+            ],
+            "impact": "影响: 7.5.17, 7.5.28 (黑位), 7.5.35"
+        },
+        "phase1": {
+            "title": "阶段 1：设备基线",
+            "subtitle": "直显几何 / 均匀性 / 环境指标",
+            "indicators": "设备/环境指标:",
+            "indicatorsItems": [
+                "7.5.3 像素结构",
+                "7.5.18 SDR黑电平",
+                "7.5.19 离轴均匀性",
+                "7.5.22 反射率 / 7.5.23 暗角",
+                "7.5.30 测试环境"
+            ],
+            "risks": "主要风险:",
+            "risksDesc": "拼缝亮线 / 表面平整度",
+            "rollback": "回滚: 返修箱体结构"
+        },
+        "phase2": {
+            "title": "阶段 2：成像链",
+            "subtitle": "EOTF / 色准 / 黑位 / 模式切换",
+            "indicators": "PQ / 色彩 / 模式:",
+            "sdr": "SDR:",
+            "sdrItems": "7.5.8~12 (灰阶/色域)",
+            "hdr": "HDR:",
+            "hdrItems": [
+                "7.5.14 EOTF, 7.5.16 白点",
+                "7.5.28 HDR黑位"
+            ],
+            "painPoints": "关键痛点:",
+            "painPointsItems": [
+                "7.5.35 HDR 轮廓 (位深)",
+                "7.5.31 模式切换"
+            ],
+            "risks": "风险:",
+            "risksDesc": "PQ计算错误 / 位深不足",
+            "rollback": "回滚: 查算法 → 查硬件(P0)"
+        },
+        "phase3": {
+            "title": "阶段 3：系统验收",
+            "subtitle": "Upscaling / 3D / 稳定性",
+            "indicators": "系统级 / 观感:",
+            "indicatorsItems": [
+                "7.5.25 图像缩放伪像",
+                "7.5.33 帧率 (抖动/丢帧)"
+            ],
+            "stereo": "3D (可选):",
+            "stereoItems": [
+                "7.5.20/21/24/26/34",
+                "(亮度/对比度/串扰)"
+            ],
+            "risks": "风险:",
+            "risksDesc": "锐化过度 / 3D消光比差",
+            "rollback": "回滚: 调Scaler → 阶段2"
+        },
+        "legend": {
+            "title": "图例:",
+            "software": "虚线: 软件/校正级回滚",
+            "hardware": "实线: 硬件/物理级回滚"
+        },
+        "rollback": {
+            "lut": "回滚: 调 LUT",
+            "uniformity": "回滚: 均匀性/结构",
+            "physical": "严重回滚: 物理黑位/位深不足"
+        }
+    },
+    "Devices": {
+        "title": "设备管理",
+        "addDevice": "添加设备",
+        "refresh": "刷新",
+        "table": {
+            "name": "设备名称",
+            "model": "型号",
+            "sn": "序列号",
+            "type": "类型",
+            "status": "状态",
+            "lastConnected": "最后连接",
+            "actions": "操作"
+        },
+        "status": {
+            "connected": "已连接",
+            "disconnected": "未连接"
+        },
+        "types": {
+            "projector": "投影机",
+            "direct_view": "直显屏"
+        },
+        "actions": {
+            "connect": "连接",
+            "disconnect": "断开",
+            "delete": "删除"
+        },
+        "addDialog": {
+            "title": "添加新设备",
+            "description": "输入要测试的设备详细信息。",
+            "nameLabel": "设备名称",
+            "modelLabel": "型号",
+            "snLabel": "序列号",
+            "typeLabel": "设备类型",
+            "submit": "添加设备"
+        }
+    },
+    "CTP": {
+        "dashboardTitle": "CTP 合规性仪表盘",
+        "dashboardSubtitle": "所有测试会话及其合规性状态总览",
+        "table": {
+            "session": "会话",
+            "device": "设备",
+            "standard": "标准",
+            "status": "合规状态",
+            "progress": "进度",
+            "actions": "操作"
+        },
+        "status": {
+            "pass": "通过",
+            "fail": "失败",
+            "warning": "警告",
+            "incomplete": "进行中"
+        },
+        "viewReport": "查看报告",
+        "noSessions": "暂无测试会话，请先创建会话。"
+    }
+}

@@ -1,0 +1,210 @@
+{
+    "Common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "reset": "Reset",
+        "confirm": "Confirm",
+        "loading": "Loading...",
+        "unknownError": "Unknown error"
+    },
+    "Navigation": {
+        "home": "Home",
+        "devices": "Devices",
+        "sessions": "Sessions",
+        "ctp": "CTP Overview"
+    },
+    "Session": {
+        "title": "Test Session Details",
+        "pageTitle": "Test Sessions",
+        "pageSubtitle": "View and manage CTP test sessions. Click 'View Details' to enter test items.",
+        "listTitle": "All Sessions",
+        "listDescription": "Select a session to view detailed test items",
+        "noSessions": "No test sessions found. Click 'Add Session' to create a new one.",
+        "viewDetails": "View Details",
+        "deleteButton": "Delete",
+        "deleteConfirmTitle": "Confirm Delete Session",
+        "deleteConfirmDesc": "This action will permanently delete this session and all its measurement data. This action cannot be undone.",
+        "deleteFailed": "Delete failed",
+        "clearAllButton": "Clear All",
+        "clearAllConfirmTitle": "Confirm Clear All Sessions",
+        "clearAllConfirmDesc": "This action will permanently delete ALL sessions and ALL measurement data. This action cannot be undone.",
+        "clearAllFailed": "Clear all failed",
+        "resetTitle": "Reset Session",
+        "resetDescription": "This action will delete all measurement data for this session but keep the session configuration. This action cannot be undone.",
+        "resetButton": "Reset Session",
+        "resetting": "Resetting...",
+        "phase": "Phase",
+        "date": "Date",
+        "operator": "Operator",
+        "location": "Location",
+        "progress": "Progress",
+        "overallProgress": "Overall Progress",
+        "testList": "Test List",
+        "table": {
+            "id": "ID",
+            "device": "Device",
+            "phase": "Phase",
+            "date": "Date",
+            "operator": "Operator",
+            "location": "Location",
+            "actions": "Actions"
+        }
+    },
+    "Home": {
+        "title": "LED Cinema CTP Test System",
+        "subtitle": "DCI Compliance Test Platform - Managing the 3-phase test process for LED Cinema Display Systems",
+        "phase1Title": "Phase 1: Device Test",
+        "phase1Desc": "Physical performance testing of LED panels in lab environment",
+        "phase1Items": "Brightness, Contrast, Grayscale, Color Accuracy, Uniformity",
+        "manageDevices": "Manage Devices",
+        "phase2Title": "Phase 2: System Test",
+        "phase2Desc": "CTP Native Test - Full chain compliance verification",
+        "phase2Items": "DCP → Server → Processor → LED Screen",
+        "ctpOverview": "CTP Overview",
+        "phase3Title": "Phase 3: Exhibition Test",
+        "phase3Desc": "Presentation quality verification in real auditorium environment",
+        "phase3Items": "Ambient Light, Viewing Angle, Installation Quality, Viewing Experience",
+        "testRecords": "Test Records",
+        "quickStart": "Quick Start",
+        "step1": "Add LED devices in <link>Device Management</link>",
+        "step2": "Create new test round in <link>Test Sessions</link>",
+        "step3": "Fill in measurement data according to test phase",
+        "step4": "View compliance results in <link>CTP Overview</link>"
+    },
+    "Diagram": {
+        "title": "LED HDR CTP Certification Path",
+        "subtitle": "DCI CTP 1.4.3 / Direct View Display",
+        "totalItems": "Total 28 Test Items",
+        "timeline": "Test Process Timeline",
+        "phase0": {
+            "title": "Phase 0: Physical Baseline",
+            "subtitle": "LED Module / Driver",
+            "rootCause": "Root Cause:",
+            "rootCauseItems": [
+                "Low-gray leakage/Parasitic capacitance",
+                "Module/LED consistency",
+                "PWM refresh rate limits"
+            ],
+            "impact": "Impact: 7.5.17, 7.5.28 (Black), 7.5.35"
+        },
+        "phase1": {
+            "title": "Phase 1: Device Baseline",
+            "subtitle": "Geometry / Uniformity / Env",
+            "indicators": "Device/Env Indicators:",
+            "indicatorsItems": [
+                "7.5.3 Pixel Structure",
+                "7.5.18 SDR Black Level",
+                "7.5.19 Off-axis Uniformity",
+                "7.5.22 Reflectivity / 7.5.23 Vignetting",
+                "7.5.30 Environment"
+            ],
+            "risks": "Risks:",
+            "risksDesc": "Seams / Surface Flatness",
+            "rollback": "Rollback: Repair Cabinet Structure"
+        },
+        "phase2": {
+            "title": "Phase 2: Image Chain",
+            "subtitle": "EOTF / Color / Mode",
+            "indicators": "PQ / Color / Mode:",
+            "sdr": "SDR:",
+            "sdrItems": "7.5.8~12 (Gray/Gamut)",
+            "hdr": "HDR:",
+            "hdrItems": [
+                "7.5.14 EOTF, 7.5.16 White Point",
+                "7.5.28 HDR Black"
+            ],
+            "painPoints": "Pain Points:",
+            "painPointsItems": [
+                "7.5.35 HDR Contouring (Bit-depth)",
+                "7.5.31 Mode Switching"
+            ],
+            "risks": "Risks:",
+            "risksDesc": "PQ Error / Bit-depth",
+            "rollback": "Rollback: Algo -> Hardware (P0)"
+        },
+        "phase3": {
+            "title": "Phase 3: System Acceptance",
+            "subtitle": "Upscaling / 3D / Stability",
+            "indicators": "System / Visual:",
+            "indicatorsItems": [
+                "7.5.25 Upscaling Artifacts",
+                "7.5.33 Frame Rate (Jitter/Drop)"
+            ],
+            "stereo": "3D (Optional):",
+            "stereoItems": [
+                "7.5.20/21/24/26/34",
+                "(Brightness/Contrast/Crosstalk)"
+            ],
+            "risks": "Risks:",
+            "risksDesc": "Over-sharpening / 3D Extinction",
+            "rollback": "Rollback: Scaler -> Phase 2"
+        },
+        "legend": {
+            "title": "Legend:",
+            "software": "Dashed: Software/Calibration Rollback",
+            "hardware": "Solid: Hardware/Physical Rollback"
+        },
+        "rollback": {
+            "lut": "Rollback: Tune LUT",
+            "uniformity": "Rollback: Uniformity/Structure",
+            "physical": "Critical Rollback: Physical Black/Bit-depth"
+        }
+    },
+    "Devices": {
+        "title": "Device Management",
+        "addDevice": "Add Device",
+        "refresh": "Refresh",
+        "table": {
+            "name": "Device Name",
+            "model": "Model",
+            "sn": "S/N",
+            "type": "Type",
+            "status": "Status",
+            "lastConnected": "Last Connected",
+            "actions": "Actions"
+        },
+        "status": {
+            "connected": "Connected",
+            "disconnected": "Disconnected"
+        },
+        "types": {
+            "projector": "Projector",
+            "direct_view": "Direct View"
+        },
+        "actions": {
+            "connect": "Connect",
+            "disconnect": "Disconnect",
+            "delete": "Delete"
+        },
+        "addDialog": {
+            "title": "Add New Device",
+            "description": "Enter the details of the device to be tested.",
+            "nameLabel": "Device Name",
+            "modelLabel": "Model",
+            "snLabel": "Serial Number",
+            "typeLabel": "Device Type",
+            "submit": "Add Device"
+        }
+    },
+    "CTP": {
+        "dashboardTitle": "CTP Compliance Dashboard",
+        "dashboardSubtitle": "Overview of all test sessions and their compliance status",
+        "table": {
+            "session": "Session",
+            "device": "Device",
+            "standard": "Standard",
+            "status": "Status",
+            "progress": "Progress",
+            "actions": "Actions"
+        },
+        "status": {
+            "pass": "Pass",
+            "fail": "Fail",
+            "warning": "Warning",
+            "incomplete": "Incomplete"
+        },
+        "viewReport": "View Report",
+        "noSessions": "No test sessions found. Please create a session first."
+    }
+}

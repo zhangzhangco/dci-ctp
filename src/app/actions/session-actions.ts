@@ -4,7 +4,7 @@ import { createTestSession, getAllSessions } from '@/domain/sessions';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
-import { measurementsBasic, measurementsUniformity, measurementsColor, measurementsGrayscale, measurementsExhibition } from '@/db/schema';
+import { measurementsBasic, measurementsUniformity, measurementsColor, measurementsGrayscale, measurementsExhibition, testSessions } from '@/db/schema';
 import { eq, count, and } from 'drizzle-orm';
 import {
     getBasicTestSpec,
@@ -288,3 +288,42 @@ export async function clearSessionAction(sessionId: number) {
     }
 }
 
+export async function deleteSessionAction(sessionId: number) {
+    try {
+        // 1. Delete all measurements first
+        await db.delete(measurementsBasic).where(eq(measurementsBasic.sessionId, sessionId));
+        await db.delete(measurementsUniformity).where(eq(measurementsUniformity.sessionId, sessionId));
+        await db.delete(measurementsColor).where(eq(measurementsColor.sessionId, sessionId));
+        await db.delete(measurementsGrayscale).where(eq(measurementsGrayscale.sessionId, sessionId));
+        await db.delete(measurementsExhibition).where(eq(measurementsExhibition.sessionId, sessionId));
+
+        // 2. Delete the session itself
+        await db.delete(testSessions).where(eq(testSessions.id, sessionId));
+
+        revalidatePath('/sessions');
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete session:', error);
+        return { success: false, error: 'Failed to delete session' };
+    }
+}
+
+export async function clearAllSessionsAction() {
+    try {
+        // 1. Delete all measurements
+        await db.delete(measurementsBasic);
+        await db.delete(measurementsUniformity);
+        await db.delete(measurementsColor);
+        await db.delete(measurementsGrayscale);
+        await db.delete(measurementsExhibition);
+
+        // 2. Delete all sessions
+        await db.delete(testSessions);
+
+        revalidatePath('/sessions');
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to clear all sessions:', error);
+        return { success: false, error: 'Failed to clear all sessions' };
+    }
+}
