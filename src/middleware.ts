@@ -1,16 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
 
-export default function middleware(request: NextRequest) {
-    console.log('[MIDDLEWARE] Request:', request.method, request.nextUrl.pathname);
-    console.log('[MIDDLEWARE] Headers:', {
-        'next-action': request.headers.get('next-action'),
-        'content-type': request.headers.get('content-type')
-    });
+export default createMiddleware({
+    // A list of all locales that are supported
+    locales: ['en', 'zh'],
 
-    // Temporarily bypass ALL middleware logic for testing
-    return NextResponse.next();
-}
+    // Used when no locale matches
+    defaultLocale: 'zh'
+});
 
 export const config = {
-    matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+    // Match only internationalized pathnames
+    matcher: ['/', '/(zh|en)/:path*']
 };

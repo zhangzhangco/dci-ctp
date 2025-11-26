@@ -24,7 +24,7 @@ export function CertificationPathDiagram() {
 
             {/* SVG 容器：自适应宽度，默认 viewBox 适配 1280px 宽度 */}
             <div className="w-full overflow-hidden">
-                <svg viewBox="0 0 1280 600" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto font-sans">
+                <svg viewBox="0 0 1280 650" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto font-sans">
                     <defs>
                         {/* 优化后的渐变色 - 使用 Slate/Zinc 基调配合柔和的强调色 */}
                         <linearGradient id="phase0" x1="0" y1="0" x2="1" y2="1">
@@ -65,6 +65,32 @@ export function CertificationPathDiagram() {
                     {/* 阶段 X 轴时间线 */}
                     <line x1="50" y1="40" x2="1230" y2="40" stroke="#334155" strokeWidth="1" strokeDasharray="4 4" />
                     <text x="1230" y="35" textAnchor="end" fill="#64748b" fontSize="10" fontWeight="bold">{t('timeline')} &gt;</text>
+
+                    {/* ==================== 回滚路径 (底部绕行) - 先绘制，作为底层 ==================== */}
+
+                    {/* 1. Phase 3 -> Phase 2 (Yellow) */}
+                    <g opacity="0.9">
+                        <path d="M 1080 240 V 280 C 1080 340 900 340 770 325"
+                            fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#arrowHead-warning)" />
+                        <rect x="880" y="315" width="120" height="20" rx="4" fill="#1f2937" stroke="#f59e0b" strokeWidth="0.5" />
+                        <text x="940" y="329" textAnchor="middle" fill="#fcd34d" fontSize="10">{t('rollback.lut')}</text>
+                    </g>
+
+                    {/* 2. Phase 2 -> Phase 1 (Orange) */}
+                    <g opacity="0.9">
+                        <path d="M 770 290 V 340 C 770 390 460 390 460 275"
+                            fill="none" stroke="#f97316" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#arrowHead-warning)" />
+                        <rect x="550" y="370" width="140" height="20" rx="4" fill="#1f2937" stroke="#f97316" strokeWidth="0.5" />
+                        <text x="620" y="384" textAnchor="middle" fill="#fdba74" fontSize="10">{t('rollback.uniformity')}</text>
+                    </g>
+
+                    {/* 3. Phase 2 -> Phase 0 (Red - Deepest) */}
+                    <g opacity="1.0">
+                        <path d="M 680 290 V 410 C 680 440 150 440 150 225"
+                            fill="none" stroke="#f43f5e" strokeWidth="2" markerEnd="url(#arrowHead-danger)" />
+                        <rect x="300" y="420" width="220" height="20" rx="4" fill="#1f2937" stroke="#f43f5e" strokeWidth="0.5" />
+                        <text x="410" y="434" textAnchor="middle" fill="#fda4af" fontSize="10" fontWeight="bold">{t('rollback.physical')}</text>
+                    </g>
 
                     {/* ==================== 阶段 0 ==================== */}
                     <g transform="translate(20, 60)">
@@ -172,34 +198,8 @@ export function CertificationPathDiagram() {
                         <path d="M 900 75 L 950 75" markerEnd="url(#arrowHead)" />
                     </g>
 
-                    {/* ==================== 回滚路径 (底部绕行) ==================== */}
-
-                    {/* 1. Phase 3 -> Phase 2 (Yellow) */}
-                    <g opacity="0.9">
-                        <path d="M 1080 215 V 235 C 1080 280 900 280 770 265"
-                            fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#arrowHead-warning)" />
-                        <rect x="880" y="265" width="120" height="20" rx="4" fill="#1f2937" stroke="#f59e0b" strokeWidth="0.5" />
-                        <text x="940" y="279" textAnchor="middle" fill="#fcd34d" fontSize="10">{t('rollback.lut')}</text>
-                    </g>
-
-                    {/* 2. Phase 2 -> Phase 1 (Orange) */}
-                    <g opacity="0.9">
-                        <path d="M 770 265 V 300 C 770 340 460 340 460 215"
-                            fill="none" stroke="#f97316" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#arrowHead-warning)" />
-                        <rect x="550" y="320" width="140" height="20" rx="4" fill="#1f2937" stroke="#f97316" strokeWidth="0.5" />
-                        <text x="620" y="334" textAnchor="middle" fill="#fdba74" fontSize="10">{t('rollback.uniformity')}</text>
-                    </g>
-
-                    {/* 3. Phase 2 -> Phase 0 (Red - Deepest) */}
-                    <g opacity="1.0">
-                        <path d="M 680 265 V 360 C 680 390 150 390 150 165"
-                            fill="none" stroke="#f43f5e" strokeWidth="2" markerEnd="url(#arrowHead-danger)" />
-                        <rect x="300" y="370" width="220" height="20" rx="4" fill="#1f2937" stroke="#f43f5e" strokeWidth="0.5" />
-                        <text x="410" y="384" textAnchor="middle" fill="#fda4af" fontSize="10" fontWeight="bold">{t('rollback.physical')}</text>
-                    </g>
-
                     {/* 图例 */}
-                    <g transform="translate(950, 320)">
+                    <g transform="translate(950, 480)">
                         <rect x="0" y="0" rx="6" ry="6" width="260" height="80" fill="#1e293b" stroke="#334155" strokeWidth="1" />
                         <text x="15" y="25" fill="#e5e7eb" fontSize="12" fontWeight="bold">{t('legend.title')}</text>
 
