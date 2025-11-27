@@ -47,3 +47,6 @@ next-env.d.ts
 # Database
 sqlite.db
 sqlite.db-journal
+
+# Copyright Application
+/copyright_application

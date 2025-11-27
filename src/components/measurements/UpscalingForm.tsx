@@ -20,6 +20,7 @@ import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import { UPSCALING_SPEC } from '@/domain/standards/ctpUpscalingSpec';
 import { saveUpscalingAction, getUpscalingAction } from '@/app/actions/upscaling-actions';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     noJaggies: z.boolean(),
@@ -37,6 +38,7 @@ interface UpscalingFormProps {
 export function UpscalingForm({ sessionId }: UpscalingFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('UpscalingForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -73,22 +75,22 @@ export function UpscalingForm({ sessionId }: UpscalingFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={UPSCALING_SPEC.title}
-            subtitle={UPSCALING_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: "DCI CTP Upscaling Artifacts",
+                title: t('standardTitle'),
                 reference: UPSCALING_SPEC.reference,
-                description: UPSCALING_SPEC.description,
+                description: t('standardDescription'),
                 targets: []
             }}
         >
@@ -98,7 +100,7 @@ export function UpscalingForm({ sessionId }: UpscalingFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>Checklist</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('checklist')}</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 {UPSCALING_SPEC.checklist.map((item) => (
                                     <FormField
@@ -108,8 +110,8 @@ export function UpscalingForm({ sessionId }: UpscalingFormProps) {
                                         render={({ field }) => (
                                             <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                                 <div className="space-y-0.5">
-                                                    <FormLabel className="text-base">{item.label}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                                                    <FormLabel className="text-base">{t(`${item.id}.label`)}</FormLabel>
+                                                    <div className="text-sm text-muted-foreground">{t(`${item.id}.description`)}</div>
                                                 </div>
                                                 <FormControl>
                                                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -122,7 +124,7 @@ export function UpscalingForm({ sessionId }: UpscalingFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -141,7 +143,7 @@ export function UpscalingForm({ sessionId }: UpscalingFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

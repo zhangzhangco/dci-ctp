@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from 'lucide-react';
 import { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface StandardDef {
     title: string; // e.g. "SDR Peak White"
@@ -30,6 +31,8 @@ export function MeasurementLayout({
     standard,
     children
 }: MeasurementLayoutProps) {
+    const t = useTranslations('MeasurementLayout');
+
     return (
         <div className="space-y-6">
             {/* Zone 1: Standard & Reference */}
@@ -51,18 +54,18 @@ export function MeasurementLayout({
                     <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
                         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         <AlertTitle className="text-blue-800 dark:text-blue-200">
-                            标准要求: {standard.title}
+                            {t('standardRequirement')}: {standard.title}
                             <span className="ml-2 text-xs font-normal text-blue-600 dark:text-blue-400">
                                 ({standard.reference})
                             </span>
                         </AlertTitle>
                         <AlertDescription className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-900 dark:text-blue-100">
-                            {standard.targets.map((t, idx) => (
+                            {standard.targets.map((target, idx) => (
                                 <div key={idx}>
-                                    <strong>{t.label}:</strong>
+                                    <strong>{target.label}:</strong>
                                     <ul className="list-disc list-inside ml-2">
-                                        <li>目标: {t.value}</li>
-                                        {t.tolerance && <li>容差: {t.tolerance}</li>}
+                                        <li>{t('target')}: {target.value}</li>
+                                        {target.tolerance && <li>{t('tolerance')}: {target.tolerance}</li>}
                                     </ul>
                                 </div>
                             ))}

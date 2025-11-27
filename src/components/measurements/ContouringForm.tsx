@@ -21,6 +21,7 @@ import { MeasurementLayout } from './MeasurementLayout';
 import { CONTOURING_SPEC } from '@/domain/standards/ctpContouringSpec';
 import { saveContouringAction, getContouringAction } from '@/app/actions/contouring-actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     standard: z.enum(['sdr', 'hdr']),
@@ -39,6 +40,7 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'sdr' | 'hdr'>('sdr');
+    const t = useTranslations('ContouringForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -77,25 +79,25 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={CONTOURING_SPEC.title}
-            subtitle={CONTOURING_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 2']}
             standard={{
-                title: "DCI CTP Contouring",
+                title: t('standardTitle'),
                 reference: CONTOURING_SPEC.reference,
-                description: CONTOURING_SPEC.description,
+                description: t('standardDescription'),
                 targets: [
-                    { label: "Method", value: CONTOURING_SPEC.method },
-                    { label: "Requirement", value: "Monotonic slope, no visible artifacts" }
+                    { label: t('method'), value: CONTOURING_SPEC.method },
+                    { label: t('requirement'), value: t('requirementValue') }
                 ]
             }}
         >
@@ -112,7 +114,7 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
                         </Tabs>
 
                         <Card>
-                            <CardHeader><CardTitle>Inspection Results</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('inspection')}</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 <FormField
                                     control={form.control}
@@ -120,8 +122,8 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
                                     render={({ field }) => (
                                         <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                             <div className="space-y-0.5">
-                                                <FormLabel className="text-base">Slope Monotonicity</FormLabel>
-                                                <div className="text-sm text-muted-foreground">Verify 2nd derivative of luminance &gt; 0</div>
+                                                <FormLabel className="text-base">{t('slopeMonotonicity')}</FormLabel>
+                                                <div className="text-sm text-muted-foreground">{t('slopeDesc')}</div>
                                             </div>
                                             <FormControl>
                                                 <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -135,8 +137,8 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
                                     render={({ field }) => (
                                         <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                             <div className="space-y-0.5">
-                                                <FormLabel className="text-base">Visual Inspection</FormLabel>
-                                                <div className="text-sm text-muted-foreground">No visible contours or banding artifacts</div>
+                                                <FormLabel className="text-base">{t('visualInspection')}</FormLabel>
+                                                <div className="text-sm text-muted-foreground">{t('visualDesc')}</div>
                                             </div>
                                             <FormControl>
                                                 <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -148,7 +150,7 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -167,7 +169,7 @@ export function ContouringForm({ sessionId }: ContouringFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

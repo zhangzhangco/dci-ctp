@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, XCircle, AlertTriangle, Circle, ChevronRight } from 'lucide-react';
 import type { MeasurementItemStatus } from '@/types/ctp-overview';

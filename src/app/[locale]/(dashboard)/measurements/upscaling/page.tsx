@@ -1,12 +1,13 @@
 import { UpscalingForm } from '@/components/measurements/UpscalingForm';
 import { notFound } from 'next/navigation';
 
-interface PageProps {
-    searchParams: { sessionId?: string };
-}
-
-export default function UpscalingPage({ searchParams }: PageProps) {
-    const sessionId = searchParams.sessionId ? parseInt(searchParams.sessionId) : null;
+export default async function UpscalingPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ sessionId?: string }>;
+}) {
+    const { sessionId: idStr } = await searchParams;
+    const sessionId = idStr ? parseInt(idStr) : null;
 
     if (!sessionId || isNaN(sessionId)) {
         notFound();

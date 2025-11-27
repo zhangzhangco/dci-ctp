@@ -2,12 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, XCircle, AlertTriangle, Circle } from 'lucide-react';
 import { MeasurementItem } from './MeasurementItem';
 import type { PhaseStatus } from '@/types/ctp-overview';
+import { useTranslations } from 'next-intl';
 
 interface PhaseSectionProps {
     phase: PhaseStatus;
 }
 
 export function PhaseSection({ phase }: PhaseSectionProps) {
+    const t = useTranslations('PhaseSection');
+
     const StatusIcon = {
         pass: CheckCircle2,
         fail: XCircle,
@@ -22,12 +25,7 @@ export function PhaseSection({ phase }: PhaseSectionProps) {
         incomplete: 'text-gray-400'
     }[phase.status];
 
-    const statusLabel = {
-        pass: '全部通过',
-        fail: '存在失败项',
-        warning: '存在警告项',
-        incomplete: '未完成'
-    }[phase.status];
+    const statusLabel = t(phase.status);
 
     return (
         <div className="space-y-4">
@@ -44,7 +42,7 @@ export function PhaseSection({ phase }: PhaseSectionProps) {
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                    {phase.completedItems} / {phase.totalItems} 完成
+                    {phase.completedItems} / {phase.totalItems} {t('completed')}
                 </div>
             </div>
 

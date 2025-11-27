@@ -103,9 +103,9 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
             standard={{
                 title: t('standardTitle'),
                 reference: EXHIBITION_SPEC.reference,
-                description: EXHIBITION_SPEC.description,
+                description: t('standardDescription'),
                 targets: EXHIBITION_SPEC.measurements.map(m => ({
-                    label: m.label,
+                    label: t(`${m.id}.label`),
                     value: `${m.min ? m.min + ' - ' : ''}${m.max} ${m.unit}`
                 }))
             }}
@@ -126,8 +126,8 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                                         render={({ field }) => (
                                             <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                                 <div className="space-y-0.5">
-                                                    <FormLabel className="text-base">{item.label}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                                                    <FormLabel className="text-base">{t(`${item.id}.label`)}</FormLabel>
+                                                    <div className="text-sm text-muted-foreground">{t(`${item.id}.description`)}</div>
                                                 </div>
                                                 <FormControl>
                                                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -149,7 +149,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                                         name={item.id as any}
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>{item.label} ({item.unit})</FormLabel>
+                                                <FormLabel>{t(`${item.id}.label`)} ({item.unit})</FormLabel>
                                                 <FormControl>
                                                     <Input type="number" step="0.01" {...field} />
                                                 </FormControl>

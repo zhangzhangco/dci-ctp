@@ -253,6 +253,63 @@ export const measurementsExhibition = sqliteTable('measurements_exhibition', {
     notes: text('notes')
 });
 
+// 8. Viewing Angle
+export const measurementsViewingAngle = sqliteTable('measurements_viewing_angle', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    luminanceCenter: real('luminance_center'),
+    luminanceLeft: real('luminance_left'),
+    luminanceRight: real('luminance_right'),
+    luminanceTop: real('luminance_top'),
+    luminanceBottom: real('luminance_bottom'),
+
+    colorShiftPass: integer('color_shift_pass', { mode: 'boolean' }),
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 9. Screen Gain
+export const measurementsScreenGain = sqliteTable('measurements_screen_gain', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    screenGain: real('screen_gain'),
+    halfGainAngle: real('half_gain_angle'),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 10. Sequential Contrast
+export const measurementsContrast = sqliteTable('measurements_contrast', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+    standard: text('standard').notNull(), // 'sdr' or 'hdr'
+
+    peakWhite: real('peak_white'),
+    blackLevel: real('black_level'),
+    contrastRatio: real('contrast_ratio'),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
+// 11. Vignetting
+export const measurementsVignetting = sqliteTable('measurements_vignetting', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    sessionId: integer('session_id').references(() => testSessions.id).notNull(),
+
+    luminanceCenter: real('luminance_center'),
+    luminanceTopLeft: real('luminance_top_left'),
+    luminanceTopRight: real('luminance_top_right'),
+    luminanceBottomLeft: real('luminance_bottom_left'),
+    luminanceBottomRight: real('luminance_bottom_right'),
+
+    pass: integer('pass', { mode: 'boolean' }),
+    notes: text('notes')
+});
+
 // ==========================================
 // 3. Results Linkage
 // ==========================================
@@ -292,6 +349,17 @@ export const testSessionsRelations = relations(testSessions, ({ one, many }) => 
     measurementsSubPixel: many(measurementsSubPixel),
     measurementsUpscaling: many(measurementsUpscaling),
     measurementsExhibition: many(measurementsExhibition),
+    measurementsViewingAngle: many(measurementsViewingAngle),
+    measurementsScreenGain: many(measurementsScreenGain),
+    measurementsContrast: many(measurementsContrast),
+    measurementsVignetting: many(measurementsVignetting),
+}));
+
+export const measurementsVignettingRelations = relations(measurementsVignetting, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsVignetting.sessionId],
+        references: [testSessions.id],
+    }),
 }));
 
 export const measurementsGrayscaleRelations = relations(measurementsGrayscale, ({ one }) => ({
@@ -374,6 +442,27 @@ export const measurementsUpscalingRelations = relations(measurementsUpscaling, (
 export const measurementsExhibitionRelations = relations(measurementsExhibition, ({ one }) => ({
     session: one(testSessions, {
         fields: [measurementsExhibition.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsViewingAngleRelations = relations(measurementsViewingAngle, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsViewingAngle.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsScreenGainRelations = relations(measurementsScreenGain, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsScreenGain.sessionId],
+        references: [testSessions.id],
+    }),
+}));
+
+export const measurementsContrastRelations = relations(measurementsContrast, ({ one }) => ({
+    session: one(testSessions, {
+        fields: [measurementsContrast.sessionId],
         references: [testSessions.id],
     }),
 }));

@@ -9,9 +9,9 @@ import { getTranslations } from 'next-intl/server';
 export default async function BasicMeasurementPage({
     searchParams,
 }: {
-    searchParams: Promise<{ sessionId?: string }>;
+    searchParams: Promise<{ sessionId?: string; standard?: string }>;
 }) {
-    const { sessionId: sessionIdStr } = await searchParams;
+    const { sessionId: sessionIdStr, standard } = await searchParams;
     if (!sessionIdStr) {
         redirect('/sessions');
     }
@@ -39,7 +39,7 @@ export default async function BasicMeasurementPage({
                 </div>
             </div>
 
-            <BasicMeasurementForm sessionId={sessionId} />
+            <BasicMeasurementForm sessionId={sessionId} initialStandard={standard as 'sdr' | 'hdr'} />
         </div>
     );
 }

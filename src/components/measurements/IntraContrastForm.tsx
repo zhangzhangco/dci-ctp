@@ -18,9 +18,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { INTRA_CONTRAST_SPEC, SDR_INTRA_CONTRAST_SPEC } from '@/domain/standards/ctpIntraContrastSpec';
+import { INTRA_CONTRAST_SPEC } from '@/domain/standards/ctpIntraContrastSpec';
 import { saveIntraContrastAction, getIntraContrastAction } from '@/app/actions/intra-contrast-actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslations } from 'next-intl';
+import { MeasureButton } from './MeasureButton';
+import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 const formSchema = z.object({
     standard: z.enum(['sdr', 'hdr']),
@@ -41,6 +44,7 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'sdr' | 'hdr'>('sdr');
+    const t = useTranslations('IntraContrastForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -81,9 +85,9 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
@@ -98,16 +102,16 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
 
     return (
         <MeasurementLayout
-            title={INTRA_CONTRAST_SPEC.title}
-            subtitle={INTRA_CONTRAST_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: "DCI CTP Intra-Frame Contrast",
+                title: t('standardTitle'),
                 reference: INTRA_CONTRAST_SPEC.reference,
-                description: INTRA_CONTRAST_SPEC.description,
+                description: t('standardDescription'),
                 targets: [
-                    { label: "White Target", value: INTRA_CONTRAST_SPEC.whiteTarget },
-                    { label: "Black Target", value: INTRA_CONTRAST_SPEC.blackTarget }
+                    { label: t('whiteTarget'), value: INTRA_CONTRAST_SPEC.whiteTarget },
+                    { label: t('blackTarget'), value: INTRA_CONTRAST_SPEC.blackTarget }
                 ]
             }}
         >
@@ -125,7 +129,7 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                             <TabsContent value="sdr" className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <Card>
-                                        <CardHeader><CardTitle>White Patches (cd/m²)</CardTitle></CardHeader>
+                                        <CardHeader><CardTitle>{t('whitePatches')}</CardTitle></CardHeader>
                                         <CardContent className="grid grid-cols-2 gap-4">
                                             {['L', 'R', 'T', 'B'].map((pos) => (
                                                 <FormField
@@ -134,8 +138,19 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                                                     name={`white${pos}` as any}
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>White {pos}</FormLabel>
-                                                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                                                            <FormLabel>{t('white')} {pos}</FormLabel>
+                                                            <div className="flex gap-2">
+                                                                <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                                                                <MeasureButton
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-10 w-10"
+                                                                    target={{ x: 0.314, y: 0.351, Y: 48 }}
+                                                                    onMeasured={(data: ColorimetricData) => {
+                                                                        form.setValue(`white${pos}` as any, parseFloat(data.Lv.toFixed(3)));
+                                                                    }}
+                                                                />
+                                                            </div>
                                                             <FormMessage />
                                                         </FormItem>
                                                     )}
@@ -145,7 +160,7 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                                     </Card>
 
                                     <Card>
-                                        <CardHeader><CardTitle>Black Patches (cd/m²)</CardTitle></CardHeader>
+                                        <CardHeader><CardTitle>{t('blackPatches')}</CardTitle></CardHeader>
                                         <CardContent className="grid grid-cols-2 gap-4">
                                             {['L', 'R', 'T', 'B'].map((pos) => (
                                                 <FormField
@@ -154,8 +169,19 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                                                     name={`black${pos}` as any}
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>Black {pos}</FormLabel>
-                                                            <FormControl><Input type="number" step="0.0001" {...field} /></FormControl>
+                                                            <FormLabel>{t('black')} {pos}</FormLabel>
+                                                            <div className="flex gap-2">
+                                                                <FormControl><Input type="number" step="0.0001" {...field} /></FormControl>
+                                                                <MeasureButton
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-10 w-10"
+                                                                    target={{ x: 0.314, y: 0.351, Y: 0 }}
+                                                                    onMeasured={(data: ColorimetricData) => {
+                                                                        form.setValue(`black${pos}` as any, parseFloat(data.Lv.toFixed(5)));
+                                                                    }}
+                                                                />
+                                                            </div>
                                                             <FormMessage />
                                                         </FormItem>
                                                     )}
@@ -167,21 +193,21 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                             </TabsContent>
 
                             <TabsContent value="hdr">
-                                <div className="p-4 text-center text-muted-foreground">HDR 模式暂未完全支持，请使用 SDR</div>
+                                <div className="p-4 text-center text-muted-foreground">{t('hdrNotSupported')}</div>
                             </TabsContent>
                         </Tabs>
 
                         <Card>
-                            <CardHeader><CardTitle>Results</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('results')}</CardTitle></CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">
-                                    Contrast Ratio: {calculateContrast().toFixed(0)}:1
+                                    {t('contrastRatio')}: {calculateContrast().toFixed(0)}:1
                                 </div>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -200,7 +226,7 @@ export function IntraContrastForm({ sessionId }: IntraContrastFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

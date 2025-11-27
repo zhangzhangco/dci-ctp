@@ -15,44 +15,36 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { INACTIVE_AREA_SPEC } from '@/domain/standards/ctpInactiveAreaSpec';
-import { saveInactiveAreaAction, getInactiveAreaAction } from '@/app/actions/inactive-area-actions';
+import { saveScreenGainAction, getScreenGainAction } from '@/app/actions/screen-gain-actions';
 import { useTranslations } from 'next-intl';
 import { MeasureButton } from './MeasureButton';
 import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 const formSchema = z.object({
-    topBorderCheck: z.boolean(),
-    bottomBorderCheck: z.boolean(),
-    leftBorderCheck: z.boolean(),
-    rightBorderCheck: z.boolean(),
-    measuredLuminance: z.coerce.number(),
+    screenGain: z.coerce.number().optional(),
+    halfGainAngle: z.coerce.number().optional(),
     notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface InactiveAreaFormProps {
+interface ScreenGainFormProps {
     sessionId: number;
 }
 
-export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
+export function ScreenGainForm({ sessionId }: ScreenGainFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const t = useTranslations('InactiveAreaForm');
+    const t = useTranslations('ScreenGainForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            topBorderCheck: false,
-            bottomBorderCheck: false,
-            leftBorderCheck: false,
-            rightBorderCheck: false,
-            measuredLuminance: 0,
+            screenGain: 0,
+            halfGainAngle: 0,
             notes: '',
         },
     });
@@ -60,14 +52,11 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            const result = await getInactiveAreaAction(sessionId);
+            const result = await getScreenGainAction(sessionId);
             if (result.success && result.data) {
                 form.reset({
-                    topBorderCheck: result.data.topBorderCheck ?? false,
-                    bottomBorderCheck: result.data.bottomBorderCheck ?? false,
-                    leftBorderCheck: result.data.leftBorderCheck ?? false,
-                    rightBorderCheck: result.data.rightBorderCheck ?? false,
-                    measuredLuminance: result.data.measuredLuminance ?? 0,
+                    screenGain: result.data.screenGain ?? 0,
+                    halfGainAngle: result.data.halfGainAngle ?? 0,
                     notes: result.data.notes ?? '',
                 });
             }
@@ -78,7 +67,7 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
 
     async function onSubmit(values: FormValues) {
         setIsSaving(true);
-        const result = await saveInactiveAreaAction({
+        const result = await saveScreenGainAction({
             sessionId,
             ...values,
         });
@@ -95,14 +84,13 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
         <MeasurementLayout
             title={t('title')}
             subtitle={t('subtitle')}
-            phases={['Phase 1']}
+            phases={['Phase 2']}
             standard={{
                 title: t('standardTitle'),
-                reference: INACTIVE_AREA_SPEC.reference,
+                reference: "DCI CTP 1.2",
                 description: t('standardDescription'),
                 targets: [
-                    { label: t('requirement'), value: INACTIVE_AREA_SPEC.requirement },
-                    { label: t('maxLuminance'), value: `${INACTIVE_AREA_SPEC.maxLuminance} cd/m²` }
+                    { label: t('targetLabel'), value: t('targetValue') }
                 ]
             }}
         >
@@ -112,50 +100,37 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>{t('borderChecks')}</CardTitle></CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {['top', 'bottom', 'left', 'right'].map((pos) => (
-                                    <FormField
-                                        key={`${pos}BorderCheck`}
-                                        control={form.control}
-                                        name={`${pos}BorderCheck` as any}
-                                        render={({ field }) => (
-                                            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                                                <div className="space-y-0.5">
-                                                    <FormLabel className="text-base capitalize">{t(`${pos}Border`)}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{t('noLightEmission')}</div>
-                                                </div>
-                                                <FormControl>
-                                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                ))}
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader><CardTitle>{t('measurement')}</CardTitle></CardHeader>
-                            <CardContent>
+                            <CardHeader><CardTitle>{t('measurements')}</CardTitle></CardHeader>
+                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormField
                                     control={form.control}
-                                    name="measuredLuminance"
+                                    name="screenGain"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('maxMeasuredLuminance')}</FormLabel>
+                                            <FormLabel>{t('screenGain')}</FormLabel>
                                             <div className="flex gap-2">
-                                                <FormControl><Input type="number" step="0.0001" {...field} /></FormControl>
+                                                <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                                                 <MeasureButton
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-10 w-10"
-                                                    target={{ x: 0.314, y: 0.351, Y: 0 }}
+                                                    target={{ x: 0.314, y: 0.351, Y: 48 }}
                                                     onMeasured={(data: ColorimetricData) => {
-                                                        form.setValue('measuredLuminance', parseFloat(data.Lv.toFixed(5)));
+                                                        form.setValue('screenGain', parseFloat(data.Lv.toFixed(3)));
                                                     }}
                                                 />
                                             </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="halfGainAngle"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('halfGainAngle')} (°)</FormLabel>
+                                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}

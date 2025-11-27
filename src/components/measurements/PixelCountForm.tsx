@@ -22,6 +22,7 @@ import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import { PIXEL_COUNT_SPEC } from '@/domain/standards/ctpPixelCountSpec';
 import { savePixelCountAction, getPixelCountAction } from '@/app/actions/pixel-count-actions';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     patternType: z.string(),
@@ -42,6 +43,7 @@ interface PixelCountFormProps {
 export function PixelCountForm({ sessionId }: PixelCountFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('PixelCountForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -84,24 +86,24 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={PIXEL_COUNT_SPEC.title}
-            subtitle={PIXEL_COUNT_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: "DCI CTP Pixel Count",
+                title: t('standardTitle'),
                 reference: PIXEL_COUNT_SPEC.reference,
-                description: PIXEL_COUNT_SPEC.description,
+                description: t('standardDescription'),
                 targets: [
-                    { label: "Min Resolution", value: `${PIXEL_COUNT_SPEC.minHorizontal}x${PIXEL_COUNT_SPEC.minVertical}` }
+                    { label: t('minResolution'), value: `${PIXEL_COUNT_SPEC.minHorizontal}x${PIXEL_COUNT_SPEC.minVertical}` }
                 ]
             }}
         >
@@ -111,25 +113,25 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>Test Configuration</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('testConfiguration')}</CardTitle></CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="patternType"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Test Pattern</FormLabel>
+                                            <FormLabel>{t('testPattern')}</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select pattern" />
+                                                        <SelectValue placeholder={t('selectPattern')} />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="north">North</SelectItem>
-                                                    <SelectItem value="south">South</SelectItem>
-                                                    <SelectItem value="east">East</SelectItem>
-                                                    <SelectItem value="west">West</SelectItem>
+                                                    <SelectItem value="north">{t('north')}</SelectItem>
+                                                    <SelectItem value="south">{t('south')}</SelectItem>
+                                                    <SelectItem value="east">{t('east')}</SelectItem>
+                                                    <SelectItem value="west">{t('west')}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -142,7 +144,7 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                                         name="horizontalPixels"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>H Pixels</FormLabel>
+                                                <FormLabel>{t('hPixels')}</FormLabel>
                                                 <FormControl><Input type="number" {...field} /></FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -153,7 +155,7 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                                         name="verticalPixels"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>V Pixels</FormLabel>
+                                                <FormLabel>{t('vPixels')}</FormLabel>
                                                 <FormControl><Input type="number" {...field} /></FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -164,7 +166,7 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Visual Inspection</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('visualInspection')}</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 {PIXEL_COUNT_SPEC.checklist.map((item) => (
                                     <FormField
@@ -174,8 +176,8 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                                         render={({ field }) => (
                                             <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                                 <div className="space-y-0.5">
-                                                    <FormLabel className="text-base">{item.label}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                                                    <FormLabel className="text-base">{t(`${item.id}.label`)}</FormLabel>
+                                                    <div className="text-sm text-muted-foreground">{t(`${item.id}.description`)}</div>
                                                 </div>
                                                 <FormControl>
                                                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -188,7 +190,7 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -207,7 +209,7 @@ export function PixelCountForm({ sessionId }: PixelCountFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

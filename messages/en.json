@@ -18,6 +18,31 @@
         "title": "Test Session Details",
         "pageTitle": "Test Sessions",
         "pageSubtitle": "View and manage CTP test sessions. Click 'View Details' to enter test items.",
+        "addSession": {
+            "button": "New Test Session",
+            "title": "Create Test Session",
+            "description": "Start a new testing phase for a device.",
+            "deviceLabel": "Device",
+            "devicePlaceholder": "Select a device",
+            "phaseLabel": "Test Phase",
+            "phase1": "Phase 1: Device-Level",
+            "phase2": "Phase 2: System-Level (CTP)",
+            "phase3": "Phase 3: Exhibition-Level",
+            "standardLabel": "Standard",
+            "standardPlaceholder": "Select standard",
+            "sdr": "SDR (Standard Dynamic Range)",
+            "hdr": "HDR (High Dynamic Range)",
+            "dateLabel": "Test Date",
+            "operatorLabel": "Operator",
+            "operatorPlaceholder": "Technician name",
+            "locationLabel": "Location",
+            "locationPlaceholder": "Lab / Cinema name",
+            "notesLabel": "Notes",
+            "notesPlaceholder": "Additional information...",
+            "submit": "Create Session",
+            "deviceRequired": "Device is required",
+            "dateRequired": "Date is required"
+        },
         "listTitle": "All Sessions",
         "listDescription": "Select a session to view detailed test items",
         "noSessions": "No test sessions found. Click 'Add Session' to create a new one.",
@@ -235,6 +260,18 @@
         "selectSessionTitle": "Select Test Session",
         "selectSessionDesc": "Which session would you like to enter data for?"
     },
+    "PhaseSection": {
+        "pass": "All Passed",
+        "fail": "Failed Items",
+        "warning": "Warning Items",
+        "incomplete": "Incomplete",
+        "completed": "Completed"
+    },
+    "MeasurementLayout": {
+        "standardRequirement": "Standard Requirement",
+        "target": "Target",
+        "tolerance": "Tolerance"
+    },
     "StatusCards": {
         "overallStatus": "Overall Status",
         "completion": "Completion",
@@ -354,27 +391,94 @@
     },
     "PixelStructureForm": {
         "title": "Pixel Structure",
-        "subtitle": "Verify pixel structure, fill factor, and absence of visual artifacts",
+        "subtitle": "Verify pixel structure, fill factor and artifacts",
         "standardTitle": "DCI CTP Pixel Structure",
         "checklist": "Checklist",
         "notes": "Notes & Observations",
-        "notesPlaceholder": "Record any observed anomalies or additional notes...",
+        "notesPlaceholder": "Record any anomalies or additional notes...",
         "save": "Save Results",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Failed to save"
+        "failure": "Failed to save",
+        "fillFactor": {
+            "label": "Fill Factor",
+            "description": "The ratio of the active light-emitting area to the total pixel area.",
+            "requirement": "≥ 90% (or as specified by manufacturer)"
+        },
+        "pixelPitch": {
+            "label": "Pixel Pitch",
+            "description": "Verify the pixel pitch matches the manufacturer's specification.",
+            "requirement": "Documented"
+        },
+        "subPixelStructure": {
+            "label": "Sub-Pixel Structure",
+            "description": "Verify sub-pixel arrangement does not cause visible color fringing at reference viewing distance.",
+            "requirement": "No Color Fringing"
+        },
+        "visualArtifacts": {
+            "label": "Visual Artifacts",
+            "description": "No visible screen door effect, moiré, or other artifacts at reference viewing distance.",
+            "requirement": "None Visible"
+        },
+        "pass": "PASS",
+        "fail": "FAIL",
+        "requirement": "Requirement: "
+    },
+    "VignettingForm": {
+        "title": "Vignetting",
+        "subtitle": "Measure luminance uniformity from center to corners",
+        "standardTitle": "DCI CTP Vignetting",
+        "standardDescription": "Verify luminance falloff at screen corners relative to center.",
+        "measurements": "Luminance Measurements",
+        "luminanceCenter": "Center Luminance",
+        "luminanceTopLeft": "Top Left Luminance",
+        "luminanceTopRight": "Top Right Luminance",
+        "luminanceBottomLeft": "Bottom Left Luminance",
+        "luminanceBottomRight": "Bottom Right Luminance",
+        "notes": "Notes",
+        "save": "Save Data",
+        "success": "Saved successfully",
+        "failure": "Failed to save",
+        "targetLabel": "Target",
+        "targetValue": "> 80% of Center"
     },
     "ExhibitionForm": {
         "title": "Exhibition Environment",
         "subtitle": "Verify exhibition environment conditions",
         "standardTitle": "DCI CTP Exhibition Environment",
+        "standardDescription": "Verify the auditorium environment meets DCI specifications for projection.",
         "checklist": "Environment Checklist",
-        "measurements": "Measurements",
+        "measurements": "Measurement Data",
         "notes": "Notes",
         "save": "Save Results",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Failed to save"
+        "failure": "Failed to save",
+        "ambientLight": {
+            "label": "Ambient Light",
+            "description": "Ambient light on screen is negligible (< 0.03 cd/m²)"
+        },
+        "masking": {
+            "label": "Screen Masking",
+            "description": "Masking is properly aligned and absorbs light"
+        },
+        "portWindow": {
+            "label": "Port Window",
+            "description": "Port window glass is clean and clear"
+        },
+        "hvacNoise": {
+            "label": "HVAC Noise",
+            "description": "HVAC noise is not distracting (NC-30 or better)"
+        },
+        "ambientLightLevel": {
+            "label": "Ambient Light Level"
+        },
+        "temperature": {
+            "label": "Booth Temperature"
+        },
+        "humidity": {
+            "label": "Booth Humidity"
+        }
     },
     "BasicMeasurementForm": {
         "title": "Peak White & Black Level",
@@ -482,5 +586,289 @@
             "toleranceMinus": "Tolerance (-)",
             "error": "Error %"
         }
+    },
+    "CTPOverview": {
+        "title": "CTP Compliance Overview",
+        "session": "Test Session",
+        "device": "Device",
+        "unknownDevice": "Unknown Device",
+        "standard": "Standard",
+        "phase1": "Phase 1: Device Baseline",
+        "phase2": "Phase 2: Image Chain",
+        "phase3": "Phase 3: System Acceptance"
+    },
+    "MeasurementItems": {
+        "pixel-structure": "Pixel Structure",
+        "pixel-count": "Pixel Count",
+        "inactive-area-sdr": "SDR Inactive Area Black Level",
+        "inactive-area-hdr": "HDR Inactive Area Black Level",
+        "off-axis-uniformity": "Off-axis Uniformity",
+        "surface-reflectivity": "Surface Reflectivity",
+        "vignetting": "Vignetting",
+        "sub-pixel": "Sub-pixel Alignment",
+        "dv-environment": "Direct View Environment",
+        "proj-environment": "Projector Environment",
+        "intra-contrast": "Intra-frame Contrast",
+        "grayscale": "Grayscale & EOTF",
+        "contouring": "Contouring",
+        "sdr-transfer": "SDR Transfer Function",
+        "color-accuracy": "Color Accuracy",
+        "peak-white-black-sdr": "SDR Peak White & Black Level",
+        "peak-white-black-hdr": "HDR Peak White & Black Level",
+        "frame-rates": "Image Frame Rates",
+        "auto-switch": "Auto SDR/HDR Switching",
+        "hdr-inactive-black": "HDR Inactive Area Black Level (DV)",
+        "upscaling": "Upscaling Artifacts",
+        "stereo-extinction": "Stereoscopic Extinction Ratio (Optional)",
+        "stereo-peak-white": "SDR Stereoscopic Peak White (Optional)",
+        "stereo-black": "SDR 3D Minimum Active Black (Optional)",
+        "stereo-color": "SDR 3D Color Accuracy (Optional)",
+        "stereo-frame-rates": "Stereoscopic Image Frame Rates (Optional)",
+        "frame-rates-system": "Image Frame Rates (System)",
+        "uniformity": "Uniformity",
+        "color-volume": "Color Volume",
+        "contrast": "Sequential Contrast",
+        "exhibition-environment": "Exhibition Environment",
+        "viewing-angle": "Viewing Angle",
+        "screen-gain": "Screen Gain"
+    },
+    "MeasurementSummary": {
+        "notTested": "Not Tested",
+        "pass": "Pass",
+        "fail": "Fail",
+        "warning": "Warning",
+        "fillFactorFail": "Fill factor requirement not met",
+        "pixelPitchFail": "Pixel pitch not confirmed",
+        "subPixelFail": "Color fringing in sub-pixel structure",
+        "artifactsFail": "Visible artifacts present",
+        "pixelBlockFail": "Pixel block incomplete",
+        "croppingFail": "Image cropping detected",
+        "scalingFail": "Image scaling detected",
+        "testFail": "Test marked as failed",
+        "resSummary": "Res: {h}x{v}",
+        "hLinesFail": "Horizontal lines test failed",
+        "vLinesFail": "Vertical lines test failed",
+        "colorFringingFail": "Color fringing present",
+        "alignGood": "Good Alignment",
+        "jaggiesFail": "Jaggies present",
+        "ringingFail": "Ringing artifacts present",
+        "aliasingFail": "Aliasing present",
+        "artifactsExist": "Artifacts present",
+        "noArtifacts": "No visible artifacts",
+        "contrastSummary": "Contrast: {ratio}:1",
+        "borderFail": "{border} border failed",
+        "borderCheckFail": "Border check failed",
+        "borderCheckPass": "All borders passed",
+        "monotonicityFail": "Monotonicity test failed",
+        "visualBandFail": "Visual banding detected",
+        "contouringExist": "Contouring issues present",
+        "smoothTransition": "Smooth transition",
+        "whiteLevel": "Peak White",
+        "blackLevel": "Black Level",
+        "target": "Target",
+        "range": "Range",
+        "whiteBlackSummary": "W: {white} cd/m², B: {black} cd/m²",
+        "uniformityFailCount": "Pos {pos}: Dev {dev}% (Tol: {tol}%)",
+        "uniformityMoreFail": "... and {count} more points failed",
+        "uniformitySummary": "{count} points measured",
+        "colorFail": "{name}: {issues} failed",
+        "luminance": "Luminance",
+        "chromaticity": "Chromaticity",
+        "and": "and",
+        "colorSummary": "{count} patches",
+        "hdrEotf": "HDR EOTF",
+        "whiteGraySteps": "White/Gray Steps",
+        "checkFailCount": "{count} checks failed",
+        "allChecksPass": "All checks passed",
+        "vignettingFail": "{corner}: {value} cd/m² (min: {min} cd/m²)",
+        "vignettingExists": "Edge darkening present",
+        "uniformLuminance": "Uniform luminance"
+    },
+    "ViewingAngleForm": {
+        "title": "Viewing Angle",
+        "subtitle": "Verify luminance consistency across different viewing angles",
+        "standardTitle": "DCI CTP Viewing Angle",
+        "standardDescription": "Measure luminance at center and off-axis positions, evaluate color shift.",
+        "targetLabel": "Target",
+        "targetValue": "No visible color shift",
+        "measurements": "Luminance Measurements",
+        "luminanceCenter": "Center Luminance",
+        "luminanceLeft": "Left Luminance",
+        "luminanceRight": "Right Luminance",
+        "luminanceTop": "Top Luminance",
+        "luminanceBottom": "Bottom Luminance",
+        "inspection": "Visual Inspection",
+        "colorShiftPass": "No Visible Color Shift",
+        "colorShiftDesc": "Observe for significant color changes within the specified viewing angle range",
+        "notes": "Notes",
+        "save": "Save Measurement Data",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "ScreenGainForm": {
+        "title": "Screen Gain",
+        "subtitle": "Measure screen gain and half-gain angle",
+        "standardTitle": "DCI CTP Screen Gain",
+        "standardDescription": "Verify screen reflectivity characteristics.",
+        "targetLabel": "Target",
+        "targetValue": "Recorded Value",
+        "measurements": "Measurements",
+        "screenGain": "Screen Gain",
+        "halfGainAngle": "Half-Gain Angle",
+        "notes": "Notes",
+        "save": "Save Measurement Data",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "ContrastForm": {
+        "title": "Sequential Contrast",
+        "subtitle": "Measure luminance ratio between full white and full black screens",
+        "standardTitle": "DCI CTP Contrast",
+        "standardDescription": "Measure ratio of Peak White to Black Level.",
+        "targetLabel": "Target (SDR/HDR)",
+        "targetValue": "1200:1 / 2000:1",
+        "measurements": "Measurements",
+        "peakWhite": "Peak White",
+        "blackLevel": "Black Level",
+        "contrastRatio": "Contrast Ratio",
+        "notes": "Notes",
+        "save": "Save Measurement Data",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "ContouringForm": {
+        "title": "Contouring",
+        "subtitle": "Verify grayscale transition smoothness",
+        "standardTitle": "DCI CTP Contouring",
+        "standardDescription": "Verify 2nd derivative of luminance > 0, and no visible banding.",
+        "method": "Method",
+        "requirement": "Requirement",
+        "requirementValue": "Monotonic slope, no visible artifacts",
+        "inspection": "Inspection Results",
+        "slopeMonotonicity": "Slope Monotonicity",
+        "slopeDesc": "Verify 2nd derivative of luminance > 0",
+        "visualInspection": "Visual Inspection",
+        "visualDesc": "No visible contours or banding artifacts",
+        "notes": "Notes",
+        "save": "Save Results",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "InactiveAreaForm": {
+        "title": "Inactive Area Black",
+        "subtitle": "Verify black level performance in inactive areas",
+        "standardTitleSDR": "SDR Inactive Area",
+        "standardTitleHDR": "HDR Inactive Area",
+        "checklist": "Border Check",
+        "topBorder": "Top Border",
+        "bottomBorder": "Bottom Border",
+        "leftBorder": "Left Border",
+        "rightBorder": "Right Border",
+        "pass": "Pass",
+        "fail": "Fail",
+        "measuredLuminance": "Measured Luminance (cd/m²)",
+        "notes": "Notes",
+        "save": "Save Results",
+        "saving": "Saving...",
+        "success": "Saved successfully",
+        "failure": "Save failed"
+    },
+    "IntraContrastForm": {
+        "title": "Intra-Frame Contrast",
+        "subtitle": "Measure luminance uniformity within a single frame using checkerboard pattern",
+        "standardTitle": "DCI CTP Intra-Frame Contrast",
+        "standardDescription": "Verify intra-frame contrast using a checkerboard pattern.",
+        "whiteTarget": "White Patches Target",
+        "blackTarget": "Black Patches Target",
+        "whitePatches": "White Patches (48 cd/m²)",
+        "blackPatches": "Black Patches (< 0.024 cd/m²)",
+        "white": "White",
+        "black": "Black",
+        "results": "Calculated Results",
+        "contrastRatio": "Contrast Ratio",
+        "notes": "Notes",
+        "save": "Save Measurement Data",
+        "success": "Saved successfully",
+        "failure": "Failed to save",
+        "hdrNotSupported": "HDR measurement not yet supported"
+    },
+    "PixelCountForm": {
+        "title": "Pixel Count & Resolution",
+        "subtitle": "Verify display resolution and pixel integrity",
+        "standardTitle": "DCI CTP Pixel Count",
+        "standardDescription": "Verify the display resolution and pixel integrity using specific test patterns.",
+        "minResolution": "Minimum Resolution",
+        "testConfiguration": "Test Configuration",
+        "testPattern": "Test Pattern",
+        "selectPattern": "Select Pattern",
+        "north": "North Pattern",
+        "south": "South Pattern",
+        "east": "East Pattern",
+        "west": "West Pattern",
+        "hPixels": "Horizontal Pixels",
+        "vPixels": "Vertical Pixels",
+        "visualInspection": "Visual Inspection",
+        "pixelBlockComplete": {
+            "label": "16x16 Pixel Block Complete",
+            "description": "Verify 16x16 pixel block and 8-bit binary code are fully visible."
+        },
+        "noCropping": {
+            "label": "No Cropping",
+            "description": "Verify no part of the image is cropped."
+        },
+        "noScaling": {
+            "label": "No Scaling",
+            "description": "Verify 1:1 pixel mapping without scaling."
+        },
+        "notes": "Notes",
+        "save": "Save Results",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "SubPixelForm": {
+        "title": "Sub-Pixel Alignment",
+        "subtitle": "Verify sub-pixel alignment using single-pixel white lines",
+        "standardTitle": "DCI CTP Sub-Pixel Alignment",
+        "standardDescription": "Verify sub-pixel alignment using single-pixel white lines.",
+        "checklist": "Visual Inspection Checklist",
+        "horizontalLinesPass": {
+            "label": "Horizontal Lines",
+            "description": "Single-pixel horizontal white lines are sharp and clear."
+        },
+        "verticalLinesPass": {
+            "label": "Vertical Lines",
+            "description": "Single-pixel vertical white lines are sharp and clear."
+        },
+        "noColorFringing": {
+            "label": "No Color Fringing",
+            "description": "No visible color fringing at normal viewing distance."
+        },
+        "notes": "Notes",
+        "save": "Save Results",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "UpscalingForm": {
+        "title": "Upscaling Artifacts",
+        "subtitle": "Verify absence of upscaling artifacts",
+        "standardTitle": "DCI CTP Upscaling Artifacts",
+        "standardDescription": "Verify absence of upscaling artifacts such as jaggies, ringing, or aliasing.",
+        "checklist": "Visual Inspection Checklist",
+        "noJaggies": {
+            "label": "No Jaggies",
+            "description": "Diagonal lines are smooth without stairstep artifacts."
+        },
+        "noRinging": {
+            "label": "No Ringing",
+            "description": "No visible ringing or halos around high-contrast edges."
+        },
+        "noAliasing": {
+            "label": "No Aliasing",
+            "description": "No visible aliasing or moiré patterns in zone plates."
+        },
+        "notes": "Notes",
+        "save": "Save Results",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
     }
 }

@@ -1,7 +1,7 @@
-import { PixelStructureForm } from '@/components/measurements/PixelStructureForm';
+import { ViewingAngleForm } from '@/components/measurements/ViewingAngleForm';
 import { notFound } from 'next/navigation';
 
-export default async function PixelStructurePage({
+export default async function ViewingAnglePage({
     searchParams,
 }: {
     searchParams: Promise<{ sessionId?: string }>;
@@ -13,5 +13,5 @@ export default async function PixelStructurePage({
         notFound();
     }
 
-    return <PixelStructureForm sessionId={sessionId} />;
+    return <ViewingAngleForm sessionId={sessionId} />;
 }

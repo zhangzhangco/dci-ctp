@@ -1,7 +1,7 @@
-import { PixelStructureForm } from '@/components/measurements/PixelStructureForm';
+import { ScreenGainForm } from '@/components/measurements/ScreenGainForm';
 import { notFound } from 'next/navigation';
 
-export default async function PixelStructurePage({
+export default async function ScreenGainPage({
     searchParams,
 }: {
     searchParams: Promise<{ sessionId?: string }>;
@@ -13,5 +13,5 @@ export default async function PixelStructurePage({
         notFound();
     }
 
-    return <PixelStructureForm sessionId={sessionId} />;
+    return <ScreenGainForm sessionId={sessionId} />;
 }

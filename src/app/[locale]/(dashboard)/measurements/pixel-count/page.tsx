@@ -1,12 +1,13 @@
 import { PixelCountForm } from '@/components/measurements/PixelCountForm';
 import { notFound } from 'next/navigation';
 
-interface PageProps {
-    searchParams: { sessionId?: string };
-}
-
-export default function PixelCountPage({ searchParams }: PageProps) {
-    const sessionId = searchParams.sessionId ? parseInt(searchParams.sessionId) : null;
+export default async function PixelCountPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ sessionId?: string }>;
+}) {
+    const { sessionId: idStr } = await searchParams;
+    const sessionId = idStr ? parseInt(idStr) : null;
 
     if (!sessionId || isNaN(sessionId)) {
         notFound();

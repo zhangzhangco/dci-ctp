@@ -110,7 +110,7 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                                 <Card key={item.id}>
                                     <CardHeader className="pb-2">
                                         <CardTitle className="text-base flex justify-between items-center">
-                                            {item.label}
+                                            {t(`${item.id}.label`)}
                                             <FormField
                                                 control={form.control}
                                                 name={`${item.id}Check` as any}
@@ -123,7 +123,7 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                                                             />
                                                         </FormControl>
                                                         <span className={`text-sm font-bold ${field.value ? 'text-green-600' : 'text-red-600'}`}>
-                                                            {field.value ? 'PASS' : 'FAIL'}
+                                                            {field.value ? t('pass') : t('fail')}
                                                         </span>
                                                     </FormItem>
                                                 )}
@@ -131,9 +131,9 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                                        <p className="text-sm text-muted-foreground mb-2">{t(`${item.id}.description`)}</p>
                                         <div className="text-xs font-mono bg-muted p-2 rounded">
-                                            Requirement: {item.requirement}
+                                            {t('requirement')} {t(`${item.id}.requirement`)}
                                         </div>
                                     </CardContent>
                                 </Card>

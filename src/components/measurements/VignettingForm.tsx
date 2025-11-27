@@ -15,44 +15,42 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
-import { INACTIVE_AREA_SPEC } from '@/domain/standards/ctpInactiveAreaSpec';
-import { saveInactiveAreaAction, getInactiveAreaAction } from '@/app/actions/inactive-area-actions';
+import { saveVignettingAction, getVignettingAction } from '@/app/actions/vignetting-actions';
 import { useTranslations } from 'next-intl';
 import { MeasureButton } from './MeasureButton';
 import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 
 const formSchema = z.object({
-    topBorderCheck: z.boolean(),
-    bottomBorderCheck: z.boolean(),
-    leftBorderCheck: z.boolean(),
-    rightBorderCheck: z.boolean(),
-    measuredLuminance: z.coerce.number(),
+    luminanceCenter: z.coerce.number().optional(),
+    luminanceTopLeft: z.coerce.number().optional(),
+    luminanceTopRight: z.coerce.number().optional(),
+    luminanceBottomLeft: z.coerce.number().optional(),
+    luminanceBottomRight: z.coerce.number().optional(),
     notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface InactiveAreaFormProps {
+interface VignettingFormProps {
     sessionId: number;
 }
 
-export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
+export function VignettingForm({ sessionId }: VignettingFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const t = useTranslations('InactiveAreaForm');
+    const t = useTranslations('VignettingForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            topBorderCheck: false,
-            bottomBorderCheck: false,
-            leftBorderCheck: false,
-            rightBorderCheck: false,
-            measuredLuminance: 0,
+            luminanceCenter: 0,
+            luminanceTopLeft: 0,
+            luminanceTopRight: 0,
+            luminanceBottomLeft: 0,
+            luminanceBottomRight: 0,
             notes: '',
         },
     });
@@ -60,14 +58,14 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            const result = await getInactiveAreaAction(sessionId);
+            const result = await getVignettingAction(sessionId);
             if (result.success && result.data) {
                 form.reset({
-                    topBorderCheck: result.data.topBorderCheck ?? false,
-                    bottomBorderCheck: result.data.bottomBorderCheck ?? false,
-                    leftBorderCheck: result.data.leftBorderCheck ?? false,
-                    rightBorderCheck: result.data.rightBorderCheck ?? false,
-                    measuredLuminance: result.data.measuredLuminance ?? 0,
+                    luminanceCenter: result.data.luminanceCenter ?? 0,
+                    luminanceTopLeft: result.data.luminanceTopLeft ?? 0,
+                    luminanceTopRight: result.data.luminanceTopRight ?? 0,
+                    luminanceBottomLeft: result.data.luminanceBottomLeft ?? 0,
+                    luminanceBottomRight: result.data.luminanceBottomRight ?? 0,
                     notes: result.data.notes ?? '',
                 });
             }
@@ -78,7 +76,7 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
 
     async function onSubmit(values: FormValues) {
         setIsSaving(true);
-        const result = await saveInactiveAreaAction({
+        const result = await saveVignettingAction({
             sessionId,
             ...values,
         });
@@ -95,14 +93,13 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
         <MeasurementLayout
             title={t('title')}
             subtitle={t('subtitle')}
-            phases={['Phase 1']}
+            phases={['Phase 2']}
             standard={{
                 title: t('standardTitle'),
-                reference: INACTIVE_AREA_SPEC.reference,
+                reference: "DCI CTP 1.2",
                 description: t('standardDescription'),
                 targets: [
-                    { label: t('requirement'), value: INACTIVE_AREA_SPEC.requirement },
-                    { label: t('maxLuminance'), value: `${INACTIVE_AREA_SPEC.maxLuminance} cd/m²` }
+                    { label: t('targetLabel'), value: t('targetValue') }
                 ]
             }}
         >
@@ -112,47 +109,23 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>{t('borderChecks')}</CardTitle></CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {['top', 'bottom', 'left', 'right'].map((pos) => (
-                                    <FormField
-                                        key={`${pos}BorderCheck`}
-                                        control={form.control}
-                                        name={`${pos}BorderCheck` as any}
-                                        render={({ field }) => (
-                                            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                                                <div className="space-y-0.5">
-                                                    <FormLabel className="text-base capitalize">{t(`${pos}Border`)}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{t('noLightEmission')}</div>
-                                                </div>
-                                                <FormControl>
-                                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                ))}
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader><CardTitle>{t('measurement')}</CardTitle></CardHeader>
-                            <CardContent>
+                            <CardHeader><CardTitle>{t('measurements')}</CardTitle></CardHeader>
+                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormField
                                     control={form.control}
-                                    name="measuredLuminance"
+                                    name="luminanceCenter"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('maxMeasuredLuminance')}</FormLabel>
+                                        <FormItem className="md:col-span-2">
+                                            <FormLabel>{t('luminanceCenter')} (cd/m²)</FormLabel>
                                             <div className="flex gap-2">
-                                                <FormControl><Input type="number" step="0.0001" {...field} /></FormControl>
+                                                <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
                                                 <MeasureButton
                                                     size="icon"
                                                     variant="ghost"
                                                     className="h-10 w-10"
-                                                    target={{ x: 0.314, y: 0.351, Y: 0 }}
+                                                    target={{ x: 0.314, y: 0.351, Y: 48 }}
                                                     onMeasured={(data: ColorimetricData) => {
-                                                        form.setValue('measuredLuminance', parseFloat(data.Lv.toFixed(5)));
+                                                        form.setValue('luminanceCenter', parseFloat(data.Lv.toFixed(3)));
                                                     }}
                                                 />
                                             </div>
@@ -160,6 +133,31 @@ export function InactiveAreaForm({ sessionId }: InactiveAreaFormProps) {
                                         </FormItem>
                                     )}
                                 />
+                                {['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'].map((pos) => (
+                                    <FormField
+                                        key={`luminance${pos}`}
+                                        control={form.control}
+                                        name={`luminance${pos}` as any}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t(`luminance${pos}`)} (cd/m²)</FormLabel>
+                                                <div className="flex gap-2">
+                                                    <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                                                    <MeasureButton
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-10 w-10"
+                                                        target={{ x: 0.314, y: 0.351, Y: 48 }}
+                                                        onMeasured={(data: ColorimetricData) => {
+                                                            form.setValue(`luminance${pos}` as any, parseFloat(data.Lv.toFixed(3)));
+                                                        }}
+                                                    />
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                ))}
                             </CardContent>
                         </Card>
 

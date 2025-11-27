@@ -5,13 +5,16 @@ import { PhaseSection } from '@/components/ctp/PhaseSection';
 import { db } from '@/db';
 import { testSessions } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
-    params: { sessionId: string };
+    params: Promise<{ sessionId: string; locale: string }>;
 }
 
 export default async function CTPOverviewPage({ params }: PageProps) {
-    const sessionId = parseInt(params.sessionId);
+    const { sessionId: sessionIdStr, locale } = await params;
+    const sessionId = parseInt(sessionIdStr);
+    const t = await getTranslations({ locale, namespace: 'CTPOverview' });
 
     if (isNaN(sessionId)) {
         notFound();
@@ -30,7 +33,7 @@ export default async function CTPOverviewPage({ params }: PageProps) {
     }
 
     // 获取 CTP 总览数据
-    const overview = await getCTPOverviewAction(sessionId);
+    const overview = await getCTPOverviewAction(sessionId, locale);
 
     return (
         <div className="space-y-6">
@@ -38,15 +41,15 @@ export default async function CTPOverviewPage({ params }: PageProps) {
             <div>
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">CTP 合规性总览</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
                         <p className="text-muted-foreground mt-2">
-                            测试会话: {`Session #${session.id}`} • 设备: {session.device?.model || 'Unknown Device'} ({session.device?.type === 'direct_view' ? 'Direct View' : 'Projector'})
+                            {t('session')}: {`Session #${session.id}`} • {t('device')}: {session.device?.model || t('unknownDevice')} ({session.device?.type === 'direct_view' ? 'Direct View' : 'Projector'})
                         </p>
                     </div>
 
                     {/* 显示当前标准 */}
                     <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-muted-foreground">Standard:</span>
+                        <span className="text-sm font-medium text-muted-foreground">{t('standard')}:</span>
                         <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20 uppercase">
                             {session.standard || 'SDR'}
                         </span>
@@ -58,10 +61,14 @@ export default async function CTPOverviewPage({ params }: PageProps) {
             <StatusCards overview={overview} />
 
             {/* Phase 1: Device-Level */}
-            <PhaseSection phase={overview.phases.phase1} />
+            {overview.phases.phase1 && (
+                <PhaseSection phase={overview.phases.phase1} />
+            )}
 
             {/* Phase 2: Image Chain Correctness */}
-            <PhaseSection phase={overview.phases.phase2} />
+            {overview.phases.phase2 && (
+                <PhaseSection phase={overview.phases.phase2} />
+            )}
 
             {/* Phase 3: System / Content Level */}
             {overview.phases.phase3 && (

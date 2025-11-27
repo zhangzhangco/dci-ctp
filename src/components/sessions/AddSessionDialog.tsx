@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createSessionAction } from '@/app/actions/session-actions';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -50,6 +51,7 @@ type Device = { id: number; manufacturer: string; model: string };
 export function AddSessionDialog({ devices }: { devices: Device[] }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
+    const t = useTranslations('Session.addSession');
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -85,14 +87,14 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>
-                    <Plus className="mr-2 h-4 w-4" /> New Test Session
+                    <Plus className="mr-2 h-4 w-4" /> {t('button')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Create Test Session</DialogTitle>
+                    <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription>
-                        Start a new testing phase for a device.
+                        {t('description')}
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -102,14 +104,14 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="deviceId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Device</FormLabel>
+                                    <FormLabel>{t('deviceLabel')}</FormLabel>
                                     <Select
                                         onValueChange={(value) => field.onChange(parseInt(value))}
                                         defaultValue={field.value.toString()}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select a device" />
+                                                <SelectValue placeholder={t('devicePlaceholder')} />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -129,7 +131,7 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="phase"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Test Phase</FormLabel>
+                                    <FormLabel>{t('phaseLabel')}</FormLabel>
                                     <Select
                                         onValueChange={(value) => field.onChange(parseInt(value))}
                                         defaultValue={field.value.toString()}
@@ -140,9 +142,9 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="1">Phase 1: Device-Level</SelectItem>
-                                            <SelectItem value="2">Phase 2: System-Level (CTP)</SelectItem>
-                                            <SelectItem value="3">Phase 3: Exhibition-Level</SelectItem>
+                                            <SelectItem value="1">{t('phase1')}</SelectItem>
+                                            <SelectItem value="2">{t('phase2')}</SelectItem>
+                                            <SelectItem value="3">{t('phase3')}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -154,19 +156,19 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="standard"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Standard</FormLabel>
+                                    <FormLabel>{t('standardLabel')}</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select standard" />
+                                                <SelectValue placeholder={t('standardPlaceholder')} />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="sdr">SDR (Standard Dynamic Range)</SelectItem>
-                                            <SelectItem value="hdr">HDR (High Dynamic Range)</SelectItem>
+                                            <SelectItem value="sdr">{t('sdr')}</SelectItem>
+                                            <SelectItem value="hdr">{t('hdr')}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -178,7 +180,7 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="date"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Test Date</FormLabel>
+                                    <FormLabel>{t('dateLabel')}</FormLabel>
                                     <FormControl>
                                         <Input type="date" {...field} />
                                     </FormControl>
@@ -191,9 +193,9 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="operator"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Operator</FormLabel>
+                                    <FormLabel>{t('operatorLabel')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Technician name" {...field} />
+                                        <Input placeholder={t('operatorPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -204,9 +206,9 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="location"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Location</FormLabel>
+                                    <FormLabel>{t('locationLabel')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Lab / Cinema name" {...field} />
+                                        <Input placeholder={t('locationPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -217,16 +219,16 @@ export function AddSessionDialog({ devices }: { devices: Device[] }) {
                             name="notes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Notes</FormLabel>
+                                    <FormLabel>{t('notesLabel')}</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Additional information..." {...field} />
+                                        <Textarea placeholder={t('notesPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <DialogFooter>
-                            <Button type="submit">Create Session</Button>
+                            <Button type="submit">{t('submit')}</Button>
                         </DialogFooter>
                     </form>
                 </Form>

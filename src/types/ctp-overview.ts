@@ -7,7 +7,7 @@ export type StandardType = 'sdr' | 'hdr';
 export interface MeasurementItemStatus {
     id: string;
     name: string;
-    category: 'device' | 'system';
+    category: 'device' | 'system' | 'exhibition';
     phase: 1 | 2 | 3;
     status: MeasurementStatus;
     standardRef: string;
@@ -32,8 +32,8 @@ export interface CTPOverview {
     completionPercentage: number;
 
     phases: {
-        phase1: PhaseStatus;
-        phase2: PhaseStatus;
+        phase1?: PhaseStatus;
+        phase2?: PhaseStatus;
         phase3?: PhaseStatus;
     };
 

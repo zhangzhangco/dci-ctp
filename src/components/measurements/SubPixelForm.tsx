@@ -20,6 +20,7 @@ import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import { SUB_PIXEL_SPEC } from '@/domain/standards/ctpSubPixelSpec';
 import { saveSubPixelAction, getSubPixelAction } from '@/app/actions/sub-pixel-actions';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     horizontalLinesPass: z.boolean(),
@@ -37,6 +38,7 @@ interface SubPixelFormProps {
 export function SubPixelForm({ sessionId }: SubPixelFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('SubPixelForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -73,22 +75,22 @@ export function SubPixelForm({ sessionId }: SubPixelFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={SUB_PIXEL_SPEC.title}
-            subtitle={SUB_PIXEL_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: "DCI CTP Sub-Pixel Alignment",
+                title: t('standardTitle'),
                 reference: SUB_PIXEL_SPEC.reference,
-                description: SUB_PIXEL_SPEC.description,
+                description: t('standardDescription'),
                 targets: []
             }}
         >
@@ -98,7 +100,7 @@ export function SubPixelForm({ sessionId }: SubPixelFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>Checklist</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('checklist')}</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 {SUB_PIXEL_SPEC.checklist.map((item) => (
                                     <FormField
@@ -108,8 +110,8 @@ export function SubPixelForm({ sessionId }: SubPixelFormProps) {
                                         render={({ field }) => (
                                             <FormItem className="flex items-center justify-between rounded-lg border p-4">
                                                 <div className="space-y-0.5">
-                                                    <FormLabel className="text-base">{item.label}</FormLabel>
-                                                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                                                    <FormLabel className="text-base">{t(`${item.id}.label`)}</FormLabel>
+                                                    <div className="text-sm text-muted-foreground">{t(`${item.id}.description`)}</div>
                                                 </div>
                                                 <FormControl>
                                                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -122,7 +124,7 @@ export function SubPixelForm({ sessionId }: SubPixelFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -141,7 +143,7 @@ export function SubPixelForm({ sessionId }: SubPixelFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

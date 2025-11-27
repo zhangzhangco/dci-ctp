@@ -30,10 +30,11 @@ import { useTranslations } from 'next-intl';
 
 interface BasicMeasurementFormProps {
     sessionId: number;
+    initialStandard?: 'sdr' | 'hdr';
 }
 
-export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
-    const [testType, setTestType] = useState<BasicTestType>('sdr-white');
+export function BasicMeasurementForm({ sessionId, initialStandard = 'sdr' }: BasicMeasurementFormProps) {
+    const [testType, setTestType] = useState<BasicTestType>(initialStandard === 'hdr' ? 'hdr-white' : 'sdr-white');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const t = useTranslations('BasicMeasurementForm');
