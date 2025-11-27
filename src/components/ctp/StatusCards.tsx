@@ -6,7 +6,11 @@ interface StatusCardsProps {
     overview: CTPOverview;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function StatusCards({ overview }: StatusCardsProps) {
+    const t = useTranslations('StatusCards');
+
     const StatusIcon = {
         pass: CheckCircle2,
         fail: XCircle,
@@ -21,12 +25,7 @@ export function StatusCards({ overview }: StatusCardsProps) {
         incomplete: 'text-blue-600 bg-blue-50 dark:bg-blue-950/20'
     }[overview.overallStatus];
 
-    const statusLabel = {
-        pass: 'CTP 合规',
-        fail: 'CTP 不合规',
-        warning: 'CTP 警告',
-        incomplete: '测试进行中'
-    }[overview.overallStatus];
+    const statusLabel = t(`status.${overview.overallStatus}`);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -35,7 +34,7 @@ export function StatusCards({ overview }: StatusCardsProps) {
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">整体状态</p>
+                            <p className="text-sm text-muted-foreground">{t('overallStatus')}</p>
                             <p className={`text-2xl font-bold mt-2 ${statusColor.split(' ')[0]}`}>
                                 {statusLabel}
                             </p>
@@ -52,12 +51,12 @@ export function StatusCards({ overview }: StatusCardsProps) {
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">完成度</p>
+                            <p className="text-sm text-muted-foreground">{t('completion')}</p>
                             <p className="text-2xl font-bold mt-2">
                                 {overview.completionPercentage}%
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {overview.completedItems} / {overview.totalItems} 项
+                                {overview.completedItems} / {overview.totalItems} {t('items')}
                             </p>
                         </div>
                         <div className="relative h-16 w-16">
@@ -91,7 +90,7 @@ export function StatusCards({ overview }: StatusCardsProps) {
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">通过</p>
+                            <p className="text-sm text-muted-foreground">{t('passed')}</p>
                             <p className="text-2xl font-bold mt-2 text-green-600">
                                 {overview.passedItems}
                             </p>
@@ -108,12 +107,12 @@ export function StatusCards({ overview }: StatusCardsProps) {
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">问题</p>
+                            <p className="text-sm text-muted-foreground">{t('issues')}</p>
                             <p className="text-2xl font-bold mt-2 text-red-600">
                                 {overview.failedItems + overview.warningItems}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {overview.failedItems} 失败 / {overview.warningItems} 警告
+                                {overview.failedItems} {t('failed')} / {overview.warningItems} {t('warnings')}
                             </p>
                         </div>
                         <div className="p-3 rounded-full bg-red-50 dark:bg-red-950/20">

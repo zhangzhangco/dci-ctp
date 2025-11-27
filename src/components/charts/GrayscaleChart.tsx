@@ -25,6 +25,7 @@ import {
     calculatePercentageError,
     calculateNormalizedL
 } from '@/domain/standards/ctpGrayscaleSpec';
+import { useTranslations } from 'next-intl';
 
 interface GrayscaleChartProps {
     spec: GrayscaleStepSpec[];
@@ -35,6 +36,7 @@ interface GrayscaleChartProps {
 export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleChartProps) {
     const [scaleType, setScaleType] = useState<'linear' | 'log'>(standardType === 'hdr' ? 'log' : 'linear');
     const [xAxisType, setXAxisType] = useState<'step' | 'cv' | 'normalized'>('step');
+    const t = useTranslations('GrayscaleChart');
 
     // Prepare Data
     const data = spec.map((s) => {
@@ -61,7 +63,8 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
             min: min,
             max: max,
             error: error,
-            tolerancePercent: tolerance * 100
+            tolerancePercent: tolerance * 100,
+            negTolerancePercent: -tolerance * 100
         };
     });
 
@@ -75,9 +78,9 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
 
     const getXAxisLabel = () => {
         switch (xAxisType) {
-            case 'cv': return 'Code Value (Y\')';
-            case 'normalized': return 'Normalized Luminance';
-            default: return 'Step Number';
+            case 'cv': return t('axis.codeValue');
+            case 'normalized': return t('axis.normalizedLuminance');
+            default: return t('axis.stepNumber');
         }
     };
 
@@ -92,13 +95,13 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
                             checked={scaleType === 'log'}
                             onCheckedChange={(checked) => setScaleType(checked ? 'log' : 'linear')}
                         />
-                        <Label htmlFor="log-scale">Log Scale</Label>
+                        <Label htmlFor="log-scale">{t('logScale')}</Label>
                     </div>
                     <Tabs value={xAxisType} onValueChange={(v) => setXAxisType(v as any)}>
                         <TabsList>
-                            <TabsTrigger value="step">Step</TabsTrigger>
-                            <TabsTrigger value="cv">Code Value</TabsTrigger>
-                            <TabsTrigger value="normalized">Normalized</TabsTrigger>
+                            <TabsTrigger value="step">{t('xAxis.step')}</TabsTrigger>
+                            <TabsTrigger value="cv">{t('xAxis.cv')}</TabsTrigger>
+                            <TabsTrigger value="normalized">{t('xAxis.normalized')}</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </div>
@@ -107,11 +110,11 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
             {/* Main EOTF Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base">EOTF Tracking (Target vs Measured)</CardTitle>
+                    <CardTitle className="text-base">{t('eotfTitle')}</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[400px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                        <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 50 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                             <XAxis
                                 dataKey={getXAxisKey()}
@@ -123,13 +126,13 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
                             <YAxis
                                 scale={scaleType}
                                 domain={['auto', 'auto']}
-                                label={{ value: 'Luminance (cd/m²)', angle: -90, position: 'insideLeft' }}
+                                label={{ value: t('axis.luminance'), angle: -90, position: 'insideLeft' }}
                             />
                             <Tooltip
                                 formatter={(value: number) => value?.toFixed(4)}
                                 labelFormatter={(label) => `${getXAxisLabel()}: ${label}`}
                             />
-                            <Legend />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
 
                             {/* Tolerance Band (Area) */}
                             {/* Recharts Area requires two dataKeys for range, but usually it's min/max. 
@@ -138,11 +141,11 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
                                 Actually, Area can take [min, max] if we structure data right, but standard Area is 0 to value.
                                 Let's use simple lines for bounds for now to avoid complex custom shapes.
                             */}
-                            <Line type="monotone" dataKey="max" stroke="#82ca9d" strokeDasharray="3 3" dot={false} strokeWidth={1} name="Tol Max" />
-                            <Line type="monotone" dataKey="min" stroke="#82ca9d" strokeDasharray="3 3" dot={false} strokeWidth={1} name="Tol Min" />
+                            <Line type="monotone" dataKey="max" stroke="#82ca9d" strokeDasharray="3 3" dot={false} strokeWidth={1} name={t('legend.tolMax')} />
+                            <Line type="monotone" dataKey="min" stroke="#82ca9d" strokeDasharray="3 3" dot={false} strokeWidth={1} name={t('legend.tolMin')} />
 
-                            <Line type="monotone" dataKey="target" stroke="#8884d8" strokeWidth={2} dot={false} name="Target" />
-                            <Line type="monotone" dataKey="measured" stroke="#ff7300" strokeWidth={2} name="Measured" />
+                            <Line type="monotone" dataKey="target" stroke="#8884d8" strokeWidth={2} dot={false} name={t('legend.target')} />
+                            <Line type="monotone" dataKey="measured" stroke="#ff7300" strokeWidth={2} name={t('legend.measured')} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -151,31 +154,32 @@ export function GrayscaleChart({ spec, measurements, standardType }: GrayscaleCh
             {/* Error Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base">Luminance Error %</CardTitle>
+                    <CardTitle className="text-base">{t('errorTitle')}</CardTitle>
                 </CardHeader>
                 <CardContent className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                        <ComposedChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 50 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                             <XAxis
                                 dataKey={getXAxisKey()}
                                 label={{ value: getXAxisLabel(), position: 'bottom', offset: 0 }}
                             />
-                            <YAxis label={{ value: 'Error (%)', angle: -90, position: 'insideLeft' }} />
+                            <YAxis label={{ value: t('axis.error'), angle: -90, position: 'insideLeft' }} />
                             <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-                            <Legend />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
                             <ReferenceLine y={0} stroke="#666" />
 
                             {/* Dynamic Tolerance Lines? Hard since it varies per step. 
                                 We can plot tolerance as a Line/Area. 
                             */}
-                            <Area type="step" dataKey="tolerancePercent" fill="#82ca9d" stroke="#82ca9d" fillOpacity={0.2} name="Tolerance (+)" />
+                            <Area type="step" dataKey="tolerancePercent" fill="#82ca9d" stroke="#82ca9d" fillOpacity={0.2} name={t('legend.tolerancePlus')} />
+                            <Area type="step" dataKey="negTolerancePercent" fill="#82ca9d" stroke="#82ca9d" fillOpacity={0.2} name={t('legend.toleranceMinus')} />
                             {/* Negative tolerance mirror */}
                             {/* Recharts doesn't easily do negative area from same key. 
                                 We can add negTolerance to data.
                             */}
 
-                            <Bar dataKey="error" fill="#ff7300" name="Error %" barSize={20} />
+                            <Bar dataKey="error" fill="#ff7300" name={t('legend.error')} barSize={20} />
                         </ComposedChart>
                     </ResponsiveContainer>
                 </CardContent>

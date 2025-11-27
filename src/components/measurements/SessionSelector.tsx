@@ -15,10 +15,13 @@ type Session = {
     device: { manufacturer: string; model: string };
 };
 
+import { useTranslations } from 'next-intl';
+
 export function SessionSelector({ sessions }: { sessions: Session[] }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('sessionId') || sessions[0]?.session.id.toString();
+    const t = useTranslations('SessionSelector');
 
     const handleChange = (value: string) => {
         router.push(`/measurements?sessionId=${value}`);
@@ -26,7 +29,7 @@ export function SessionSelector({ sessions }: { sessions: Session[] }) {
 
     return (
         <div className="space-y-2">
-            <Label>测试会话</Label>
+            <Label>{t('label')}</Label>
             <Select value={sessionId} onValueChange={handleChange}>
                 <SelectTrigger className="w-full">
                     <SelectValue />

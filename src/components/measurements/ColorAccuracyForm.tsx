@@ -34,6 +34,7 @@ import {
     P3_COLOR_SPEC,
     HDR_P3_COLOR_SPEC
 } from '@/domain/standards/ctpColorAccuracySpec';
+import { useTranslations } from 'next-intl';
 
 const pointSchema = z.object({
     measuredL: z.coerce.number().min(0),
@@ -61,6 +62,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+    const t = useTranslations('ColorAccuracyForm');
 
     // Determine which targets to use based on selected standard
     const targets = standardType === 'sdr' ? SDR_ACCURACY_TARGETS : HDR_ACCURACY_TARGETS;
@@ -124,10 +126,10 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
             });
 
             await Promise.all(promises);
-            alert('保存成功');
+            alert(t('success'));
         } catch (error) {
             console.error(error);
-            alert('保存出错');
+            alert(t('failure'));
         } finally {
             setIsSaving(false);
         }
@@ -257,8 +259,8 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
     };
 
     // Map accuracy targets to points for the chart
-    const chartPoints: CIEPoint[] = targets.map(t => {
-        const measuredVal = values[t.name];
+    const chartPoints: CIEPoint[] = targets.map(target => {
+        const measuredVal = values[target.name];
         const measuredX = measuredVal?.measuredX ?? 0;
         const measuredY = measuredVal?.measuredY ?? 0;
 
@@ -267,10 +269,10 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
         // Return both reference and measured points
         const points: CIEPoint[] = [
             {
-                x: t.targetX,
-                y: t.targetY,
-                label: `${t.name} (Ref)`,
-                color: TARGET_COLORS[t.name] || '#ccc',
+                x: target.targetX,
+                y: target.targetY,
+                label: `${target.name} ${t('reference')}`,
+                color: TARGET_COLORS[target.name] || '#ccc',
                 type: 'reference'
             }
         ];
@@ -279,8 +281,8 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
             points.push({
                 x: measuredX,
                 y: measuredY,
-                label: `${t.name} (Meas)`,
-                color: TARGET_COLORS[t.name] || '#ccc',
+                label: `${target.name} ${t('measured')}`,
+                color: TARGET_COLORS[target.name] || '#ccc',
                 type: 'measured'
             });
         }
@@ -289,11 +291,11 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
 
     return (
         <MeasurementLayout
-            title={COLOR_ACCURACY_SPEC.title}
-            subtitle="验证 Red-1, Green-1, Blue-1 的亮度与色度准确性"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 2']}
             standard={{
-                title: `${standardType === 'sdr' ? 'SDR' : 'HDR'} Color Accuracy`,
+                title: standardType === 'sdr' ? t('standardTitleSDRFull') : t('standardTitleHDRFull'),
                 reference: COLOR_ACCURACY_SPEC.reference,
                 description: COLOR_ACCURACY_SPEC.description,
                 targets: targets.map(t => ({
@@ -307,33 +309,33 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
                         <TabsList className="grid w-full grid-cols-2 mb-6">
-                            <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
-                            <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
+                            <TabsTrigger value="sdr">{t('standardTitleSDR')}</TabsTrigger>
+                            <TabsTrigger value="hdr">{t('standardTitleHDR')}</TabsTrigger>
                         </TabsList>
 
                         {isLoading ? (
                             <div className="flex items-center justify-center py-8">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                                <span className="ml-2 text-muted-foreground">加载数据中...</span>
+                                <span className="ml-2 text-muted-foreground">{t('loading')}</span>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div className="space-y-6">
                                     <Card>
                                         <CardHeader>
-                                            <CardTitle className="text-base">测量数据录入</CardTitle>
+                                            <CardTitle className="text-base">{t('measurementInput')}</CardTitle>
                                         </CardHeader>
                                         <CardContent>
                                             <div className="overflow-x-auto">
                                                 <table className="w-full border-collapse text-sm">
                                                     <thead>
                                                         <tr className="border-b bg-muted/50">
-                                                            <th className="p-3 text-left font-medium">色块</th>
-                                                            <th className="p-3 text-center font-medium">目标值 (x, y, L)</th>
-                                                            <th className="p-3 text-center font-medium">容差</th>
-                                                            <th className="p-3 text-center font-medium">测量值 (x, y, L)</th>
-                                                            <th className="p-3 text-center font-medium">偏差</th>
-                                                            <th className="p-3 text-center font-medium">结果</th>
+                                                            <th className="p-3 text-left font-medium">{t('colorPatch')}</th>
+                                                            <th className="p-3 text-center font-medium">{t('targetValue')}</th>
+                                                            <th className="p-3 text-center font-medium">{t('tolerance')}</th>
+                                                            <th className="p-3 text-center font-medium">{t('measuredValue')}</th>
+                                                            <th className="p-3 text-center font-medium">{t('deviation')}</th>
+                                                            <th className="p-3 text-center font-medium">{t('result')}</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -348,7 +350,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                                         <Button type="submit" disabled={isSaving} size="lg">
                                             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                             <Save className="mr-2 h-4 w-4" />
-                                            保存所有数据
+                                            {isSaving ? t('saving') : t('save')}
                                         </Button>
                                     </div>
                                 </div>
@@ -356,7 +358,7 @@ export function ColorAccuracyForm({ sessionId }: ColorAccuracyFormProps) {
                                 {/* Chart Section */}
                                 <div>
                                     <CIEPlot
-                                        title={`Color Accuracy Plot (${standardType.toUpperCase()})`}
+                                        title={`${t('cieTitle')} (${standardType.toUpperCase()})`}
                                         primaries={chartPrimaries}
                                         points={chartPoints}
                                     />

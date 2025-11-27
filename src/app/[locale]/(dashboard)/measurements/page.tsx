@@ -3,6 +3,7 @@ import { GrayscaleForm } from '@/components/measurements/GrayscaleForm';
 import { SessionSelector } from '@/components/measurements/SessionSelector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSessionsAction } from '@/app/actions/session-actions';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,22 +15,23 @@ export default async function MeasurementsPage({
     const { sessionId: idStr } = await searchParams;
     const sessions = await getSessionsAction();
     const sessionId = idStr ? parseInt(idStr) : sessions[0]?.session.id;
+    const t = await getTranslations('Measurements');
 
     return (
         <div className="container mx-auto py-10 space-y-8">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">测量数据录入</h1>
+                <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
                 <p className="text-muted-foreground">
-                    录入设备级测试数据(Phase 1)
+                    {t('subtitle')}
                 </p>
             </div>
 
             {sessions.length === 0 ? (
                 <Card>
                     <CardHeader>
-                        <CardTitle>没有可用的测试会话</CardTitle>
+                        <CardTitle>{t('noSessionsTitle')}</CardTitle>
                         <CardDescription>
-                            请先在"测试会话"页面创建一个新的测试会话。
+                            {t('noSessionsDesc')}
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -37,9 +39,9 @@ export default async function MeasurementsPage({
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>选择测试会话</CardTitle>
+                            <CardTitle>{t('selectSessionTitle')}</CardTitle>
                             <CardDescription>
-                                为哪个测试会话录入测量数据?
+                                {t('selectSessionDesc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

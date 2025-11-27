@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Circle, ArrowRight, Lock, XCircle, AlertTriangle } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { CircularProgress } from '@/components/ui/circular-progress';
 import { ResetSessionButton } from '@/components/ResetSessionButton';
 
@@ -74,6 +74,8 @@ const TEST_DEFINITIONS = [
     },
 ];
 
+import { getTranslations } from 'next-intl/server';
+
 export default async function SessionDetailPage({
     params,
 }: {
@@ -83,6 +85,7 @@ export default async function SessionDetailPage({
     const sessionId = parseInt(id);
     const sessions = await getSessionsAction();
     const currentSession = sessions.find(s => s.session.id === sessionId);
+    const t = await getTranslations('SessionDetails');
 
     if (!currentSession) {
         redirect('/sessions');
@@ -112,10 +115,10 @@ export default async function SessionDetailPage({
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div>
-                            <CardTitle className="text-2xl">测试会话详情</CardTitle>
+                            <CardTitle className="text-2xl">{t('title')}</CardTitle>
                             <CardDescription className="mt-2">
                                 {device.manufacturer} {device.model}
-                                {device.serialNumber && ` - SN: ${device.serialNumber}`}
+                                {device.serialNumber && ` - ${t('sn')}: ${device.serialNumber}`}
                             </CardDescription>
                         </div>
                         <div className="flex items-center gap-2">
@@ -134,24 +137,24 @@ export default async function SessionDetailPage({
                         {/* 左侧：信息 */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <div className="text-sm text-muted-foreground">测试日期</div>
+                                <div className="text-sm text-muted-foreground">{t('date')}</div>
                                 <div className="font-medium">{session.date}</div>
                             </div>
                             {session.operator && (
                                 <div className="space-y-1">
-                                    <div className="text-sm text-muted-foreground">操作人员</div>
+                                    <div className="text-sm text-muted-foreground">{t('operator')}</div>
                                     <div className="font-medium">{session.operator}</div>
                                 </div>
                             )}
                             {session.location && (
                                 <div className="space-y-1">
-                                    <div className="text-sm text-muted-foreground">测试地点</div>
+                                    <div className="text-sm text-muted-foreground">{t('location')}</div>
                                     <div className="font-medium">{session.location}</div>
                                 </div>
                             )}
                             <div className="space-y-1">
-                                <div className="text-sm text-muted-foreground">完成进度</div>
-                                <div className="font-medium">{completedTests}/{totalTests} 项测试</div>
+                                <div className="text-sm text-muted-foreground">{t('progress')}</div>
+                                <div className="font-medium">{completedTests}/{totalTests} {t('items')}</div>
                             </div>
                         </div>
 
@@ -164,7 +167,7 @@ export default async function SessionDetailPage({
                     {/* 进度条 */}
                     <div className="mt-6">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">整体进度</span>
+                            <span className="text-sm font-medium">{t('overallProgress')}</span>
                             <span className="text-sm text-muted-foreground">{progress.toFixed(0)}%</span>
                         </div>
                         <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
@@ -180,10 +183,10 @@ export default async function SessionDetailPage({
             {/* 测试项目列表 */}
             <div>
                 <h2 className="text-xl font-semibold mb-4">
-                    测试项目列表 (Phase 1{session.phase >= 2 ? ' & 2' : ''})
+                    {t('testList')} (Phase 1{session.phase >= 2 ? ' & 2' : ''})
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">
-                    根据当前的测试阶段 (Phase {session.phase})，您需要完成以下测量项目。
+                    {t('testListDesc', { phase: session.phase })}
                 </p>
 
                 <div className="grid gap-4">
@@ -201,30 +204,30 @@ export default async function SessionDetailPage({
                                 StatusIcon = CheckCircle2;
                                 iconColor = "text-green-600";
                                 badgeVariant = "default"; // or green custom
-                                badgeText = "Pass";
+                                badgeText = t('pass');
                                 break;
                             case 'fail':
                                 StatusIcon = XCircle;
                                 iconColor = "text-red-600";
                                 badgeVariant = "destructive";
-                                badgeText = "Fail";
+                                badgeText = t('fail');
                                 break;
                             case 'incomplete':
                                 StatusIcon = AlertTriangle;
                                 iconColor = "text-yellow-500";
                                 badgeVariant = "secondary";
-                                badgeText = "Incomplete";
+                                badgeText = t('incomplete');
                                 break;
                             default:
                                 StatusIcon = Circle;
                                 iconColor = "text-muted-foreground";
                                 badgeVariant = "outline";
-                                badgeText = "Not Started";
+                                badgeText = t('notStarted');
                                 break;
                         }
 
                         if (isDisabled) {
-                            badgeText = "Coming Soon";
+                            badgeText = t('comingSoon');
                             badgeVariant = "outline";
                         }
 
@@ -238,7 +241,7 @@ export default async function SessionDetailPage({
                                             </div>
                                             <div>
                                                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                                                    {test.name}
+                                                    {t(`tests.${test.id}.name`)}
                                                     <Badge variant="outline" className="text-xs">Phase {test.phase}</Badge>
 
                                                     {status !== 'none' && !isDisabled && (
@@ -251,7 +254,7 @@ export default async function SessionDetailPage({
                                                     {test.description}
                                                 </p>
                                                 <Badge variant="secondary" className="mt-2 text-xs">
-                                                    {test.category}
+                                                    {t(`tests.${test.id}.category`)}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -259,12 +262,12 @@ export default async function SessionDetailPage({
                                             {isDisabled ? (
                                                 <Button disabled variant="outline">
                                                     <Lock className="mr-2 h-4 w-4" />
-                                                    暂未开放
+                                                    {t('locked')}
                                                 </Button>
                                             ) : (
                                                 <Link href={`${test.route}?sessionId=${sessionId}`}>
                                                     <Button variant={status !== 'none' ? "outline" : "default"}>
-                                                        {status !== 'none' ? '查看/编辑' : '开始测试'}
+                                                        {status !== 'none' ? t('edit') : t('start')}
                                                         <ArrowRight className="ml-2 h-4 w-4" />
                                                     </Button>
                                                 </Link>
@@ -281,7 +284,7 @@ export default async function SessionDetailPage({
             {/* 返回按钮 */}
             <div className="flex justify-start">
                 <Link href="/sessions">
-                    <Button variant="outline">← 返回会话列表</Button>
+                    <Button variant="outline">← {t('back')}</Button>
                 </Link>
             </div>
         </div>

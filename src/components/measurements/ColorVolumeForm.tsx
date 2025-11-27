@@ -22,6 +22,7 @@ import { MeasureButton } from './MeasureButton';
 import { ColorimetricData } from '@/lib/hardware/cs2000/types';
 import { MeasurementLayout } from './MeasurementLayout';
 import { CIEPlot } from '@/components/charts/CIEPlot';
+import { useTranslations } from 'next-intl';
 
 interface ColorVolumeFormProps {
     sessionId: number;
@@ -44,6 +45,7 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
     const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('ColorVolumeForm');
 
     // Determine spec based on standard
     const spec: ColorVolumeStandard = standardType === 'sdr' ? SDR_COLOR_VOLUME_SPEC : HDR_COLOR_VOLUME_SPEC;
@@ -95,7 +97,7 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
         }));
     };
 
-    const renderInputRow = (label: string, color: keyof MeasuredData, targetKey: string) => {
+    const renderInputRow = (labelKey: string, color: keyof MeasuredData, targetKey: string) => {
         const target = targetSpecs[targetKey];
         const point = measurements[color];
         const deviation = (point.x !== undefined && point.y !== undefined)
@@ -106,7 +108,7 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
 
         return (
             <tr className="border-b hover:bg-muted/30">
-                <td className="p-3 font-medium">{label}</td>
+                <td className="p-3 font-medium">{t(labelKey)}</td>
                 <td className="p-3 text-center text-muted-foreground font-mono text-xs">
                     x: {target.targetX.toFixed(3)}<br />y: {target.targetY.toFixed(3)}
                 </td>
@@ -198,12 +200,12 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
             const allSuccess = results.every(r => r.success);
 
             if (allSuccess) {
-                alert('数据已保存成功!');
+                alert(t('success'));
             } else {
-                alert('部分数据保存失败');
+                alert(t('partialFailure'));
             }
         } catch (error) {
-            alert('保存失败');
+            alert(t('failure'));
         } finally {
             setIsSaving(false);
         }
@@ -226,13 +228,13 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
 
     return (
         <MeasurementLayout
-            title="色域覆盖率 (Color Volume)"
-            subtitle="验证显示设备的色域覆盖范围 (P3)"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 2']}
             standard={{
                 title: spec.name,
                 reference: spec.reference,
-                description: "测量 R/G/B/White 的色坐标 (x, y) 和亮度 (Y)，计算与目标值的偏差。",
+                description: t('description'),
                 targets: [
                     { label: "Red", value: `(${targetSpecs.Red.targetX}, ${targetSpecs.Red.targetY})` },
                     { label: "Green", value: `(${targetSpecs.Green.targetX}, ${targetSpecs.Green.targetY})` },
@@ -243,41 +245,41 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
         >
             <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')} className="mb-6">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="sdr">SDR Standard (P3, DCI White)</TabsTrigger>
-                    <TabsTrigger value="hdr">HDR Standard (P3, D65 White)</TabsTrigger>
+                    <TabsTrigger value="sdr">{t('standardTitleSDR')}</TabsTrigger>
+                    <TabsTrigger value="hdr">{t('standardTitleHDR')}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    <span className="ml-2 text-muted-foreground">加载数据中...</span>
+                    <span className="ml-2 text-muted-foreground">{t('loading')}</span>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">测量数据录入</CardTitle>
+                                <CardTitle className="text-base">{t('measurementInput')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="overflow-x-auto">
                                     <table className="w-full border-collapse text-sm">
                                         <thead>
                                             <tr className="border-b bg-muted/50">
-                                                <th className="p-3 text-left font-medium">色块</th>
-                                                <th className="p-3 text-center font-medium">目标值 (x, y)</th>
-                                                <th className="p-3 text-center font-medium">容差</th>
-                                                <th className="p-3 text-center font-medium">测量值 (x, y, Y)</th>
-                                                <th className="p-3 text-center font-medium">偏差 Δxy</th>
-                                                <th className="p-3 text-center font-medium">结果</th>
+                                                <th className="p-3 text-left font-medium">{t('colorPatch')}</th>
+                                                <th className="p-3 text-center font-medium">{t('targetValue')}</th>
+                                                <th className="p-3 text-center font-medium">{t('tolerance')}</th>
+                                                <th className="p-3 text-center font-medium">{t('measuredValue')}</th>
+                                                <th className="p-3 text-center font-medium">{t('deviation')}</th>
+                                                <th className="p-3 text-center font-medium">{t('result')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {renderInputRow("Red Primary", "red", "Red")}
-                                            {renderInputRow("Green Primary", "green", "Green")}
-                                            {renderInputRow("Blue Primary", "blue", "Blue")}
-                                            {renderInputRow("White Point", "white", "White")}
+                                            {renderInputRow("redPrimary", "red", "Red")}
+                                            {renderInputRow("greenPrimary", "green", "Green")}
+                                            {renderInputRow("bluePrimary", "blue", "Blue")}
+                                            {renderInputRow("whitePoint", "white", "White")}
                                         </tbody>
                                     </table>
                                 </div>
@@ -289,12 +291,12 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
                                 {isSaving ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        保存中...
+                                        {t('saving')}
                                     </>
                                 ) : (
                                     <>
                                         <Save className="mr-2 h-4 w-4" />
-                                        保存测量数据
+                                        {t('save')}
                                     </>
                                 )}
                             </Button>
@@ -304,7 +306,7 @@ export function ColorVolumeForm({ sessionId }: ColorVolumeFormProps) {
                     {/* Chart Section */}
                     <div>
                         <CIEPlot
-                            title={`CIE 1931 Diagram (${standardType.toUpperCase()})`}
+                            title={`${t('cieTitle')} (${standardType.toUpperCase()})`}
                             primaries={chartPrimaries}
                             measuredPrimaries={chartMeasured}
                         />

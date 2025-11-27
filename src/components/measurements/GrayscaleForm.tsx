@@ -36,7 +36,10 @@ interface MeasuredStep {
     measuredL: number;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
+    const t = useTranslations('GrayscaleForm');
     const [activeTab, setActiveTab] = useState<'white-steps' | 'gray-steps' | 'hdr-eotf'>('white-steps');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -113,12 +116,12 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
             }, standard);
 
             if (result.success) {
-                alert('数据已保存成功!');
+                alert(t('saveSuccess'));
             } else {
-                alert('保存失败');
+                alert(t('saveFail'));
             }
         } catch (error) {
-            alert('保存失败');
+            alert(t('saveFail'));
         } finally {
             setIsSaving(false);
         }
@@ -228,56 +231,56 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
 
     return (
         <MeasurementLayout
-            title="灰阶与 EOTF 响应 (Grayscale & Gamma)"
-            subtitle="验证显示设备的灰阶追踪性能与 Gamma/EOTF 曲线符合度"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 2']}
             standard={{
                 title: getTestName(activeTab),
                 reference: getTableReference(activeTab),
-                description: "测量各灰阶等级的亮度，验证其与目标 EOTF 曲线的偏差。",
+                description: t('description'),
                 targets: [
-                    { label: "Steps", value: `${currentSpec.length} Levels` },
-                    { label: "Standard", value: activeTab === 'hdr-eotf' ? 'SMPTE ST 2084 (PQ)' : 'Gamma 2.6' }
+                    { label: t('targets.stepsLabel'), value: t('targets.stepsValue', { count: currentSpec.length }) },
+                    { label: t('targets.standardLabel'), value: activeTab === 'hdr-eotf' ? 'SMPTE ST 2084 (PQ)' : 'Gamma 2.6' }
                 ]
             }}
         >
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="mb-6">
                 <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="white-steps">White Steps (SDR)</TabsTrigger>
-                    <TabsTrigger value="gray-steps">Gray Steps (SDR)</TabsTrigger>
-                    <TabsTrigger value="hdr-eotf">HDR EOTF (PQ)</TabsTrigger>
+                    <TabsTrigger value="white-steps">{t('tabs.whiteSteps')}</TabsTrigger>
+                    <TabsTrigger value="gray-steps">{t('tabs.graySteps')}</TabsTrigger>
+                    <TabsTrigger value="hdr-eotf">{t('tabs.hdrEotf')}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    <span className="ml-2 text-muted-foreground">加载数据中...</span>
+                    <span className="ml-2 text-muted-foreground">{t('loading')}</span>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">测量数据录入</CardTitle>
+                                <CardTitle className="text-base">{t('dataEntry')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="overflow-x-auto max-h-[600px]">
                                     <table className="w-full border-collapse text-sm">
                                         <thead className="sticky top-0 bg-background z-10">
                                             <tr className="border-b bg-muted/50">
-                                                <th className="p-3 text-left font-medium">Step</th>
-                                                {activeTab === 'hdr-eotf' && <th className="p-3 text-center font-medium">CV</th>}
-                                                <th className="p-3 text-center font-medium">Target (cd/m²)</th>
-                                                <th className="p-3 text-center font-medium">Tolerance</th>
-                                                <th className="p-3 text-center font-medium">Measured</th>
+                                                <th className="p-3 text-left font-medium">{t('table.step')}</th>
+                                                {activeTab === 'hdr-eotf' && <th className="p-3 text-center font-medium">{t('table.cv')}</th>}
+                                                <th className="p-3 text-center font-medium">{t('table.target')}</th>
+                                                <th className="p-3 text-center font-medium">{t('table.tolerance')}</th>
+                                                <th className="p-3 text-center font-medium">{t('table.measured')}</th>
                                                 {activeTab === 'hdr-eotf' && (
                                                     <>
-                                                        <th className="p-3 text-center font-medium">Norm. L</th>
-                                                        <th className="p-3 text-center font-medium">ΔL</th>
+                                                        <th className="p-3 text-center font-medium">{t('table.normL')}</th>
+                                                        <th className="p-3 text-center font-medium">{t('table.deltaL')}</th>
                                                     </>
                                                 )}
-                                                <th className="p-3 text-center font-medium">Result</th>
+                                                <th className="p-3 text-center font-medium">{t('table.result')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -293,12 +296,12 @@ export function GrayscaleForm({ sessionId }: GrayscaleFormProps) {
                                 {isSaving ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        保存中...
+                                        {t('saving')}
                                     </>
                                 ) : (
                                     <>
                                         <Save className="mr-2 h-4 w-4" />
-                                        保存测量数据
+                                        {t('saveButton')}
                                     </>
                                 )}
                             </Button>

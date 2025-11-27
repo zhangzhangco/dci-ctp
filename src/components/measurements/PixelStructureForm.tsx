@@ -20,6 +20,7 @@ import { Loader2, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import { PIXEL_STRUCTURE_SPEC } from '@/domain/standards/ctpPixelStructureSpec';
 import { savePixelStructureAction, getPixelStructureAction } from '@/app/actions/pixel-structure-actions';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     fillFactorCheck: z.boolean(),
@@ -38,6 +39,7 @@ interface PixelStructureFormProps {
 export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('PixelStructureForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -76,20 +78,20 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={PIXEL_STRUCTURE_SPEC.title}
-            subtitle="验证像素结构、填充率及无可见伪影"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: "DCI CTP Pixel Structure",
+                title: t('standardTitle'),
                 reference: PIXEL_STRUCTURE_SPEC.reference,
                 description: PIXEL_STRUCTURE_SPEC.description,
                 targets: PIXEL_STRUCTURE_SPEC.items.map(item => ({
@@ -140,7 +142,7 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">备注与观察</CardTitle>
+                                <CardTitle className="text-base">{t('notes')}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <FormField
@@ -150,7 +152,7 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                                         <FormItem>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="记录任何观察到的异常或补充说明..."
+                                                    placeholder={t('notesPlaceholder')}
                                                     className="min-h-[100px]"
                                                     {...field}
                                                 />
@@ -166,7 +168,7 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                保存检查结果
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

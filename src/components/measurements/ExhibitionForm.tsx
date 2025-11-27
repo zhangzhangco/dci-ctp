@@ -21,6 +21,7 @@ import { Loader2, Save } from 'lucide-react';
 import { MeasurementLayout } from './MeasurementLayout';
 import { EXHIBITION_SPEC } from '@/domain/standards/ctpExhibitionSpec';
 import { saveExhibitionAction, getExhibitionAction } from '@/app/actions/exhibition-actions';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     ambientLightPass: z.boolean(),
@@ -42,6 +43,7 @@ interface ExhibitionFormProps {
 export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('ExhibitionForm');
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -86,20 +88,20 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
         });
 
         if (result.success) {
-            alert('保存成功');
+            alert(t('success'));
         } else {
-            alert('保存失败');
+            alert(t('failure'));
         }
         setIsSaving(false);
     }
 
     return (
         <MeasurementLayout
-            title={EXHIBITION_SPEC.title}
-            subtitle={EXHIBITION_SPEC.description}
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 3']}
             standard={{
-                title: "DCI CTP Exhibition Environment",
+                title: t('standardTitle'),
                 reference: EXHIBITION_SPEC.reference,
                 description: EXHIBITION_SPEC.description,
                 targets: EXHIBITION_SPEC.measurements.map(m => ({
@@ -114,7 +116,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <Card>
-                            <CardHeader><CardTitle>Environment Checklist</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('checklist')}</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 {EXHIBITION_SPEC.checklist.map((item) => (
                                     <FormField
@@ -138,7 +140,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Measurements</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('measurements')}</CardTitle></CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {EXHIBITION_SPEC.measurements.map((item) => (
                                     <FormField
@@ -163,7 +165,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+                            <CardHeader><CardTitle>{t('notes')}</CardTitle></CardHeader>
                             <CardContent>
                                 <FormField
                                     control={form.control}
@@ -182,7 +184,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                             <Button type="submit" disabled={isSaving} size="lg">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 <Save className="mr-2 h-4 w-4" />
-                                Save Results
+                                {t('save')}
                             </Button>
                         </div>
                     </form>

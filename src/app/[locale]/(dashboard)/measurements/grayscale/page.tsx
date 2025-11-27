@@ -2,6 +2,7 @@
 import { GrayscaleForm } from "@/components/measurements/GrayscaleForm";
 import { getSession } from "@/app/actions/session-actions";
 import { redirect } from "next/navigation";
+import { getTranslations } from 'next-intl/server';
 
 export default async function GrayscaleMeasurementPage({
     searchParams,
@@ -20,12 +21,14 @@ export default async function GrayscaleMeasurementPage({
         redirect("/");
     }
 
+    const t = await getTranslations('Measurements.grayscale');
+
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">Grayscale Tracking</h2>
+                <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
                 <p className="text-muted-foreground">
-                    Measure and verify the grayscale transfer function (Gamma 2.6).
+                    {t('subtitle')}
                 </p>
             </div>
             <GrayscaleForm sessionId={sessionId} />

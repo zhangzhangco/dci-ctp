@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { RotateCcw } from 'lucide-react';
 import { clearSessionAction } from '@/app/actions/session-actions';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface ResetSessionButtonProps {
     sessionId: number;
@@ -14,6 +15,7 @@ interface ResetSessionButtonProps {
 export function ResetSessionButton({ sessionId }: ResetSessionButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const t = useTranslations('ResetSessionButton');
 
     const handleReset = async () => {
         setIsLoading(true);
@@ -22,15 +24,15 @@ export function ResetSessionButton({ sessionId }: ResetSessionButtonProps) {
         if (result.success) {
             router.refresh();
         } else {
-            alert('重置失败：' + (result.error || '未知错误'));
+            alert(t('failure') + (result.error || ''));
         }
         setIsLoading(false);
     };
 
     return (
         <ConfirmDialog
-            title="确认重置会话"
-            description="此操作将删除该会话的所有测量数据，但保留会话配置。此操作不可撤销。"
+            title={t('title')}
+            description={t('description')}
             onConfirm={handleReset}
             destructive
         >
@@ -41,7 +43,7 @@ export function ResetSessionButton({ sessionId }: ResetSessionButtonProps) {
                 className="text-destructive border-destructive/50 hover:bg-destructive/10"
             >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                {isLoading ? '重置中...' : '重置会话'}
+                {isLoading ? t('resetting') : t('button')}
             </Button>
         </ConfirmDialog>
     );

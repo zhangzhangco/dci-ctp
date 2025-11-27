@@ -26,6 +26,7 @@ import { BasicMeasurementType } from '@/domain/measurements/basic';
 import { MeasurementLayout } from './MeasurementLayout';
 import { MeasureButton } from './MeasureButton';
 import { ColorimetricData } from '@/lib/hardware/cs2000/types';
+import { useTranslations } from 'next-intl';
 
 interface BasicMeasurementFormProps {
     sessionId: number;
@@ -35,6 +36,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
     const [testType, setTestType] = useState<BasicTestType>('sdr-white');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const t = useTranslations('BasicMeasurementForm');
 
     // Form State
     const [whiteL, setWhiteL] = useState<string>('');
@@ -117,10 +119,10 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                 });
             }
 
-            alert('数据已保存');
+            alert(t('success'));
         } catch (error) {
             console.error("Save failed:", error);
-            alert('保存失败');
+            alert(t('failure'));
         } finally {
             setIsSaving(false);
         }
@@ -143,25 +145,25 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
 
     return (
         <MeasurementLayout
-            title={spec.name}
-            subtitle="验证显示设备的亮度与黑位性能"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: `${testType === 'sdr-white' ? 'SDR' : 'HDR'} Standard`,
+                title: testType === 'sdr-white' ? t('standardTitleSDR') : t('standardTitleHDR'),
                 reference: spec.reference,
                 targets: [
                     {
-                        label: "峰值亮度 (Peak White)",
+                        label: t('peakWhite'),
                         value: `${spec.targetLuminance} cd/m²`,
                         tolerance: `±${spec.toleranceLuminance}`
                     },
                     {
-                        label: "色坐标 (Chromaticity)",
+                        label: t('chromaticityX'),
                         value: `x=${spec.targetX}, y=${spec.targetY}`,
                         tolerance: `±${spec.toleranceChrominance}`
                     },
                     {
-                        label: "黑电平 (Black Level)",
+                        label: t('blackLevel'),
                         value: `${spec.minBlackLevel} - ${spec.maxBlackLevel} cd/m²`,
                         tolerance: "(Active Black)"
                     }
@@ -171,8 +173,8 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
             {/* Action & Judgment Zone */}
             <Tabs value={testType} onValueChange={(v) => setTestType(v as BasicTestType)}>
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="sdr-white">SDR Standard (DCI)</TabsTrigger>
-                    <TabsTrigger value="hdr-white">HDR Standard (DCI)</TabsTrigger>
+                    <TabsTrigger value="sdr-white">{t('standardTitleSDR')}</TabsTrigger>
+                    <TabsTrigger value="hdr-white">{t('standardTitleHDR')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value={testType} className="space-y-6 mt-6">
@@ -183,11 +185,11 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                             {/* Peak White Card */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">1. 峰值亮度测量</CardTitle>
+                                    <CardTitle className="text-base">{t('peakWhite')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-4 gap-2 items-center">
-                                        <label className="text-sm font-medium">亮度 (L)</label>
+                                        <label className="text-sm font-medium">{t('luminance')}</label>
                                         <Input
                                             value={whiteL}
                                             onChange={e => setWhiteL(e.target.value)}
@@ -211,13 +213,13 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             {renderStatusIcon(isWhiteLValid, !whiteL)}
                                             {!whiteL ? null : (
                                                 <span className="text-xs text-muted-foreground">
-                                                    Target: {spec.targetLuminance}
+                                                    {t('target')}: {spec.targetLuminance}
                                                 </span>
                                             )}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2 items-center">
-                                        <label className="text-sm font-medium">色坐标 (x)</label>
+                                        <label className="text-sm font-medium">{t('chromaticityX')}</label>
                                         <Input
                                             value={whiteX}
                                             onChange={e => setWhiteX(e.target.value)}
@@ -229,13 +231,13 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             {renderStatusIcon(isWhiteCValid, !whiteX || !whiteY)}
                                             {(!whiteX || !whiteY) ? null : (
                                                 <span className="text-xs text-muted-foreground">
-                                                    Target: {spec.targetX}, {spec.targetY}
+                                                    {t('target')}: {spec.targetX}, {spec.targetY}
                                                 </span>
                                             )}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2 items-center">
-                                        <label className="text-sm font-medium">色坐标 (y)</label>
+                                        <label className="text-sm font-medium">{t('chromaticityY')}</label>
                                         <Input
                                             value={whiteY}
                                             onChange={e => setWhiteY(e.target.value)}
@@ -251,11 +253,11 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                             {/* Black Level Card */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">2. 黑电平测量</CardTitle>
+                                    <CardTitle className="text-base">{t('blackLevel')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-4 gap-2 items-center">
-                                        <label className="text-sm font-medium">亮度 (L)</label>
+                                        <label className="text-sm font-medium">{t('luminance')}</label>
                                         <Input
                                             value={blackL}
                                             onChange={e => setBlackL(e.target.value)}
@@ -277,16 +279,16 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                                             {renderStatusIcon(isBlackValid, !blackL)}
                                             {!blackL ? null : (
                                                 <span className="text-xs text-muted-foreground">
-                                                    Max: {spec.maxBlackLevel}
+                                                    {t('max')}: {spec.maxBlackLevel}
                                                 </span>
                                             )}
                                         </div>
                                     </div>
                                     <Alert variant={isBlackValid ? "default" : "destructive"} className="mt-4">
                                         {isBlackValid ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
-                                        <AlertTitle>判定结果</AlertTitle>
+                                        <AlertTitle>{t('judgment')}</AlertTitle>
                                         <AlertDescription>
-                                            {!blackL ? "等待输入..." : isBlackValid ? "符合标准要求" : "超出标准范围"}
+                                            {!blackL ? t('waiting') : isBlackValid ? t('pass') : t('fail')}
                                         </AlertDescription>
                                     </Alert>
                                 </CardContent>
@@ -297,7 +299,7 @@ export function BasicMeasurementForm({ sessionId }: BasicMeasurementFormProps) {
                     <div className="flex justify-end pt-4">
                         <Button onClick={handleSave} disabled={isSaving} size="lg">
                             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                            保存测量数据
+                            {isSaving ? t('saving') : t('save')}
                         </Button>
                     </div>
                 </TabsContent>

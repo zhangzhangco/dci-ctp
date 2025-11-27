@@ -206,5 +206,281 @@
         },
         "viewReport": "View Report",
         "noSessions": "No test sessions found. Please create a session first."
+    },
+    "Measurements": {
+        "title": "Measurements",
+        "selectSession": "Please select a test session first",
+        "basic": {
+            "title": "Peak White & Black Level",
+            "subtitle": "Phase 1 - Device Level Basic Capabilities"
+        },
+        "uniformity": {
+            "title": "Screen Uniformity",
+            "subtitle": "Phase 1 - Device Level Uniformity"
+        },
+        "colorVolume": {
+            "title": "Color Volume",
+            "subtitle": "Phase 1 - Device Level Color Gamut (P3)"
+        },
+        "grayscale": {
+            "title": "Grayscale Tracking",
+            "subtitle": "Measure and verify the grayscale transfer function (Gamma 2.6)."
+        },
+        "colorAccuracy": {
+            "title": "Color Accuracy",
+            "subtitle": "Measure and verify color accuracy using the Macbeth ColorChecker."
+        },
+        "noSessionsTitle": "No Active Test Sessions",
+        "noSessionsDesc": "Please create a new test session in the 'Sessions' page first.",
+        "selectSessionTitle": "Select Test Session",
+        "selectSessionDesc": "Which session would you like to enter data for?"
+    },
+    "StatusCards": {
+        "overallStatus": "Overall Status",
+        "completion": "Completion",
+        "items": "Items",
+        "passed": "Passed",
+        "issues": "Issues",
+        "failed": "Failed",
+        "warnings": "Warnings",
+        "status": {
+            "pass": "CTP Compliant",
+            "fail": "CTP Non-Compliant",
+            "warning": "CTP Warning",
+            "incomplete": "In Progress"
+        }
+    },
+    "GrayscaleForm": {
+        "title": "Grayscale & EOTF Response (Grayscale & Gamma)",
+        "subtitle": "Verify display device grayscale tracking performance and Gamma/EOTF curve compliance",
+        "description": "Measure luminance at each grayscale level to verify deviation from target EOTF curve.",
+        "targets": {
+            "stepsLabel": "Steps",
+            "stepsValue": "{count} Levels",
+            "standardLabel": "Standard"
+        },
+        "tabs": {
+            "whiteSteps": "White Steps (SDR)",
+            "graySteps": "Gray Steps (SDR)",
+            "hdrEotf": "HDR EOTF (PQ)"
+        },
+        "loading": "Loading data...",
+        "dataEntry": "Measurement Data Entry",
+        "table": {
+            "step": "Step",
+            "cv": "CV",
+            "target": "Target (cd/m²)",
+            "tolerance": "Tolerance",
+            "measured": "Measured",
+            "normL": "Norm. L",
+            "deltaL": "ΔL",
+            "result": "Result"
+        },
+        "saveButton": "Save Measurement Data",
+        "saving": "Saving...",
+        "saveSuccess": "Data saved successfully!",
+        "saveFail": "Save failed"
+    },
+    "SessionSelector": {
+        "label": "Test Session"
+    },
+    "DeviceSelector": {
+        "placeholder": "Select Device",
+        "label": "Measurement Device",
+        "noDevice": "No Device Selected",
+        "offline": "Device Offline",
+        "online": "Device Online",
+        "mock": "(Mock)",
+        "scan": "Scan for New Devices"
+    },
+    "SessionDetails": {
+        "title": "Test Session Details",
+        "sn": "SN",
+        "date": "Date",
+        "operator": "Operator",
+        "location": "Location",
+        "progress": "Progress",
+        "overallProgress": "Overall Progress",
+        "items": "Tests",
+        "testList": "Test List",
+        "testListDesc": "Complete the following measurement items based on the current test phase (Phase {phase}).",
+        "notStarted": "Not Started",
+        "pass": "Pass",
+        "fail": "Fail",
+        "incomplete": "Incomplete",
+        "comingSoon": "Coming Soon",
+        "locked": "Locked",
+        "start": "Start Test",
+        "edit": "View/Edit",
+        "back": "Back to Sessions",
+        "tests": {
+            "peak-white-black": {
+                "name": "Peak White & Black Level",
+                "category": "Basic"
+            },
+            "uniformity": {
+                "name": "Screen Uniformity",
+                "category": "Basic"
+            },
+            "color-volume": {
+                "name": "Color Volume",
+                "category": "Basic"
+            },
+            "pixel-structure": {
+                "name": "Pixel Structure",
+                "category": "Basic"
+            },
+            "grayscale": {
+                "name": "Grayscale Tracking",
+                "category": "System"
+            },
+            "color-accuracy": {
+                "name": "Color Accuracy",
+                "category": "System"
+            },
+            "exhibition-environment": {
+                "name": "Exhibition Environment",
+                "category": "Environment"
+            }
+        }
+    },
+    "ResetSessionButton": {
+        "title": "Confirm Reset Session",
+        "description": "This action will delete all measurement data for this session but keep the session configuration. This action cannot be undone.",
+        "button": "Reset Session",
+        "resetting": "Resetting...",
+        "success": "Reset Successful",
+        "failure": "Reset Failed: "
+    },
+    "PixelStructureForm": {
+        "title": "Pixel Structure",
+        "subtitle": "Verify pixel structure, fill factor, and absence of visual artifacts",
+        "standardTitle": "DCI CTP Pixel Structure",
+        "checklist": "Checklist",
+        "notes": "Notes & Observations",
+        "notesPlaceholder": "Record any observed anomalies or additional notes...",
+        "save": "Save Results",
+        "saving": "Saving...",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "ExhibitionForm": {
+        "title": "Exhibition Environment",
+        "subtitle": "Verify exhibition environment conditions",
+        "standardTitle": "DCI CTP Exhibition Environment",
+        "checklist": "Environment Checklist",
+        "measurements": "Measurements",
+        "notes": "Notes",
+        "save": "Save Results",
+        "saving": "Saving...",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "BasicMeasurementForm": {
+        "title": "Peak White & Black Level",
+        "subtitle": "Verify luminance and black level performance",
+        "standardTitleSDR": "SDR Standard (DCI)",
+        "standardTitleHDR": "HDR Standard (DCI)",
+        "peakWhite": "1. Peak White Measurement",
+        "blackLevel": "2. Black Level Measurement",
+        "luminance": "Luminance (L)",
+        "chromaticityX": "Chromaticity (x)",
+        "chromaticityY": "Chromaticity (y)",
+        "target": "Target",
+        "max": "Max",
+        "judgment": "Judgment",
+        "waiting": "Waiting for input...",
+        "pass": "Pass",
+        "fail": "Fail",
+        "save": "Save Measurement Data",
+        "saving": "Saving...",
+        "success": "Data saved successfully",
+        "failure": "Failed to save"
+    },
+    "UniformityForm": {
+        "title": "Screen Uniformity",
+        "subtitle": "Measure luminance and chromaticity consistency at 9 points",
+        "standardTitleSDR": "SDR Standard",
+        "standardTitleHDR": "HDR Standard",
+        "luminanceDeviation": "Luminance Deviation",
+        "chromaticityDeviation": "Chromaticity Deviation",
+        "save": "Save All Points",
+        "saving": "Saving...",
+        "success": "Saved successfully",
+        "failure": "Failed to save"
+    },
+    "ColorVolumeForm": {
+        "title": "Color Volume",
+        "subtitle": "Verify color gamut coverage (P3)",
+        "standardTitleSDR": "SDR Standard (P3, DCI White)",
+        "standardTitleHDR": "HDR Standard (P3, D65 White)",
+        "description": "Measure chromaticity (x, y) and luminance (Y) for R/G/B/White, calculate deviation from targets.",
+        "loading": "Loading data...",
+        "measurementInput": "Measurement Input",
+        "colorPatch": "Color Patch",
+        "targetValue": "Target (x, y)",
+        "tolerance": "Tolerance",
+        "measuredValue": "Measured (x, y, Y)",
+        "deviation": "Deviation Δxy",
+        "result": "Result",
+        "redPrimary": "Red Primary",
+        "greenPrimary": "Green Primary",
+        "bluePrimary": "Blue Primary",
+        "whitePoint": "White Point",
+        "save": "Save Measurement Data",
+        "saving": "Saving...",
+        "success": "Data saved successfully!",
+        "partialFailure": "Some data failed to save",
+        "failure": "Failed to save",
+        "cieTitle": "CIE 1931 Diagram"
+    },
+    "ColorAccuracyForm": {
+        "title": "Color Accuracy",
+        "subtitle": "Verify luminance and chromaticity accuracy for Red-1, Green-1, Blue-1",
+        "standardTitleSDR": "SDR Standard",
+        "standardTitleHDR": "HDR Standard",
+        "standardTitleSDRFull": "SDR Color Accuracy",
+        "standardTitleHDRFull": "HDR Color Accuracy",
+        "loading": "Loading data...",
+        "measurementInput": "Measurement Input",
+        "colorPatch": "Color Patch",
+        "targetValue": "Target (x, y, L)",
+        "tolerance": "Tolerance",
+        "measuredValue": "Measured (x, y, L)",
+        "deviation": "Deviation",
+        "result": "Result",
+        "save": "Save All Data",
+        "saving": "Saving...",
+        "success": "Saved successfully",
+        "failure": "Failed to save",
+        "cieTitle": "Color Accuracy Plot",
+        "reference": "(Ref)",
+        "measured": "(Meas)"
+    },
+    "GrayscaleChart": {
+        "logScale": "Log Scale",
+        "xAxis": {
+            "step": "Step",
+            "cv": "Code Value",
+            "normalized": "Normalized"
+        },
+        "eotfTitle": "EOTF Tracking (Target vs Measured)",
+        "errorTitle": "Luminance Error %",
+        "axis": {
+            "stepNumber": "Step Number",
+            "codeValue": "Code Value (Y')",
+            "normalizedLuminance": "Normalized Luminance",
+            "luminance": "Luminance (cd/m²)",
+            "error": "Error (%)"
+        },
+        "legend": {
+            "tolMax": "Tol Max",
+            "tolMin": "Tol Min",
+            "target": "Target",
+            "measured": "Measured",
+            "tolerancePlus": "Tolerance (+)",
+            "toleranceMinus": "Tolerance (-)",
+            "error": "Error %"
+        }
     }
 }

@@ -28,7 +28,7 @@ export default async function LocaleLayout({
     const messages = await getMessages();
 
     return (
-        <html lang={locale}>
+        <html lang={locale} suppressHydrationWarning>
             <body className={cn(inter.className, "min-h-screen bg-background font-sans antialiased")}>
                 <NextIntlClientProvider messages={messages}>
                     <MeasurementDeviceProvider>

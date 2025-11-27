@@ -25,6 +25,7 @@ import {
 } from '@/domain/standards/ctpUniformitySpec';
 import { MeasureButton } from './MeasureButton';
 import { ColorimetricData } from '@/lib/hardware/cs2000/types';
+import { useTranslations } from 'next-intl';
 
 const POSITIONS = [
     'TopLeft', 'TopCenter', 'TopRight',
@@ -56,6 +57,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [standardType, setStandardType] = useState<'sdr' | 'hdr'>('sdr');
+    const t = useTranslations('UniformityForm');
 
     const spec = standardType === 'sdr' ? SDR_UNIFORMITY_SPEC : HDR_UNIFORMITY_SPEC;
 
@@ -127,10 +129,10 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
             });
 
             await Promise.all(promises);
-            alert('保存成功');
+            alert(t('success'));
         } catch (error) {
             console.error(error);
-            alert('保存出错');
+            alert(t('failure'));
         } finally {
             setIsSaving(false);
         }
@@ -232,20 +234,20 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
 
     return (
         <MeasurementLayout
-            title="均匀性测量 (Uniformity)"
-            subtitle="测量屏幕 9 个点的亮度与色度一致性"
+            title={t('title')}
+            subtitle={t('subtitle')}
             phases={['Phase 1']}
             standard={{
-                title: spec.name,
+                title: standardType === 'sdr' ? t('standardTitleSDR') : t('standardTitleHDR'),
                 reference: spec.reference,
                 targets: [
                     {
-                        label: "亮度偏差 (Luminance)",
+                        label: t('luminanceDeviation'),
                         value: "Relative to Center",
                         tolerance: `±${spec.luminanceTolerance * 100}%`
                     },
                     {
-                        label: "色度偏差 (Chromaticity)",
+                        label: t('chromaticityDeviation'),
                         value: "Relative to Center",
                         tolerance: `Radius < ${spec.chromaticityTolerance}`
                     }
@@ -256,8 +258,8 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <Tabs value={standardType} onValueChange={(v) => setStandardType(v as 'sdr' | 'hdr')}>
                         <TabsList className="grid w-full grid-cols-2 mb-6">
-                            <TabsTrigger value="sdr">SDR Standard</TabsTrigger>
-                            <TabsTrigger value="hdr">HDR Standard</TabsTrigger>
+                            <TabsTrigger value="sdr">{t('standardTitleSDR')}</TabsTrigger>
+                            <TabsTrigger value="hdr">{t('standardTitleHDR')}</TabsTrigger>
                         </TabsList>
 
                         <div className="grid grid-cols-3 gap-4">
@@ -282,7 +284,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                         <Button type="submit" disabled={isSaving} size="lg">
                             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             <Save className="mr-2 h-4 w-4" />
-                            保存所有点数据
+                            {isSaving ? t('saving') : t('save')}
                         </Button>
                     </div>
                 </form>

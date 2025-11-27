@@ -2,8 +2,9 @@ import { getUniformityMeasurementsAction } from '@/app/actions/measurement-actio
 import { UniformityForm } from '@/components/measurements/UniformityForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 export default async function UniformityMeasurementPage({
     searchParams,
@@ -21,6 +22,7 @@ export default async function UniformityMeasurementPage({
     }
 
     const measurements = await getUniformityMeasurementsAction(sessionId);
+    const t = await getTranslations('Measurements.uniformity');
 
     // Transform array to object structure expected by form (Record<string, ...>)
     const initialData: Record<string, { measuredL: number; measuredX: number; measuredY: number }> = {};
@@ -41,9 +43,9 @@ export default async function UniformityMeasurementPage({
                     </Button>
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">均匀性测量 (Uniformity)</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
                     <p className="text-muted-foreground">
-                        Phase 1 - Device Level Uniformity
+                        {t('subtitle')}
                     </p>
                 </div>
             </div>

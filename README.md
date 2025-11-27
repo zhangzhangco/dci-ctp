@@ -54,11 +54,22 @@
 
 ### 主界面 (Main Interface)
 *(在此处插入主界面截图)*
-![主界面 Placeholder](public/images/main-interface-placeholder.png)
+![主界面](public/images/main-interface.png)
 
 ### 测试界面 (Test Interface)
 *(在此处插入测试界面截图)*
-![测试界面 Placeholder](public/images/test-interface-placeholder.png)
+![测试界面](public/images/test-interface.png)
+
+### 本地化界面 (Localized Interface)
+#### 色彩准确度 (Color Accuracy)
+![色彩准确度](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/color_accuracy_zh_1764209971832.png)
+
+#### 灰阶传递函数 (Grayscale)
+**中文 (Chinese)**
+![灰阶传递函数 (中文)](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/grayscale_zh_legend_fix_v2_1764214209967.png)
+
+**English**
+![Grayscale (English)](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/grayscale_en_legend_fix_v2_1764214298814.png)
 
 ## 免责声明 (Disclaimer)
 
@@ -106,11 +117,11 @@ The tool aims to provide automated measurement and compliance verification for d
 
 ### Main Interface
 *(Insert Main Interface Screenshot Here)*
-![Main Interface Placeholder](public/images/main-interface-placeholder.png)
+![Main Interface](public/images/main-interface-en.png)
 
 ### Test Interface
 *(Insert Test Interface Screenshot Here)*
-![Test Interface Placeholder](public/images/test-interface-placeholder.png)
+![Test Interface](public/images/test-interface-en.png)
 
 ## Disclaimer
 

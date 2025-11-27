@@ -2,6 +2,7 @@
 import { ColorAccuracyForm } from "@/components/measurements/ColorAccuracyForm";
 import { getSession } from "@/app/actions/session-actions";
 import { redirect } from "next/navigation";
+import { getTranslations } from 'next-intl/server';
 
 export default async function ColorAccuracyMeasurementPage({
     searchParams,
@@ -20,12 +21,14 @@ export default async function ColorAccuracyMeasurementPage({
         redirect("/");
     }
 
+    const t = await getTranslations('Measurements.colorAccuracy');
+
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">Color Accuracy</h2>
+                <h2 className="text-2xl font-bold tracking-tight">{t('title')}</h2>
                 <p className="text-muted-foreground">
-                    Measure and verify color accuracy using the Macbeth ColorChecker.
+                    {t('subtitle')}
                 </p>
             </div>
             <ColorAccuracyForm sessionId={sessionId} />

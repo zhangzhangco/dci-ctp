@@ -2,8 +2,9 @@ import { getBasicMeasurementsAction } from '@/app/actions/measurement-actions';
 import { BasicMeasurementForm } from '@/components/measurements/BasicMeasurementForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 export default async function BasicMeasurementPage({
     searchParams,
@@ -20,6 +21,8 @@ export default async function BasicMeasurementPage({
         redirect('/sessions');
     }
 
+    const t = await getTranslations('Measurements.basic');
+
     return (
         <div className="container mx-auto py-10 space-y-6">
             <div className="flex items-center gap-4">
@@ -29,9 +32,9 @@ export default async function BasicMeasurementPage({
                     </Button>
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">峰值亮度与黑位测量</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
                     <p className="text-muted-foreground">
-                        Phase 1 - Device Level Basic Capabilities
+                        {t('subtitle')}
                     </p>
                 </div>
             </div>

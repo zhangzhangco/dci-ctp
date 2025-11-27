@@ -206,5 +206,277 @@
         },
         "viewReport": "查看报告",
         "noSessions": "暂无测试会话，请先创建会话。"
+    },
+    "Measurements": {
+        "title": "测量项目",
+        "selectSession": "请先选择一个测试会话",
+        "basic": {
+            "title": "峰值亮度与黑位测量",
+            "subtitle": "Phase 1 - 设备级基础能力"
+        },
+        "uniformity": {
+            "title": "均匀性测量",
+            "subtitle": "Phase 1 - 设备级均匀性"
+        },
+        "colorVolume": {
+            "title": "色域覆盖测量",
+            "subtitle": "Phase 1 - 设备级色域 (P3)"
+        },
+        "grayscale": {
+            "title": "灰阶传递函数",
+            "subtitle": "测量并验证灰阶传递函数 (Gamma 2.6)。"
+        },
+        "colorAccuracy": {
+            "title": "色彩准确度",
+            "subtitle": "使用 Macbeth ColorChecker 测量并验证色彩准确度。"
+        }
+    },
+    "StatusCards": {
+        "overallStatus": "整体状态",
+        "completion": "完成度",
+        "items": "项",
+        "passed": "通过",
+        "issues": "问题",
+        "failed": "失败",
+        "warnings": "警告",
+        "status": {
+            "pass": "CTP 合规",
+            "fail": "CTP 不合规",
+            "warning": "CTP 警告",
+            "incomplete": "测试进行中"
+        }
+    },
+    "GrayscaleForm": {
+        "title": "灰阶与 EOTF 响应 (Grayscale & Gamma)",
+        "subtitle": "验证显示设备的灰阶追踪性能与 Gamma/EOTF 曲线符合度",
+        "description": "测量各灰阶等级的亮度，验证其与目标 EOTF 曲线的偏差。",
+        "targets": {
+            "stepsLabel": "Steps",
+            "stepsValue": "{count} Levels",
+            "standardLabel": "Standard"
+        },
+        "tabs": {
+            "whiteSteps": "White Steps (SDR)",
+            "graySteps": "Gray Steps (SDR)",
+            "hdrEotf": "HDR EOTF (PQ)"
+        },
+        "loading": "加载数据中...",
+        "dataEntry": "测量数据录入",
+        "table": {
+            "step": "Step",
+            "cv": "CV",
+            "target": "Target (cd/m²)",
+            "tolerance": "Tolerance",
+            "measured": "Measured",
+            "normL": "Norm. L",
+            "deltaL": "ΔL",
+            "result": "Result"
+        },
+        "saveButton": "保存测量数据",
+        "saving": "保存中...",
+        "saveSuccess": "数据已保存成功!",
+        "saveFail": "保存失败"
+    },
+    "SessionSelector": {
+        "label": "测试会话"
+    },
+    "DeviceSelector": {
+        "placeholder": "选择测量设备",
+        "label": "测量设备",
+        "noDevice": "未选择设备",
+        "offline": "设备离线",
+        "online": "设备在线",
+        "mock": "(模拟)",
+        "scan": "扫描新设备"
+    },
+    "SessionDetails": {
+        "title": "测试会话详情",
+        "sn": "SN",
+        "date": "测试日期",
+        "operator": "操作人员",
+        "location": "测试地点",
+        "progress": "完成进度",
+        "overallProgress": "整体进度",
+        "items": "项测试",
+        "testList": "测试项目列表",
+        "testListDesc": "根据当前的测试阶段 (Phase {phase})，您需要完成以下测量项目。",
+        "notStarted": "未开始",
+        "pass": "通过",
+        "fail": "失败",
+        "incomplete": "未完成",
+        "comingSoon": "暂未开放",
+        "locked": "暂未开放",
+        "start": "开始测试",
+        "edit": "查看/编辑",
+        "back": "返回会话列表",
+        "tests": {
+            "peak-white-black": {
+                "name": "峰值亮度与黑位",
+                "category": "基础测量"
+            },
+            "uniformity": {
+                "name": "均匀性测量",
+                "category": "基础测量"
+            },
+            "color-volume": {
+                "name": "色域覆盖测量",
+                "category": "基础测量"
+            },
+            "pixel-structure": {
+                "name": "像素结构检查",
+                "category": "基础测量"
+            },
+            "grayscale": {
+                "name": "灰阶传递函数",
+                "category": "系统性能"
+            },
+            "color-accuracy": {
+                "name": "色彩准确度",
+                "category": "系统性能"
+            },
+            "exhibition-environment": {
+                "name": "放映环境检查",
+                "category": "环境检测"
+            }
+        }
+    },
+    "ResetSessionButton": {
+        "title": "确认重置会话",
+        "description": "此操作将删除该会话的所有测量数据，但保留会话配置。此操作不可撤销。",
+        "button": "重置会话",
+        "resetting": "重置中...",
+        "success": "重置成功",
+        "failure": "重置失败："
+    },
+    "PixelStructureForm": {
+        "title": "像素结构",
+        "subtitle": "验证像素结构、填充率及无可见伪影",
+        "standardTitle": "DCI CTP 像素结构",
+        "checklist": "检查项目",
+        "notes": "备注与观察",
+        "notesPlaceholder": "记录任何观察到的异常或补充说明...",
+        "save": "保存检查结果",
+        "saving": "保存中...",
+        "success": "保存成功",
+        "failure": "保存失败"
+    },
+    "ExhibitionForm": {
+        "title": "放映环境",
+        "subtitle": "验证放映环境条件",
+        "standardTitle": "DCI CTP 放映环境",
+        "checklist": "环境检查",
+        "measurements": "测量数据",
+        "notes": "备注",
+        "save": "保存结果",
+        "saving": "保存中...",
+        "success": "保存成功",
+        "failure": "保存失败"
+    },
+    "BasicMeasurementForm": {
+        "title": "峰值亮度与黑位测量",
+        "subtitle": "验证显示设备的亮度与黑位性能",
+        "standardTitleSDR": "SDR 标准 (DCI)",
+        "standardTitleHDR": "HDR 标准 (DCI)",
+        "peakWhite": "1. 峰值亮度测量",
+        "blackLevel": "2. 黑电平测量",
+        "luminance": "亮度 (L)",
+        "chromaticityX": "色坐标 (x)",
+        "chromaticityY": "色坐标 (y)",
+        "target": "目标值",
+        "max": "最大值",
+        "judgment": "判定结果",
+        "waiting": "等待输入...",
+        "pass": "符合标准要求",
+        "fail": "超出标准范围",
+        "save": "保存测量数据",
+        "saving": "保存中...",
+        "success": "数据已保存",
+        "failure": "保存失败"
+    },
+    "UniformityForm": {
+        "title": "均匀性测量",
+        "subtitle": "测量屏幕 9 个点的亮度与色度一致性",
+        "standardTitleSDR": "SDR 标准",
+        "standardTitleHDR": "HDR 标准",
+        "luminanceDeviation": "亮度偏差 (Luminance)",
+        "chromaticityDeviation": "色度偏差 (Chromaticity)",
+        "save": "保存所有点数据",
+        "saving": "保存中...",
+        "success": "保存成功",
+        "failure": "保存失败"
+    },
+    "ColorVolumeForm": {
+        "title": "色域覆盖率 (Color Volume)",
+        "subtitle": "验证显示设备的色域覆盖范围 (P3)",
+        "standardTitleSDR": "SDR Standard (P3, DCI White)",
+        "standardTitleHDR": "HDR Standard (P3, D65 White)",
+        "description": "测量 R/G/B/White 的色坐标 (x, y) 和亮度 (Y)，计算与目标值的偏差。",
+        "loading": "加载数据中...",
+        "measurementInput": "测量数据录入",
+        "colorPatch": "色块",
+        "targetValue": "目标值 (x, y)",
+        "tolerance": "容差",
+        "measuredValue": "测量值 (x, y, Y)",
+        "deviation": "偏差 Δxy",
+        "result": "结果",
+        "redPrimary": "Red Primary",
+        "greenPrimary": "Green Primary",
+        "bluePrimary": "Blue Primary",
+        "whitePoint": "White Point",
+        "save": "保存测量数据",
+        "saving": "保存中...",
+        "success": "数据已保存成功!",
+        "partialFailure": "部分数据保存失败",
+        "failure": "保存失败",
+        "cieTitle": "CIE 1931 Diagram"
+    },
+    "ColorAccuracyForm": {
+        "title": "色彩准确度 (Color Accuracy)",
+        "subtitle": "验证 Red-1, Green-1, Blue-1 的亮度与色度准确性",
+        "standardTitleSDR": "SDR 标准",
+        "standardTitleHDR": "HDR 标准",
+        "standardTitleSDRFull": "SDR 色彩准确度",
+        "standardTitleHDRFull": "HDR 色彩准确度",
+        "loading": "加载数据中...",
+        "measurementInput": "测量数据录入",
+        "colorPatch": "色块",
+        "targetValue": "目标值 (x, y, L)",
+        "tolerance": "容差",
+        "measuredValue": "测量值 (x, y, L)",
+        "deviation": "偏差",
+        "result": "结果",
+        "save": "保存所有数据",
+        "saving": "保存中...",
+        "success": "保存成功",
+        "failure": "保存出错",
+        "cieTitle": "色彩准确度图表",
+        "reference": "(参考)",
+        "measured": "(测量)"
+    },
+    "GrayscaleChart": {
+        "logScale": "对数坐标",
+        "xAxis": {
+            "step": "级数 (Step)",
+            "cv": "码值 (CV)",
+            "normalized": "归一化 (Norm)"
+        },
+        "eotfTitle": "EOTF 追踪 (目标值 vs 测量值)",
+        "errorTitle": "亮度误差 %",
+        "axis": {
+            "stepNumber": "级数 (Step Number)",
+            "codeValue": "码值 (Code Value Y')",
+            "normalizedLuminance": "归一化亮度 (Normalized Luminance)",
+            "luminance": "亮度 (Luminance cd/m²)",
+            "error": "误差 (Error %)"
+        },
+        "legend": {
+            "tolMax": "容差上限",
+            "tolMin": "容差下限",
+            "target": "目标值",
+            "measured": "测量值",
+            "tolerancePlus": "容差 (+)",
+            "toleranceMinus": "容差 (-)",
+            "error": "误差 %"
+        }
     }
 }

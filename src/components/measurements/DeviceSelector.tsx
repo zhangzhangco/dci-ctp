@@ -14,9 +14,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Circle, RefreshCw } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 export function DeviceSelector() {
     const { devices, currentDevice, isConnected, selectDevice, scanDevices } = useMeasurementDevice();
     const [isScanning, setIsScanning] = useState(false);
+    const t = useTranslations('DeviceSelector');
 
     const handleDeviceChange = async (deviceId: string) => {
         try {
@@ -43,9 +46,9 @@ export function DeviceSelector() {
     };
 
     const getStatusText = () => {
-        if (!currentDevice) return '未选择设备';
-        if (!isConnected) return '设备离线';
-        return '设备在线';
+        if (!currentDevice) return t('noDevice');
+        if (!isConnected) return t('offline');
+        return t('online');
     };
 
     return (
@@ -64,11 +67,11 @@ export function DeviceSelector() {
                 onValueChange={handleDeviceChange}
             >
                 <SelectTrigger className="w-[200px] sm:w-[250px]">
-                    <SelectValue placeholder="选择测量设备" />
+                    <SelectValue placeholder={t('placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
-                        <SelectLabel>测量设备</SelectLabel>
+                        <SelectLabel>{t('label')}</SelectLabel>
                         {devices.map((device) => (
                             <SelectItem key={device.id} value={device.id}>
                                 <div className="flex items-center gap-2">
@@ -78,7 +81,7 @@ export function DeviceSelector() {
                                     />
                                     <span>{device.name}</span>
                                     {device.isMock && (
-                                        <span className="text-xs text-muted-foreground">(模拟)</span>
+                                        <span className="text-xs text-muted-foreground">{t('mock')}</span>
                                     )}
                                 </div>
                             </SelectItem>
@@ -93,7 +96,7 @@ export function DeviceSelector() {
                 size="icon"
                 onClick={handleScan}
                 disabled={isScanning}
-                title="扫描新设备"
+                title={t('scan')}
             >
                 <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
             </Button>
