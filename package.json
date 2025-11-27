@@ -93,6 +93,10 @@
         "AppImage"
       ],
       "category": "Development"
+    },
+    "artifactName": "${productName}.${ext}",
+    "nsis": {
+      "artifactName": "${productName} Setup.${ext}"
     }
   }
 }
