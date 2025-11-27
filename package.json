@@ -72,31 +72,11 @@
     "files": [
       "electron/**/*",
       "package.json",
-      ".next/standalone/**/*",
-      ".next/static/**/*",
+      ".next/**/*",
+      "!**/.next/cache/**",
       "public/**/*"
     ],
-    "extraResources": [
-      {
-        "from": ".next",
-        "to": "app/.next"
-      },
-      {
-        "from": "public",
-        "to": "app/public"
-      },
-      {
-        "from": "package.json",
-        "to": "app/package.json"
-      },
-      {
-        "from": "node_modules",
-        "to": "app/node_modules",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
+    "extraResources": [],
     "mac": {
       "target": [
         "dmg"
