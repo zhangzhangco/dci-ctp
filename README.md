@@ -62,14 +62,10 @@
 
 ### 本地化界面 (Localized Interface)
 #### 色彩准确度 (Color Accuracy)
-![色彩准确度](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/color_accuracy_zh_1764209971832.png)
+![色彩准确度](public/images/color-accuracy-zh.png)
 
 #### 灰阶传递函数 (Grayscale)
-**中文 (Chinese)**
-![灰阶传递函数 (中文)](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/grayscale_zh_legend_fix_v2_1764214209967.png)
-
-**English**
-![Grayscale (English)](/Users/zhangxin/.gemini/antigravity/brain/136ded84-9331-454f-acb3-d4e79a654fb0/grayscale_en_legend_fix_v2_1764214298814.png)
+![灰阶传递函数](public/images/grayscale-zh.png)
 
 ## 免责声明 (Disclaimer)
 
@@ -122,6 +118,15 @@ The tool aims to provide automated measurement and compliance verification for d
 ### Test Interface
 *(Insert Test Interface Screenshot Here)*
 ![Test Interface](public/images/test-interface-en.png)
+
+### Localized Interface
+#### Color Accuracy
+![Color Accuracy](public/images/color-accuracy-en.png)
+
+#### Grayscale
+![Grayscale](public/images/grayscale-en.png)
+
+
 
 ## Disclaimer
 
