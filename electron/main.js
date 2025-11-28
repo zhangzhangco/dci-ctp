@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -17,7 +17,7 @@ if (!isDev) {
 app.disableHardwareAcceleration();
 
 function startNextServer() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         if (isDev) {
             // 开发模式：假设外部已运行 npm run dev
             resolve();
@@ -25,17 +25,51 @@ function startNextServer() {
         }
 
         // 生产模式：启动 Next.js 服务器
-        const nextBin = path.join(process.resourcesPath, 'app', 'node_modules', '.bin', 'next');
+        // 使用 process.execPath (Electron 可执行文件) 作为 Node 运行时
+        // 设置 ELECTRON_RUN_AS_NODE 环境变量
+        const nextScript = path.join(process.resourcesPath, 'app', 'node_modules', 'next', 'dist', 'bin', 'next');
         const appPath = path.join(process.resourcesPath, 'app');
 
-        nextProcess = spawn(nextBin, ['start', '-p', port], {
+        console.log('Starting Next.js server from:', nextScript);
+
+        nextProcess = spawn(process.execPath, [nextScript, 'start', '-p', port], {
             cwd: appPath,
-            env: { ...process.env, NODE_ENV: 'production' },
+            env: { ...process.env, NODE_ENV: 'production', ELECTRON_RUN_AS_NODE: '1' },
             stdio: 'inherit'
         });
 
-        // 等待服务器启动
-        setTimeout(() => resolve(), 3000);
+        nextProcess.on('error', (err) => {
+            console.error('Failed to start Next.js server:', err);
+            reject(err);
+        });
+
+        nextProcess.on('exit', (code, signal) => {
+            if (code !== 0) {
+                console.error(`Next.js server exited with code ${code} and signal ${signal}`);
+                // 如果服务器意外退出，可能需要拒绝 promise 或处理错误
+            }
+        });
+
+        // 轮询检查服务器是否准备就绪
+        const checkServer = async () => {
+            try {
+                const response = await fetch(`http://localhost:${port}`);
+                if (response.ok) {
+                    resolve();
+                } else {
+                    setTimeout(checkServer, 500);
+                }
+            } catch (e) {
+                setTimeout(checkServer, 500);
+            }
+        };
+
+        // 设置超时
+        const timeout = setTimeout(() => {
+            reject(new Error('Next.js server start timeout'));
+        }, 30000); // 30秒超时
+
+        checkServer().then(() => clearTimeout(timeout));
     });
 }
 
@@ -64,8 +98,14 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-    await startNextServer();
-    createWindow();
+    try {
+        await startNextServer();
+        createWindow();
+    } catch (error) {
+        console.error('Failed to create window:', error);
+        dialog.showErrorBox('Error', `Failed to start application server: ${error.message}`);
+        app.quit();
+    }
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
