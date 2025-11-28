@@ -95,8 +95,8 @@ export function PixelStructureForm({ sessionId }: PixelStructureFormProps) {
                 reference: PIXEL_STRUCTURE_SPEC.reference,
                 description: PIXEL_STRUCTURE_SPEC.description,
                 targets: PIXEL_STRUCTURE_SPEC.items.map(item => ({
-                    label: item.label,
-                    value: item.requirement,
+                    label: t(`${item.id}.label`),
+                    value: t(`${item.id}.requirement`),
                 }))
             }}
         >

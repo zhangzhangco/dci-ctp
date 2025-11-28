@@ -154,7 +154,7 @@ export function ExhibitionForm({ sessionId }: ExhibitionFormProps) {
                                                     <Input type="number" step="0.01" {...field} />
                                                 </FormControl>
                                                 <div className="text-xs text-muted-foreground">
-                                                    Target: {item.min ? `${item.min} - ` : ''}{item.max}
+                                                    {t('target')}: {item.min ? `${item.min} - ` : ''}{item.max}
                                                 </div>
                                                 <FormMessage />
                                             </FormItem>

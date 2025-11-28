@@ -391,38 +391,38 @@
     },
     "PixelStructureForm": {
         "title": "Pixel Structure",
-        "subtitle": "Verify pixel structure, fill factor and artifacts",
+        "subtitle": "Verify pixel structure, fill factor, and absence of visible artifacts",
         "standardTitle": "DCI CTP Pixel Structure",
         "checklist": "Checklist",
         "notes": "Notes & Observations",
-        "notesPlaceholder": "Record any anomalies or additional notes...",
+        "notesPlaceholder": "Record any observed anomalies or additional notes...",
         "save": "Save Results",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Failed to save",
+        "failure": "Save failed",
+        "requirement": "Requirement:",
+        "pass": "Pass",
+        "fail": "Fail",
         "fillFactor": {
             "label": "Fill Factor",
-            "description": "The ratio of the active light-emitting area to the total pixel area.",
-            "requirement": "≥ 90% (or as specified by manufacturer)"
+            "description": "Verify pixel fill factor meets requirements",
+            "requirement": "Meets DCI Spec"
         },
         "pixelPitch": {
             "label": "Pixel Pitch",
-            "description": "Verify the pixel pitch matches the manufacturer's specification.",
-            "requirement": "Documented"
+            "description": "Verify pixel pitch matches nominal value",
+            "requirement": "Matches Spec"
         },
         "subPixelStructure": {
             "label": "Sub-Pixel Structure",
-            "description": "Verify sub-pixel arrangement does not cause visible color fringing at reference viewing distance.",
-            "requirement": "No Color Fringing"
+            "description": "Verify sub-pixel arrangement is normal",
+            "requirement": "R/G/B Normal"
         },
         "visualArtifacts": {
             "label": "Visual Artifacts",
-            "description": "No visible screen door effect, moiré, or other artifacts at reference viewing distance.",
-            "requirement": "None Visible"
-        },
-        "pass": "PASS",
-        "fail": "FAIL",
-        "requirement": "Requirement: "
+            "description": "Check for visible visual artifacts",
+            "requirement": "No Visible Artifacts"
+        }
     },
     "VignettingForm": {
         "title": "Vignetting",
@@ -446,21 +446,22 @@
         "title": "Exhibition Environment",
         "subtitle": "Verify exhibition environment conditions",
         "standardTitle": "DCI CTP Exhibition Environment",
-        "standardDescription": "Verify the auditorium environment meets DCI specifications for projection.",
-        "checklist": "Environment Checklist",
-        "measurements": "Measurement Data",
+        "checklist": "Environment Check",
+        "measurements": "Measurements",
         "notes": "Notes",
         "save": "Save Results",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Failed to save",
+        "failure": "Save failed",
+        "standardDescription": "Verify auditorium environment meets DCI exhibition specifications.",
+        "target": "Target",
         "ambientLight": {
             "label": "Ambient Light",
             "description": "Ambient light on screen is negligible (< 0.03 cd/m²)"
         },
         "masking": {
             "label": "Screen Masking",
-            "description": "Masking is properly aligned and absorbs light"
+            "description": "Masking is properly aligned and light absorbent"
         },
         "portWindow": {
             "label": "Port Window",
@@ -474,10 +475,10 @@
             "label": "Ambient Light Level"
         },
         "temperature": {
-            "label": "Booth Temperature"
+            "label": "Auditorium Temperature"
         },
         "humidity": {
-            "label": "Booth Humidity"
+            "label": "Auditorium Humidity"
         }
     },
     "BasicMeasurementForm": {
@@ -502,8 +503,8 @@
         "failure": "Failed to save"
     },
     "UniformityForm": {
-        "title": "Screen Uniformity",
-        "subtitle": "Measure luminance and chromaticity consistency at 9 points",
+        "title": "Uniformity Measurement",
+        "subtitle": "Measure luminance and chromaticity consistency across 9 points",
         "standardTitleSDR": "SDR Standard",
         "standardTitleHDR": "HDR Standard",
         "luminanceDeviation": "Luminance Deviation",
@@ -511,7 +512,19 @@
         "save": "Save All Points",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Failed to save"
+        "failure": "Save failed",
+        "relativeToCenter": "Relative to Center",
+        "positions": {
+            "TopLeft": "Top Left",
+            "TopCenter": "Top Center",
+            "TopRight": "Top Right",
+            "LeftCenter": "Left Center",
+            "Center": "Center",
+            "RightCenter": "Right Center",
+            "BottomLeft": "Bottom Left",
+            "BottomCenter": "Bottom Center",
+            "BottomRight": "Bottom Right"
+        }
     },
     "ColorVolumeForm": {
         "title": "Color Volume",
@@ -755,11 +768,11 @@
         "failure": "Failed to save"
     },
     "InactiveAreaForm": {
-        "title": "Inactive Area Black",
-        "subtitle": "Verify black level performance in inactive areas",
+        "title": "Inactive Area Black Level",
+        "subtitle": "Verify black level performance of inactive areas",
         "standardTitleSDR": "SDR Inactive Area",
         "standardTitleHDR": "HDR Inactive Area",
-        "checklist": "Border Check",
+        "checklist": "Border Checks",
         "topBorder": "Top Border",
         "bottomBorder": "Bottom Border",
         "leftBorder": "Left Border",
@@ -771,7 +784,13 @@
         "save": "Save Results",
         "saving": "Saving...",
         "success": "Saved successfully",
-        "failure": "Save failed"
+        "failure": "Save failed",
+        "requirement": "Requirement",
+        "maxLuminance": "Max Luminance",
+        "borderChecks": "Border Checks",
+        "noLightEmission": "No Light Emission",
+        "measurement": "Measurement",
+        "maxMeasuredLuminance": "Max Measured Luminance"
     },
     "IntraContrastForm": {
         "title": "Intra-Frame Contrast",

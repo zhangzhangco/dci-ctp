@@ -383,7 +383,30 @@
         "save": "保存检查结果",
         "saving": "保存中...",
         "success": "保存成功",
-        "failure": "保存失败"
+        "failure": "保存失败",
+        "requirement": "要求：",
+        "pass": "通过",
+        "fail": "失败",
+        "fillFactor": {
+            "label": "填充因子",
+            "description": "验证像素填充因子符合要求",
+            "requirement": "符合 DCI 规范"
+        },
+        "pixelPitch": {
+            "label": "像素间距",
+            "description": "验证像素间距符合标称值",
+            "requirement": "符合规格书"
+        },
+        "subPixelStructure": {
+            "label": "子像素结构",
+            "description": "验证子像素排列无异常",
+            "requirement": "R/G/B 排列正常"
+        },
+        "visualArtifacts": {
+            "label": "视觉伪影",
+            "description": "检查是否存在可见的视觉伪影",
+            "requirement": "无可见伪影"
+        }
     },
     "ExhibitionForm": {
         "title": "放映环境",
@@ -397,6 +420,7 @@
         "success": "保存成功",
         "failure": "保存失败",
         "standardDescription": "验证观影厅环境符合 DCI 放映规范要求。",
+        "target": "目标",
         "ambientLight": {
             "label": "环境光",
             "description": "屏幕上的环境光可忽略不计 (< 0.03 cd/m²)"
@@ -454,7 +478,19 @@
         "save": "保存所有点数据",
         "saving": "保存中...",
         "success": "保存成功",
-        "failure": "保存失败"
+        "failure": "保存失败",
+        "relativeToCenter": "相对于中心点",
+        "positions": {
+            "TopLeft": "左上",
+            "TopCenter": "中上",
+            "TopRight": "右上",
+            "LeftCenter": "左中",
+            "Center": "中心",
+            "RightCenter": "右中",
+            "BottomLeft": "左下",
+            "BottomCenter": "中下",
+            "BottomRight": "右下"
+        }
     },
     "ColorVolumeForm": {
         "title": "色域覆盖率 (Color Volume)",
@@ -744,7 +780,13 @@
         "save": "保存结果",
         "saving": "保存中...",
         "success": "保存成功",
-        "failure": "保存失败"
+        "failure": "保存失败",
+        "requirement": "要求",
+        "maxLuminance": "最大亮度",
+        "borderChecks": "边框检查",
+        "noLightEmission": "无发光",
+        "measurement": "测量",
+        "maxMeasuredLuminance": "最大测量亮度"
     },
     "IntraContrastForm": {
         "title": "帧内对比度",

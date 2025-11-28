@@ -152,7 +152,7 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
         return (
             <div key={pos} className={`border p-3 rounded-md space-y-2 ${isValid ? 'border-gray-200 dark:border-gray-800' : 'border-red-300 bg-red-50 dark:bg-red-900/10'}`}>
                 <div className="flex justify-between items-center mb-1">
-                    <div className="font-medium text-sm">{pos}</div>
+                    <div className="font-medium text-sm">{t(`positions.${pos}`)}</div>
                     <div className="flex items-center gap-2">
                         <MeasureButton
                             size="icon"
@@ -243,12 +243,12 @@ export function UniformityForm({ sessionId, initialData }: UniformityFormProps) 
                 targets: [
                     {
                         label: t('luminanceDeviation'),
-                        value: "Relative to Center",
+                        value: t('relativeToCenter'),
                         tolerance: `±${spec.luminanceTolerance * 100}%`
                     },
                     {
                         label: t('chromaticityDeviation'),
-                        value: "Relative to Center",
+                        value: t('relativeToCenter'),
                         tolerance: `Radius < ${spec.chromaticityTolerance}`
                     }
                 ]
