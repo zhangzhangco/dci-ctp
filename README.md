@@ -38,9 +38,10 @@
 > 当前版本为开发预览版。
 > Current version is a development preview.
 
-- **macOS (Apple Silicon)**: [DCI CTP.dmg](https://github.com/zhangzhangco/dci-ctp/releases/latest/download/DCI%20CTP.dmg)
-- **Windows**: [DCI CTP Setup.exe](https://github.com/zhangzhangco/dci-ctp/releases/latest/download/DCI%20CTP%20Setup.exe)
-- **Linux**: [DCI CTP.AppImage](https://github.com/zhangzhangco/dci-ctp/releases/latest/download/DCI%20CTP.AppImage)
+- **Download Latest Version**: [GitHub Releases](https://github.com/zhangzhangco/dci-ctp/releases)
+  - **macOS**: `DCI CTP.dmg`
+  - **Windows**: `DCI CTP Setup.exe`
+  - **Linux**: `DCI CTP.AppImage`
 
 > [!NOTE]
 > 这些链接指向最新发布的版本。
