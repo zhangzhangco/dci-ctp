@@ -1,6 +1,7 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const fs = require('fs');
 
 const isDev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3000;
@@ -25,28 +26,42 @@ function startNextServer() {
         }
 
         // 生产模式：启动 Next.js 服务器
-        // 使用 process.execPath (Electron 可执行文件) 作为 Node 运行时
-        // 设置 ELECTRON_RUN_AS_NODE 环境变量
         const nextScript = path.join(process.resourcesPath, 'app', 'node_modules', 'next', 'dist', 'bin', 'next');
         const appPath = path.join(process.resourcesPath, 'app');
 
+        // 检查脚本是否存在
+        if (!fs.existsSync(nextScript)) {
+            reject(new Error(`Next.js script not found at: ${nextScript}\nResources Path: ${process.resourcesPath}`));
+            return;
+        }
+
         console.log('Starting Next.js server from:', nextScript);
+
+        let startupLog = '';
+        const appendLog = (data) => {
+            console.log('[Next.js]', data.toString()); // 输出到主进程控制台
+            startupLog += data.toString();
+            if (startupLog.length > 2000) startupLog = startupLog.slice(-2000); // 保留最后 2000 字符
+        };
 
         nextProcess = spawn(process.execPath, [nextScript, 'start', '-p', port], {
             cwd: appPath,
             env: { ...process.env, NODE_ENV: 'production', ELECTRON_RUN_AS_NODE: '1' },
-            stdio: 'inherit'
+            stdio: ['ignore', 'pipe', 'pipe'] // 捕获输出
         });
+
+        nextProcess.stdout.on('data', appendLog);
+        nextProcess.stderr.on('data', appendLog);
 
         nextProcess.on('error', (err) => {
             console.error('Failed to start Next.js server:', err);
-            reject(err);
+            reject(new Error(`Failed to spawn Next.js: ${err.message}\nLogs:\n${startupLog}`));
         });
 
         nextProcess.on('exit', (code, signal) => {
             if (code !== 0) {
                 console.error(`Next.js server exited with code ${code} and signal ${signal}`);
-                // 如果服务器意外退出，可能需要拒绝 promise 或处理错误
+                reject(new Error(`Next.js exited with code ${code}.\nLogs:\n${startupLog}`));
             }
         });
 
@@ -66,7 +81,7 @@ function startNextServer() {
 
         // 设置超时
         const timeout = setTimeout(() => {
-            reject(new Error('Next.js server start timeout'));
+            reject(new Error(`Next.js server start timeout (30s).\nLogs:\n${startupLog}`));
         }, 30000); // 30秒超时
 
         checkServer().then(() => clearTimeout(timeout));
